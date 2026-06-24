@@ -1,0 +1,8 @@
+{"name": "The Alchemist", "price": 29900, "stock": 15, "type": "book", "metadata": {"author": "Paulo Coelho"}}
+{"name": "To Kill a Mockingbird", "price": 39900, "stock": 8, "type": "book", "metadata": {"author": "Harper Lee"}}
+{"name": "Oversized Black Hoodie", "price": 149900, "stock": 25, "type": "clothes", "metadata": {"size": "XL", "color": "Black"}}
+{"name": "Slim Fit Denim Jeans", "price": 199900, "stock": 0, "type": "clothes", "metadata": {"size": "L", "color": "Blue"}}
+{"name": "Classic White Tee", "price": 49900, "stock": 50, "type": "clothes", "metadata": {"size": "M", "color": "White"}}
+
+Paste in terminal:
+pnpm dlx convex import --table [tableName] sampleData.jsonl

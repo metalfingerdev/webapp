@@ -1,0 +1,143 @@
+{
+	"name": "store",
+	"author": "mfdev",
+	"version": "0.8.0",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/aggarwalkart/webapp.git"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"scripts": {
+		"cleanse": "pnpm format && pnpm lint && pnpm check && pnpm test && pnpm build",
+		"dev:frontend": "vite dev",
+		"dev:backend": "pnpm dlx convex dev",
+		"dev": "concurrently --kill-others --prefix-colors \"red,yellow\" --names \"svelte,convex\" \"pnpm dev:frontend\" \"pnpm dev:backend\"",
+		"build": "vite build && pnpm package",
+		"preview": "vite preview",
+		"prepare": "svelte-kit sync || echo ''",
+		"package": "svelte-kit sync && svelte-package",
+		"prepack": "pnpm package",
+		"lint:package": "mkdir -p /tmp/store-pack && pnpm pack --pack-destination /tmp/store-pack && publint /tmp/store-pack/store-$npm_package_version.tgz",
+		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+		"format": "prettier --write .",
+		"lint": "prettier --check . && eslint .",
+		"test:unit": "vitest run",
+		"test:e2e": "playwright test",
+		"test:e2e:ui": "playwright test --ui",
+		"test": "pnpm test:unit && pnpm test:e2e",
+		"setup:test-user": "pnpm dlx tsx scripts/setup-test-user.ts",
+		"setup:test-browsers": "pnpm exec playwright install",
+		"setup": "pnpm setup:test-user && pnpm setup:test-browsers",
+		"changeset": "changeset",
+		"version-packages": "changeset version",
+		"release": "changeset publish && git push --follow-tags"
+	},
+	"files": [
+		"dist/svelte",
+		"dist/sveltekit",
+		"!dist/**/*.test.*",
+		"!dist/**/*.spec.*"
+	],
+	"sideEffects": [
+		"**/*.css"
+	],
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./dist/svelte/index.d.ts",
+			"svelte": "./dist/svelte/index.js",
+			"import": "./dist/svelte/index.js",
+			"default": "./dist/svelte/index.js"
+		},
+		"./svelte": {
+			"types": "./dist/svelte/index.d.ts",
+			"svelte": "./dist/svelte/index.js",
+			"import": "./dist/svelte/index.js",
+			"default": "./dist/svelte/index.js"
+		},
+		"./sveltekit": {
+			"types": "./dist/sveltekit/index.d.ts",
+			"import": "./dist/sveltekit/index.js",
+			"default": "./dist/sveltekit/index.js"
+		}
+	},
+	"peerDependencies": {
+		"@convex-dev/better-auth": ">=0.10.10",
+		"@sveltejs/kit": ">=2.0.0",
+		"better-auth": "^1.4.9",
+		"convex": "^1.31.0",
+		"convex-svelte": ">=0.13.0",
+		"svelte": "^5.0.0"
+	},
+	"devDependencies": {
+		"@changesets/cli": "^2.29.8",
+		"@convex-dev/better-auth": "^0.12.2",
+		"@convex-dev/eslint-plugin": "^2.0.0",
+		"@eslint/compat": "^2.1.0",
+		"@eslint/js": "^10.0.1",
+		"@playwright/test": "^1.60.0",
+		"@sveltejs/adapter-auto": "^7.0.1",
+		"@sveltejs/kit": "^2.64.0",
+		"@sveltejs/package": "^2.5.8",
+		"@sveltejs/vite-plugin-svelte": "^7.1.2",
+		"@tailwindcss/forms": "^0.5.11",
+		"@tailwindcss/vite": "^4.3.0",
+		"@types/node": "^25.9.2",
+		"@vitest/browser": "^4.1.8",
+		"better-auth": "1.6.15",
+		"concurrently": "^10.0.3",
+		"convex": "1.40.0",
+		"convex-svelte": "^0.13.0",
+		"dotenv": "^17.4.2",
+		"eslint": "^10.4.1",
+		"eslint-config-prettier": "^10.1.8",
+		"eslint-plugin-svelte": "^3.19.0",
+		"globals": "^17.6.0",
+		"jsdom": "^29.1.1",
+		"playwright": "^1.60.0",
+		"prettier": "^3.8.3",
+		"prettier-plugin-svelte": "^4.1.0",
+		"prettier-plugin-tailwindcss": "^0.8.0",
+		"publint": "^0.3.21",
+		"svelte": "^5.56.3",
+		"svelte-check": "^4.6.0",
+		"svelte-eslint-parser": "^1.8.0",
+		"tailwindcss": "^4.3.0",
+		"tsx": "^4.22.4",
+		"typescript": "^6.0.3",
+		"typescript-eslint": "^8.61.0",
+		"vite": "^8.0.16",
+		"vite-plugin-devtools-json": "^1.0.0",
+		"vitest": "^4.1.8",
+		"vitest-browser-svelte": "^2.1.1"
+	},
+	"keywords": [
+		"svelte"
+	],
+	"pnpm": {
+		"onlyBuiltDependencies": [
+			"esbuild"
+		],
+		"peerDependencyRules": {
+			"ignoreMissing": [
+				"vite"
+			],
+			"allowAny": [
+				"vite"
+			]
+		}
+	},
+	"dependencies": {
+		"@lucide/svelte": "^1.21.0",
+		"bits-ui": "^2.18.1",
+		"convex-test": "^0.0.53",
+		"is-network-error": "^1.3.2",
+		"razorpay": "^2.9.6",
+		"resend": "^6.14.0",
+		"xlsx": "^0.18.5"
+	}
+}
