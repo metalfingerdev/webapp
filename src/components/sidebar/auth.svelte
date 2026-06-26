@@ -9,13 +9,14 @@
 		signInWithGoogle
 	} from '$lib/authentication/auth-flow.js';
 	import { api } from '$convex/_generated/api.js';
-	import { useQuery } from 'convex-svelte';
+	import { useQuery, useConvexClient } from 'convex-svelte';
 	import { useAuth } from '$lib/svelte/index.js';
 
 	let { data } = $props();
 
 	const sidebar = useSidebar();
 	const auth = useAuth();
+	const convex = useConvexClient();
 
 	const currentUser = useQuery(
 		api.auth.getCurrentUser,
@@ -42,11 +43,13 @@
 		sidebar.resolveAuth();
 	}
 
-	// Full reset — clears everything, lands on sign-in
-	function reset() {
-		isSignIn = true;
+	// Toggle between Sign In and Sign Up. Keeps the typed name/email so switching
+	// modes doesn't wipe what the user already entered; clears transient fields.
+	function toggleMode() {
+		isSignIn = !isSignIn;
 		step = 'credentials';
-		name = email = password = otp = '';
+		password = '';
+		otp = '';
 		error = null;
 	}
 
@@ -65,6 +68,26 @@
 			if (isSignIn) {
 				await signInWithEmail(authClient, { email, password, onSuccess: afterAuth, onError });
 			} else {
+				// Industry-standard: don't let signup silently land on an existing
+				// account. If the email is already registered, route the user to
+				// their real method instead of creating/verifying anything. The
+				// check is best-effort — if it fails we fall through to signup,
+				// which the server already handles safely.
+				let existing: { exists: boolean; hasGoogle: boolean; hasPassword: boolean } | null = null;
+				try {
+					existing = await convex.query(api.auth.accountForEmail, { email });
+				} catch {
+					existing = null;
+				}
+				if (existing?.exists) {
+					onError(
+						existing.hasGoogle && !existing.hasPassword
+							? 'You already have an account with Google. Use “Continue with Google” to sign in.'
+							: 'An account with this email already exists. Switch to “Have an account? Sign in”.'
+					);
+					return;
+				}
+
 				await signUpWithEmail(authClient, {
 					name,
 					email,
@@ -164,7 +187,7 @@
 		<button type="button" disabled={loading} onclick={handleGoogleSignIn}>
 			Continue with Google
 		</button>
-		<button type="button" onclick={reset}>
+		<button type="button" onclick={toggleMode}>
 			{isSignIn ? 'No account? Sign up' : 'Have an account? Sign in'}
 		</button>
 	</form>

@@ -52,16 +52,18 @@ export async function signUpWithEmail(client: Client, params: SignUpParams) {
 }
 
 export async function verifyOtpAndSignIn(client: Client, params: VerifyOtpParams) {
-	const { error: verifyError } = await client.emailOtp.verifyEmail({
+	const { error } = await client.emailOtp.verifyEmail({
 		email: params.email,
 		otp: params.otp
 	});
-	if (verifyError) {
-		params.onError(verifyError.message ?? 'Verification failed.');
+	if (error) {
+		params.onError(error.message ?? 'Verification failed.');
 		return;
 	}
 
-	await signInWithEmail(client, params);
+	// autoSignInAfterVerification (auth.ts) means the session is created by the
+	// verify call itself — we're signed in, so just resolve.
+	params.onSuccess();
 }
 
 export async function signOut(client: Client, onError: (message: string) => void) {

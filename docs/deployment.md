@@ -41,12 +41,13 @@ Secrets live in **two** places. Never commit them (see `.env.example` for local)
 
 ### Convex (backend functions — set in the Convex dashboard)
 
-| Variable                                    | Used by                                                              |
-| ------------------------------------------- | -------------------------------------------------------------------- |
-| `SITE_URL`                                  | Better Auth `baseURL` (`auth.ts`) — must be your real production URL |
-| `RESEND_API_KEY`                            | Sending OTP / transactional email                                    |
-| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google social login                                                  |
-| `RAZORPAY_KEY_ID` / `RAZORPAY_KEY_SECRET`   | Real payments (when enabled)                                         |
+| Variable                                    | Used by                                                                                            |
+| ------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `SITE_URL`                                  | Better Auth `baseURL` (`auth.ts`) — must be your real production URL                               |
+| `RESEND_API_KEY`                            | Sending OTP / transactional email                                                                  |
+| `EMAIL_FROM`                                | OTP sender address — must be on a Resend-verified domain (not the `onboarding@resend.dev` sandbox) |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google social login                                                                                |
+| `RAZORPAY_KEY_ID` / `RAZORPAY_KEY_SECRET`   | Real payments (when enabled)                                                                       |
 
 ## 3. Pre-launch checklist (close these before real orders)
 
@@ -60,12 +61,16 @@ Ordered by importance.
 2. **Seed the `settings` table** in production. Pricing falls back to
    `DEFAULT_SETTINGS` otherwise; run the seed from `src/convex/seed.ts` and confirm
    the client's real GST/shipping numbers.
-3. **Use a verified email domain.** `auth.ts` sends from `onboarding@resend.dev`
-   (Resend's sandbox). Verify your domain in Resend and update the `from` address,
-   or OTP/verification mail won't reach real users reliably.
-4. **Harden auth.** Set the production `SITE_URL`, configure Google OAuth prod
-   credentials + redirect URIs, and decide whether to require email verification
-   (`requireEmailVerification` is `false` today).
+3. **Use a verified email domain.** `auth.ts` sends from `EMAIL_FROM` (falling
+   back to Resend's sandbox `onboarding@resend.dev`, which only delivers to your
+   own account email). Verify a domain you own in Resend, then set `EMAIL_FROM`
+   to an address on it (e.g. `verify@yourdomain.com`) on each Convex deployment,
+   or OTP/verification mail won't reach real users. Email sign-in is now gated on
+   verification (`requireEmailVerification: true`), so unverified users can't sign in.
+4. **Harden auth.** Set the production `SITE_URL` and configure Google OAuth prod
+   credentials + redirect URIs. Email verification is already required
+   (`requireEmailVerification: true`); OAuth-only users can add a password from
+   the profile page (`setMyPassword`).
 5. **Verify roles.** Ensure the right admin emails exist in `userRoles` so the
    dashboard is reachable by you and locked for everyone else.
 

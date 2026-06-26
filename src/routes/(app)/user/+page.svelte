@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { api } from '$convex/_generated/api.js';
 	import { authClient } from '$lib/authentication/auth-client.js';
-	import { useQuery, useMutation, usePaginatedQuery } from 'convex-svelte';
+	import { useQuery, useMutation, usePaginatedQuery, useAction } from 'convex-svelte';
+	import { ConvexError } from 'convex/values';
 	import type { Id } from '$convex/_generated/dataModel.js';
 
 	let expandedOrderId = $state<Id<'orders'> | null>(null);
@@ -13,6 +14,11 @@
 	let newState = $state('');
 	let newStreet = $state('');
 	let newPincode = $state('');
+
+	let newPassword = $state('');
+	let confirmPassword = $state('');
+	let passwordPending = $state(false);
+	let passwordFeedback = $state<{ type: 'success' | 'error'; msg: string } | null>(null);
 
 	let isSaving = $state(false);
 	let imageError = $state(false);
@@ -32,6 +38,8 @@
 	}>(null);
 
 	const userQuery = useQuery(api.auth.getCurrentUser);
+	const authMethodsQuery = useQuery(api.auth.myAuthMethods);
+	const setPassword = useAction(api.auth.setMyPassword);
 	const addAddress = useMutation(api.profile.addAddress);
 	const addressesQuery = useQuery(api.profile.listMyAddresses);
 	const updateAddress = useMutation(api.profile.updateAddress);
@@ -67,6 +75,40 @@
 			};
 		} finally {
 			isSaving = false;
+		}
+	}
+
+	async function handleSetPassword(e: SubmitEvent) {
+		e.preventDefault();
+		passwordFeedback = null;
+		if (newPassword.length < 8) {
+			passwordFeedback = { type: 'error', msg: 'Password must be at least 8 characters.' };
+			return;
+		}
+		if (newPassword !== confirmPassword) {
+			passwordFeedback = { type: 'error', msg: 'Passwords do not match.' };
+			return;
+		}
+		passwordPending = true;
+		try {
+			await setPassword({ newPassword });
+			passwordFeedback = {
+				type: 'success',
+				msg: 'Password set. You can now sign in with email and password too.'
+			};
+			newPassword = confirmPassword = '';
+		} catch (error) {
+			passwordFeedback = {
+				type: 'error',
+				msg:
+					error instanceof ConvexError
+						? String(error.data)
+						: error instanceof Error
+							? error.message
+							: 'Failed to set password.'
+			};
+		} finally {
+			passwordPending = false;
 		}
 	}
 
@@ -218,6 +260,62 @@
 					<p class="feedback-banner {profileFeedback.type}">{profileFeedback.msg}</p>
 				{/if}
 			</form>
+		</section>
+
+		<hr class="divider" />
+
+		<!-- ─── Password ────────────────────────────────────────────────────── -->
+		<section class="panel-section">
+			<header class="section-header">
+				<h2>Password</h2>
+			</header>
+
+			{#if authMethodsQuery.isLoading}
+				<p class="status-msg">Loading...</p>
+			{:else if authMethodsQuery.data?.hasPassword}
+				<p class="status-msg">
+					Your account has a password — you can sign in with email and password.
+				</p>
+			{:else}
+				<p class="status-msg">
+					{authMethodsQuery.data?.hasGoogle ? 'You currently sign in with Google. ' : ''}Add a
+					password to also sign in with your email.
+				</p>
+				<form onsubmit={handleSetPassword} class="utility-form">
+					<div class="input-row">
+						<label for="new-password">New Password</label>
+						<input
+							type="password"
+							id="new-password"
+							bind:value={newPassword}
+							placeholder="At least 8 characters"
+							autocomplete="new-password"
+							minlength="8"
+							required
+						/>
+					</div>
+					<div class="input-row">
+						<label for="confirm-password">Confirm Password</label>
+						<input
+							type="password"
+							id="confirm-password"
+							bind:value={confirmPassword}
+							placeholder="Re-enter password"
+							autocomplete="new-password"
+							minlength="8"
+							required
+						/>
+					</div>
+					<div class="action-row">
+						<button type="submit" class="save-btn" disabled={passwordPending}>
+							{passwordPending ? 'Setting...' : 'Set Password'}
+						</button>
+					</div>
+					{#if passwordFeedback}
+						<p class="feedback-banner {passwordFeedback.type}">{passwordFeedback.msg}</p>
+					{/if}
+				</form>
+			{/if}
 		</section>
 
 		<hr class="divider" />
