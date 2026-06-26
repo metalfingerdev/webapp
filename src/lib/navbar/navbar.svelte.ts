@@ -83,6 +83,13 @@ export class NavbarService {
 		this.activeIndex = null;
 	};
 
+	// Deterministically open the search overlay (e.g. from the sidebar, which
+	// can't toggle blind without risking closing an already-open panel).
+	openSearch = () => {
+		this.isSearchOpen = true;
+		this.closeMenu();
+	};
+
 	toggleSearch = () => {
 		this.isSearchOpen = !this.isSearchOpen;
 		this.closeMenu();

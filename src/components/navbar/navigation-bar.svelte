@@ -1,10 +1,11 @@
 <script lang="ts">
-	import { initNavbar } from '$lib/navbar/navbar.svelte.js';
+	import { useNavbar } from '$lib/navbar/navbar.svelte.js';
 	import NavRow from './nav-row.svelte';
 	import SearchPanel from './search-panel.svelte';
 	import MegaMenu from './mega-menu.svelte';
 
-	const nav = initNavbar();
+	// Context is created in App (app-initialize) so the sidebar can share it.
+	const nav = useNavbar();
 
 	// A click outside the bar collapses any open dropdown or search panel. The
 	// listener is only attached while something is open.

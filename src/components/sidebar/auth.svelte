@@ -262,9 +262,10 @@
 		--destructive: oklch(0.58 0.22 27);
 
 		display: flex;
+		height: 100%;
 		flex-direction: column;
 		gap: 1.5rem;
-		padding: 1.5rem;
+		padding: 8rem 2rem 2rem 2rem;
 		color: var(--fg);
 	}
 

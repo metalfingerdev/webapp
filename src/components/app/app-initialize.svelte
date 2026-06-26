@@ -7,12 +7,16 @@
 	import { initSidebar } from '$lib/sidebar/sidebar.svelte.js';
 	import { initCheckout } from '$lib/checkout/checkout.svelte.js';
 	import { initCart } from '$lib/cart/index.js';
+	import { initNavbar } from '$lib/navbar/navbar.svelte.js';
 
 	import Sidebar from '$components/sidebar/sidebar.svelte';
 	import { CheckoutDialog } from '$components/checkout/index.js';
 	import NavigationBar from '$components/navbar/navigation-bar.svelte';
 
 	initSidebar();
+	// Hoisted here (was inside NavigationBar) so the Sidebar — a sibling — can
+	// share the navbar context and open the search overlay.
+	initNavbar();
 	// Must precede initCart — initCart() resolves the checkout controller via context.
 	initCheckout();
 
