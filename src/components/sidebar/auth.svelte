@@ -17,6 +17,7 @@
 	const sidebar = useSidebar();
 	const auth = useAuth();
 	const convex = useConvexClient();
+	const uid = $props.id();
 
 	const currentUser = useQuery(
 		api.auth.getCurrentUser,
@@ -135,60 +136,276 @@
 	}
 </script>
 
-<!-- The dialog header (back/close/title) is owned by the host. This is just the
-     step label for the form itself. -->
-<h2 class="px-4 pt-4 font-medium">
-	{isSignIn ? 'Sign In' : step === 'otp' ? 'Verify Email' : 'Sign Up'}
-</h2>
-
-{#if auth.isAuthenticated}
-	<div>
-		<p>{currentUser.data?.name ?? currentUser.data?.email}</p>
-		<button onclick={handleSignOut}>Sign out</button>
-	</div>
-{:else if step === 'otp'}
-	<form onsubmit={handleVerifyOtp}>
-		<p>Enter the code sent to {email}</p>
-		<input
-			type="text"
-			inputmode="numeric"
-			autocomplete="one-time-code"
-			placeholder="6-digit code"
-			bind:value={otp}
-			required
-		/>
-		{#if error}<p>{error}</p>{/if}
-		<button type="submit" disabled={loading}>
-			{loading ? 'Verifying...' : 'Verify'}
-		</button>
-		<button type="button" onclick={resetToSignUp}>Back</button>
-	</form>
-{:else}
-	<form onsubmit={handleSubmit}>
-		{#if !isSignIn}
-			<input type="text" placeholder="Name" bind:value={name} required />
-		{/if}
-		<input type="email" placeholder="Email" bind:value={email} autocomplete="email" required />
-		<input
-			type="password"
-			placeholder="Password"
-			bind:value={password}
-			autocomplete={isSignIn ? 'current-password' : 'new-password'}
-			required
-		/>
-		{#if error}<p>{error}</p>{/if}
-		<button type="submit" disabled={loading}>
-			{#if loading}
-				{isSignIn ? 'Signing in...' : 'Creating account...'}
-			{:else}
-				{isSignIn ? 'Sign in' : 'Create account'}
+<!-- The dialog header (back/close) is owned by the host; this panel owns the
+     title + form. Styling lives in the modern-CSS block below. -->
+<section class="auth">
+	{#if auth.isAuthenticated}
+		<header class="head">
+			<h2>Account</h2>
+			<p class="muted">Signed in as {currentUser.data?.name ?? currentUser.data?.email}</p>
+		</header>
+		<button class="btn outline" onclick={handleSignOut}>Sign out</button>
+	{:else if step === 'otp'}
+		<header class="head">
+			<h2>Verify email</h2>
+			<p class="muted">Enter the 6-digit code sent to {email}</p>
+		</header>
+		<form class="fields" onsubmit={handleVerifyOtp}>
+			<div class="field">
+				<label for="otp-{uid}">Code</label>
+				<input
+					id="otp-{uid}"
+					class="input"
+					type="text"
+					inputmode="numeric"
+					autocomplete="one-time-code"
+					placeholder="123456"
+					bind:value={otp}
+					required
+				/>
+			</div>
+			{#if error}<p class="error" role="alert">{error}</p>{/if}
+			<button class="btn primary" type="submit" disabled={loading}>
+				{loading ? 'Verifying…' : 'Verify'}
+			</button>
+			<button class="btn ghost" type="button" onclick={resetToSignUp}>Back</button>
+		</form>
+	{:else}
+		<header class="head">
+			<h2>{isSignIn ? 'Login' : 'Create account'}</h2>
+			<p class="muted">
+				{isSignIn
+					? 'Enter your email below to login to your account'
+					: 'Enter your details below to get started'}
+			</p>
+		</header>
+		<form class="fields" onsubmit={handleSubmit}>
+			{#if !isSignIn}
+				<div class="field">
+					<label for="name-{uid}">Name</label>
+					<input
+						id="name-{uid}"
+						class="input"
+						type="text"
+						placeholder="Your name"
+						bind:value={name}
+						required
+					/>
+				</div>
 			{/if}
-		</button>
-		<button type="button" disabled={loading} onclick={handleGoogleSignIn}>
-			Continue with Google
-		</button>
-		<button type="button" onclick={toggleMode}>
-			{isSignIn ? 'No account? Sign up' : 'Have an account? Sign in'}
-		</button>
-	</form>
-{/if}
+			<div class="field">
+				<label for="email-{uid}">Email</label>
+				<input
+					id="email-{uid}"
+					class="input"
+					type="email"
+					placeholder="m@example.com"
+					autocomplete="email"
+					bind:value={email}
+					required
+				/>
+			</div>
+			<div class="field">
+				<label for="password-{uid}">Password</label>
+				<input
+					id="password-{uid}"
+					class="input"
+					type="password"
+					autocomplete={isSignIn ? 'current-password' : 'new-password'}
+					bind:value={password}
+					required
+				/>
+			</div>
+
+			{#if error}<p class="error" role="alert">{error}</p>{/if}
+
+			<button class="btn primary" type="submit" disabled={loading}>
+				{#if loading}
+					{isSignIn ? 'Signing in…' : 'Creating account…'}
+				{:else}
+					{isSignIn ? 'Login' : 'Create account'}
+				{/if}
+			</button>
+
+			<button class="btn outline" type="button" disabled={loading} onclick={handleGoogleSignIn}>
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">
+					<path
+						d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"
+						fill="currentColor"
+					/>
+				</svg>
+				Continue with Google
+			</button>
+
+			<p class="muted foot">
+				{isSignIn ? "Don't have an account?" : 'Already have an account?'}
+				<button type="button" class="link" onclick={toggleMode}>
+					{isSignIn ? 'Sign up' : 'Sign in'}
+				</button>
+			</p>
+		</form>
+	{/if}
+</section>
+
+<style>
+	/* Local design tokens — app.css ships no theme, so define a small neutral
+	   palette here in oklch and derive states with color-mix(). */
+	.auth {
+		--radius: 0.65rem;
+		--bg: oklch(1 0 0);
+		--fg: oklch(0.21 0 0);
+		--muted-fg: oklch(0.55 0 0);
+		--border: oklch(0.92 0 0);
+		--primary: oklch(0.21 0 0);
+		--primary-fg: oklch(0.98 0 0);
+		--ring: oklch(0.71 0 0);
+		--destructive: oklch(0.58 0.22 27);
+
+		display: flex;
+		flex-direction: column;
+		gap: 1.5rem;
+		padding: 1.5rem;
+		color: var(--fg);
+	}
+
+	.head {
+		display: grid;
+		gap: 0.375rem;
+
+		h2 {
+			font-size: 1.5rem;
+			line-height: 1.15;
+			font-weight: 600;
+			letter-spacing: -0.015em;
+		}
+	}
+
+	.muted {
+		margin: 0;
+		color: var(--muted-fg);
+		font-size: 0.875rem;
+		line-height: 1.4;
+	}
+
+	.fields {
+		display: grid;
+		gap: 1rem;
+	}
+
+	.field {
+		display: grid;
+		gap: 0.5rem;
+
+		label {
+			font-size: 0.875rem;
+			font-weight: 500;
+		}
+	}
+
+	.input {
+		inline-size: 100%;
+		padding-block: 0.5rem;
+		padding-inline: 0.75rem;
+		font-size: 0.875rem;
+		color: var(--fg);
+		background: var(--bg);
+		border: 1px solid var(--border);
+		border-radius: var(--radius);
+		transition:
+			border-color 120ms ease,
+			box-shadow 120ms ease;
+
+		&::placeholder {
+			color: color-mix(in oklab, var(--muted-fg) 65%, transparent);
+		}
+
+		&:focus-visible {
+			outline: none;
+			border-color: var(--ring);
+			box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 30%, transparent);
+		}
+	}
+
+	.btn {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.5rem;
+		inline-size: 100%;
+		padding-block: 0.5rem;
+		padding-inline: 1rem;
+		font-size: 0.875rem;
+		font-weight: 500;
+		border: 1px solid transparent;
+		border-radius: var(--radius);
+		cursor: pointer;
+		transition:
+			background-color 120ms ease,
+			border-color 120ms ease,
+			opacity 120ms ease;
+
+		& svg {
+			inline-size: 1rem;
+			block-size: 1rem;
+		}
+
+		&:disabled {
+			opacity: 0.55;
+			cursor: not-allowed;
+		}
+
+		&.primary {
+			background: var(--primary);
+			color: var(--primary-fg);
+
+			&:not(:disabled):hover {
+				background: color-mix(in oklab, var(--primary) 88%, white);
+			}
+		}
+
+		&.outline {
+			background: var(--bg);
+			color: var(--fg);
+			border-color: var(--border);
+
+			&:not(:disabled):hover {
+				background: color-mix(in oklab, var(--fg) 5%, var(--bg));
+			}
+		}
+
+		&.ghost {
+			background: transparent;
+			color: var(--muted-fg);
+
+			&:not(:disabled):hover {
+				color: var(--fg);
+			}
+		}
+	}
+
+	.foot {
+		text-align: center;
+	}
+
+	.link {
+		padding: 0;
+		font: inherit;
+		font-weight: 500;
+		color: var(--fg);
+		background: none;
+		border: none;
+		cursor: pointer;
+		text-decoration: underline;
+		text-underline-offset: 2px;
+
+		&:hover {
+			color: color-mix(in oklab, var(--fg) 75%, var(--muted-fg));
+		}
+	}
+
+	.error {
+		margin: 0;
+		font-size: 0.875rem;
+		color: var(--destructive);
+	}
+</style>
