@@ -173,7 +173,7 @@
 
 		/* Static icon row — no transition, matching the close button. */
 		.actions {
-			@apply flex items-center gap-4;
+			@apply flex items-center gap-8;
 
 			button {
 				@apply inline-flex cursor-pointer items-center;
