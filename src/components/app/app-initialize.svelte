@@ -5,12 +5,16 @@
 	import { useAuth } from '$lib/svelte/index.js';
 	import { MockPaymentProcessor } from '$lib/razorpay/mock-payment-processor.js';
 	import { initSidebar } from '$lib/sidebar/sidebar.svelte.js';
+	import { initCheckout } from '$lib/checkout/checkout.svelte.js';
 	import { initCart } from '$lib/cart/index.js';
 
 	import Sidebar from '$components/sidebar/sidebar.svelte';
-	import NavigationBar from '$components/header/navigation-bar.svelte';
+	import { CheckoutDialog } from '$components/checkout/index.js';
+	import NavigationBar from '$components/navbar/navigation-bar.svelte';
 
 	initSidebar();
+	// Must precede initCart — initCart() resolves the checkout controller via context.
+	initCheckout();
 
 	const auth = useAuth();
 	const userQuery = useQuery(api.auth.getCurrentUser);
@@ -32,4 +36,10 @@
 
 <Sidebar {data} />
 
+<CheckoutDialog />
+
 {@render children()}
+
+<style lang="postcss">
+	@reference "src/app.css";
+</style>

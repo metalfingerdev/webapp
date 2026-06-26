@@ -5,9 +5,8 @@ import type { PaymentProcessor } from '$lib/razorpay/payment-processor.js';
 
 export interface CheckoutDependencies {
 	items: CartItem[];
-	total: number;
 	addressId: Id<'addresses'>;
-	processor: PaymentProcessor; // Added missing dependency
+	processor: PaymentProcessor;
 	mutations: {
 		validateStock: (args: {
 			items: { id: Id<'products'>; name: string; quantity: number }[];
@@ -18,7 +17,6 @@ export interface CheckoutDependencies {
 		}) => Promise<Id<'orders'>>;
 		confirmOrder: (args: { orderId: Id<'orders'>; paymentId: string }) => Promise<void | null>;
 	};
-	onReadyForPayment?: () => void;
 }
 
 export async function processCheckout(deps: CheckoutDependencies): Promise<Id<'orders'>> {
@@ -38,10 +36,9 @@ export async function processCheckout(deps: CheckoutDependencies): Promise<Id<'o
 		addressId: deps.addressId
 	});
 
-	deps.onReadyForPayment?.();
-
-	// Pass orderId to the processor instead of just total amount
-	const receipt = await deps.processor.charge(orderId, deps.total);
+	// The gateway UI surfaces itself (the processor flips paymentUIState), so
+	// there's nothing to signal here — just charge.
+	const receipt = await deps.processor.charge(orderId);
 
 	await deps.mutations.confirmOrder({ orderId, paymentId: receipt.id });
 

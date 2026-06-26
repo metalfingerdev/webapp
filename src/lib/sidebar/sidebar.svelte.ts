@@ -2,7 +2,9 @@
 import { setContext, getContext } from 'svelte';
 import { goto } from '$app/navigation';
 
-export type SidebarView = 'default' | 'shop' | 'cart' | 'auth' | 'user' | 'checkout' | 'payment';
+// 'checkout' and 'payment' moved out of the sidebar into their own modal
+// (CheckoutController) — a linear flow must not be back-navigable.
+export type SidebarView = 'default' | 'shop' | 'cart' | 'auth' | 'user';
 
 type PostAuthAction = () => void | Promise<void>;
 
@@ -10,6 +12,9 @@ export class SidebarService {
 	view = $state<SidebarView>('default');
 	isOpen = $state(false);
 	history = $state<SidebarView[]>([]);
+	// +1 = drilling forward (navigate/show), -1 = going back. Drives the slide
+	// direction of the view transition in the host.
+	direction = $state<1 | -1>(1);
 
 	private postAuthAction: PostAuthAction | null = null;
 
@@ -17,19 +22,35 @@ export class SidebarService {
 		return this.history.length > 0;
 	}
 
-	get is() {
-		return {
-			default: this.view === 'default',
-			shop: this.view === 'shop',
-			cart: this.view === 'cart',
-			auth: this.view === 'auth',
-			user: this.view === 'user',
-			checkout: this.view === 'checkout',
-			payment: this.view === 'payment'
-		};
-	}
+	// Method vocabulary:
+	//   open / close / toggle  — visibility only; `view` persists across them.
+	//   show(v)                — open at a root view, clearing history.
+	//   navigate(v)            — drill down: push current view, then go.
+	//   back()                 — pop one level (fallback 'default').
+	//   exit(href)             — leave the sidebar entirely: close + route.
 
-	open = (v: SidebarView = 'default') => {
+	// --- Visibility: these only touch `isOpen`. The current `view` persists,
+	// so closing and reopening (or toggling) keeps showing the same thing. ---
+
+	open = () => {
+		this.isOpen = true;
+	};
+
+	close = () => {
+		this.isOpen = false;
+		this.postAuthAction = null;
+	};
+
+	toggle = () => {
+		if (this.isOpen) this.close();
+		else this.open();
+	};
+
+	// --- View: `show` sets what the sidebar displays (and opens it). This is
+	// the replacement for the old `open('view')` call. ---
+
+	show = (v: SidebarView) => {
+		this.direction = 1;
 		this.view = v;
 		this.history = [];
 		this.isOpen = true;
@@ -37,7 +58,7 @@ export class SidebarService {
 
 	openAuth = (onSuccess: PostAuthAction) => {
 		this.postAuthAction = onSuccess;
-		this.open('auth');
+		this.show('auth');
 	};
 
 	resolveAuth = async () => {
@@ -46,22 +67,20 @@ export class SidebarService {
 		await action?.();
 	};
 
-	close = () => {
-		this.isOpen = false;
-		this.postAuthAction = null;
-	};
-
 	navigate = (v: SidebarView) => {
+		this.direction = 1;
 		this.history.push(this.view);
 		this.view = v;
 	};
 
 	back = () => {
+		this.direction = -1;
 		const prev = this.history.pop();
 		this.view = prev ?? 'default';
 	};
 
-	navigateTo = (href: string) => {
+	// Leaves the sidebar entirely: clears nav history, closes, and routes to a URL.
+	exit = (href: string) => {
 		this.history = [];
 		this.close();
 		goto(href);

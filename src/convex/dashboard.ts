@@ -1,9 +1,11 @@
 import { mutation, query } from './_generated/server.js';
 import { v } from 'convex/values';
 import type { GenericQueryCtx, GenericMutationCtx } from 'convex/server';
-import type { DataModel } from './_generated/dataModel.js';
+import type { DataModel, Doc } from './_generated/dataModel.js';
 import { authComponent } from './auth.js';
-import { ORDER_STATUS, TRACKING_STATUS } from './schema.js';
+import { ORDER_STATUS, TRACKING_STATUS, TAX_CATEGORY } from './schema.js';
+import { buildSearchText } from './productSearch.js';
+import { slugify, reserveUniqueSlug } from './slugs.js';
 import { paginationOptsValidator } from 'convex/server';
 
 type Ctx = GenericQueryCtx<DataModel> | GenericMutationCtx<DataModel>;
@@ -151,7 +153,8 @@ export const createProduct = mutation({
 	},
 	handler: async (ctx, args) => {
 		await requireElevated(ctx);
-		return ctx.db.insert('products', args);
+		const slug = await dbUniqueSlug(ctx, slugify(args.name));
+		return ctx.db.insert('products', { ...args, slug, searchText: buildSearchText(args) });
 	}
 });
 
@@ -167,7 +170,7 @@ export const updateProduct = mutation({
 	},
 	handler: async (ctx, { id, ...patch }) => {
 		await requireElevated(ctx);
-		await ctx.db.patch(id, patch);
+		await ctx.db.patch(id, { ...patch, searchText: buildSearchText(patch) });
 	}
 });
 
@@ -176,6 +179,153 @@ export const removeProduct = mutation({
 	handler: async (ctx, { id }) => {
 		await requireAdmin(ctx);
 		await ctx.db.delete(id);
+	}
+});
+
+// The store's stock export has no reliable unique key for most rows (only ~12%
+// carry a barcode), so we match on the normalized product name and let a real
+// barcode win when present. Keep this in sync on both sides of a comparison.
+function normalizeName(name: string): string {
+	return name.trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
+type ProductRef = Pick<Doc<'products'>, '_id' | 'category' | 'details' | 'slug'>;
+
+// Single-insert slug uniqueness via the by_slug index (used by createProduct).
+async function dbUniqueSlug(ctx: GenericMutationCtx<DataModel>, base: string): Promise<string> {
+	let slug = base;
+	let n = 1;
+	while (
+		await ctx.db
+			.query('products')
+			.withIndex('by_slug', (q) => q.eq('slug', slug))
+			.first()
+	) {
+		n += 1;
+		slug = `${base}-${n}`;
+	}
+	return slug;
+}
+
+// Bulk upsert from a stock-status spreadsheet (a "Stock Status as on <date>"
+// snapshot, so stock is SET, not added — re-uploading the same file is a no-op).
+// Each row is matched to an existing product by `barcode`, else by normalized
+// name. A match patches only the sheet-authoritative fields (stock, prices, tax,
+// hsn, unit, name) and preserves `details`/`category`/`weight`/`imageUrl`.
+// Unmatched rows are inserted. Returns per-row outcome counts for the UI.
+export const bulkUpsertProducts = mutation({
+	args: {
+		products: v.array(
+			v.object({
+				name: v.string(),
+				salePrice: v.number(),
+				stock: v.number(),
+				weight: v.number(),
+				category: v.union(v.literal('book'), v.literal('clothes'), v.literal('stationary')),
+				hsnCode: v.optional(v.string()),
+				maxRetailPrice: v.optional(v.number()),
+				purchasePrice: v.optional(v.number()),
+				barcode: v.optional(v.string()),
+				unit: v.optional(v.string()),
+				taxCategory: v.optional(TAX_CATEGORY),
+				details: detailsV
+			})
+		)
+	},
+	handler: async (ctx, { products }) => {
+		await requireElevated(ctx);
+
+		// Load the catalog once and match in memory — a few thousand rows is well
+		// within a single mutation, and it avoids N index lookups.
+		const catalog = await ctx.db.query('products').collect();
+		const byBarcode = new Map<string, ProductRef>();
+		const byName = new Map<string, ProductRef>();
+		const usedSlugs = new Set<string>();
+		for (const e of catalog) {
+			const ref: ProductRef = {
+				_id: e._id,
+				category: e.category,
+				details: e.details,
+				slug: e.slug
+			};
+			if (e.barcode) byBarcode.set(e.barcode, ref);
+			byName.set(normalizeName(e.name), ref);
+			if (e.slug) usedSlugs.add(e.slug);
+		}
+
+		let created = 0;
+		let updated = 0;
+		let skipped = 0;
+
+		for (const p of products) {
+			if (!p.name) {
+				skipped++;
+				continue;
+			}
+
+			const nameKey = normalizeName(p.name);
+			const match = (p.barcode ? byBarcode.get(p.barcode) : undefined) ?? byName.get(nameKey);
+
+			if (match) {
+				await ctx.db.patch(match._id, {
+					name: p.name,
+					salePrice: p.salePrice,
+					stock: p.stock,
+					maxRetailPrice: p.maxRetailPrice,
+					purchasePrice: p.purchasePrice,
+					hsnCode: p.hsnCode,
+					unit: p.unit,
+					taxCategory: p.taxCategory,
+					barcode: p.barcode,
+					// Backfill a slug if this product predates slugs; never change an
+					// existing one (URLs must stay stable).
+					...(match.slug ? {} : { slug: reserveUniqueSlug(slugify(p.name), usedSlugs) }),
+					// Recompute from the new name but keep the product's own details.
+					searchText: buildSearchText({
+						name: p.name,
+						category: match.category,
+						barcode: p.barcode,
+						hsnCode: p.hsnCode,
+						details: match.details
+					})
+				});
+				updated++;
+			} else {
+				const slug = reserveUniqueSlug(slugify(p.name), usedSlugs);
+				const _id = await ctx.db.insert('products', {
+					...p,
+					slug,
+					searchText: buildSearchText(p)
+				});
+				// Register the new row so a later same-name row in THIS upload updates
+				// it instead of inserting a second duplicate.
+				const ref: ProductRef = { _id, category: p.category, details: p.details, slug };
+				byName.set(nameKey, ref);
+				if (p.barcode) byBarcode.set(p.barcode, ref);
+				created++;
+			}
+		}
+
+		return { created, updated, skipped };
+	}
+});
+
+// One-time backfill: assign slugs to any products created before slugs existed.
+// Safe to run repeatedly — it only touches rows whose slug is missing.
+export const backfillSlugs = mutation({
+	args: {},
+	handler: async (ctx) => {
+		await requireElevated(ctx);
+		const all = await ctx.db.query('products').collect();
+		const used = new Set(all.map((p) => p.slug).filter((s): s is string => !!s));
+		let filled = 0;
+		for (const p of all) {
+			if (p.slug) continue;
+			const slug = reserveUniqueSlug(slugify(p.name), used);
+			await ctx.db.patch(p._id, { slug });
+			filled += 1;
+		}
+		return { filled };
 	}
 });
 

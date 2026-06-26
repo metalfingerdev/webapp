@@ -50,6 +50,10 @@ export default defineSchema({
 		stock: v.number(),
 		unit: v.optional(v.string()),
 		barcode: v.optional(v.string()),
+		// URL slug (e.g. "ganga-hindi-2"). Generated once on insert and kept
+		// stable across renames so product URLs don't break. Optional so existing
+		// rows validate before the backfill runs.
+		slug: v.optional(v.string()),
 		details: v.union(
 			v.object({
 				type: v.literal('book'),
@@ -74,6 +78,7 @@ export default defineSchema({
 		.index('by_category', ['category'])
 		.index('by_barcode', ['barcode'])
 		.index('by_hsn', ['hsnCode'])
+		.index('by_slug', ['slug'])
 		.searchIndex('search_name', {
 			searchField: 'searchText',
 			filterFields: ['category']

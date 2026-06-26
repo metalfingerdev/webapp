@@ -1,57 +1,55 @@
-# Convex Better Auth – Svelte Adapter
+# Store
 
-A lightweight **Svelte/SvelteKit** adapter for [`get-convex/better-auth`](https://github.com/get-convex/better-auth).  
-It makes authentication **idiomatic**, **type-safe**, and **SSR-ready** in your Convex app.
+An e-commerce storefront built with **SvelteKit** and a **Convex** backend
+(auth via `@convex-dev/better-auth`, payments via Razorpay). Deployed on
+**Vercel**.
 
----
+## Documentation
 
-## Getting started
+- [Overview](docs/overview.md) — architecture, stack, and how the pieces fit
+- [Deployment & production readiness](docs/deployment.md) — going live + the pre-launch checklist
 
-### Option 1 — Ready-to-ship components _(recommended)_
+## Local development
 
-Start with production-ready **Auth and Organization components** built on top of Convex Better Auth.  
-All source code is **copied into your project (shadcn-style)** — you own and control every line.
+```bash
+pnpm install
+pnpm dev        # runs the SvelteKit frontend + `convex dev` together
+```
 
-- Includes full sign-in, sign-up, profile, and organization flows
-- Choose what you need: user management only, user + organization, or both
-- Enable or disable features through simple toggles or by editing the code
-- Fully editable and themeable through your design system
-- Saves weeks of setup time while keeping complete flexibility
+`pnpm dev` starts the Vite frontend and the Convex dev backend concurrently.
+To run them separately use `pnpm dev:frontend` and `pnpm dev:backend`.
 
-**Docs:** [Getting started →](https://etesie.dev/docs/auth/02-getting-started/01-sveltekit)  
-**Source:** [github.com/mmailaender/Convex-Better-Auth-UI →](https://github.com/mmailaender/Convex-Better-Auth-UI)
+## Environment variables
 
-<picture>
-  <source srcset="./bannerDark.webp" media="(prefers-color-scheme: dark)">
-  <source srcset="./banner.webp" media="(prefers-color-scheme: light)">
-  <img src="./banner.webp" alt="Auth components preview">
-</picture>
+Set these locally in `.env.local` and in the Vercel project settings:
 
----
+| Variable                 | Purpose                                  |
+| ------------------------ | ---------------------------------------- |
+| `PUBLIC_CONVEX_URL`      | Convex deployment URL (client + SSR)     |
+| `PUBLIC_CONVEX_SITE_URL` | Convex site URL used by the auth handler |
+| `CONVEX_DEPLOYMENT`      | Convex deployment name (CLI / dev)       |
 
-### Option 2 — Build from scratch
+The `PUBLIC_*` values are required at build time as well as runtime.
 
-Use the `convex-better-auth-svelte` adapter to design every flow and UI element yourself.  
-We recommend choosing this path only if you have **highly specific requirements** where even the modular components aren’t a good starting point —  
-for example, experimental onboarding flows or a custom multi-tenant model.
+## Scripts
 
-- Start from the raw hooks and helpers of `convex-better-auth-svelte`
-- Wire up sign-in, sign-up, orgs, and sessions manually
-- Best for projects with unique data models or unconventional UX
+| Command        | Description                                   |
+| -------------- | --------------------------------------------- |
+| `pnpm dev`     | Frontend + Convex backend in parallel         |
+| `pnpm build`   | Production build (`@sveltejs/adapter-vercel`) |
+| `pnpm preview` | Preview the production build locally          |
+| `pnpm test`    | Unit tests (Vitest)                           |
+| `pnpm check`   | `svelte-check` type checking                  |
+| `pnpm lint`    | Prettier + ESLint                             |
+| `pnpm format`  | Format with Prettier                          |
 
-**Docs:** [SvelteKit integration →](https://convex-better-auth.netlify.app/framework-guides/sveltekit)
+## Deployment (Vercel)
 
----
+The app uses `@sveltejs/adapter-vercel` with the runtime pinned to
+`nodejs22.x` in `svelte.config.js`. Import the repo into Vercel, set the
+environment variables above, and deploy — Vercel runs `pnpm build`
+automatically. Convex is deployed separately via `npx convex deploy`.
 
-## Why this adapter
-
-- Svelte-friendly API for Convex Better Auth
-- Zero lock-in — your Convex, your data, your UI
-- Works standalone or with ready-to-ship components
-- Type-safe end-to-end integration via Convex
-
----
-
-## License
-
-MIT
+> Note: a local `pnpm build` on Windows may fail at the adapter's final
+> symlink step (`EPERM`); this is a Windows-only limitation and does not
+> affect builds on Vercel's Linux environment.

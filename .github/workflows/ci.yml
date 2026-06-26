@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: ['**']
+  workflow_dispatch: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Lint, type-check, test, build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    # The build embeds these PUBLIC_ vars. CI only needs to compile, not reach
+    # Convex, so it falls back to placeholders. Set repo Variables (Settings →
+    # Secrets and variables → Actions → Variables) to build against real URLs.
+    env:
+      PUBLIC_CONVEX_URL: ${{ vars.PUBLIC_CONVEX_URL || 'https://placeholder.convex.cloud' }}
+      PUBLIC_CONVEX_SITE_URL: ${{ vars.PUBLIC_CONVEX_SITE_URL || 'https://placeholder.convex.site' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint (Prettier + ESLint)
+        run: pnpm lint
+
+      - name: Type-check (svelte-check)
+        run: pnpm check
+
+      - name: Unit tests
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build

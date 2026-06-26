@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import '@klinking/squircle/tailwind/utils.css';
 @plugin '@tailwindcss/forms';
 
 /* http://meyerweb.com/eric/tools/css/reset/ 

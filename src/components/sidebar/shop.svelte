@@ -6,7 +6,7 @@
 </script>
 
 <menu>
-	<button onclick={() => sidebar.navigateTo(resolve('/shop'))}>prods</button>
-	<button onclick={() => sidebar.navigateTo(resolve('/shop/book'))}>books</button>
-	<button onclick={() => sidebar.navigateTo(resolve('/shop/clothes'))}>clothes</button>
+	<button onclick={() => sidebar.exit(resolve('/shop'))}>prods</button>
+	<button onclick={() => sidebar.exit(resolve('/shop/book'))}>books</button>
+	<button onclick={() => sidebar.exit(resolve('/shop/clothes'))}>clothes</button>
 </menu>

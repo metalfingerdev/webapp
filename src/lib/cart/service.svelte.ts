@@ -4,6 +4,7 @@ import { useMutation, useQuery } from 'convex-svelte';
 import { api } from '$convex/_generated/api.js';
 import type { Id } from '$convex/_generated/dataModel.js';
 import { useSidebar, type SidebarService } from '$lib/sidebar/sidebar.svelte.js';
+import { useCheckout, type CheckoutController } from '$lib/checkout/checkout.svelte.js';
 import { CartState } from './state.svelte.js';
 import { processCheckout, type CheckoutDependencies } from './checkout.js';
 import type { PaymentProcessor } from '$lib/razorpay/payment-processor.js';
@@ -22,7 +23,10 @@ export class CartService {
 	constructor(
 		public state: CartState,
 		private auth: AuthService,
+		// Sidebar is still used for the auth detour (auth lives in the sidebar);
+		// the checkout/payment steps now live in their own modal.
 		private sidebar: SidebarService,
+		private checkoutUI: CheckoutController,
 		// PROPER DI: Depend on the interface abstraction, not the mock implementation class
 		private processor: PaymentProcessor,
 		private checkoutMutations: CheckoutDependencies['mutations']
@@ -63,8 +67,14 @@ export class CartService {
 		if (this.isEmpty) return { status: 'empty' };
 
 		if (!this.auth.isAuthenticated()) {
+			// Auth lives in the sidebar, so hand off there: close the checkout modal,
+			// run auth, then reopen the modal and retry once signed in.
+			this.checkoutUI.close();
 			this.sidebar.openAuth(async () => {
-				this.sidebar.open('cart');
+				// Leave the sidebar's auth view before handing back to the modal so
+				// the two never stack as competing modal dialogs.
+				this.sidebar.close();
+				this.checkoutUI.open();
 				await this.checkout(addressId);
 			});
 			return { status: 'unauthenticated' };
@@ -74,22 +84,22 @@ export class CartService {
 		this.error = null;
 
 		try {
+			// The payment gateway surfaces inside the modal via paymentUIState (set by
+			// the processor), so there's no view to navigate to here.
 			const orderId = await processCheckout({
 				items: this.items,
-				total: this.total,
 				addressId,
 				mutations: this.checkoutMutations,
-				processor: this.processor, // Injected down into checkout context cleanly
-				onReadyForPayment: () => this.sidebar.navigate('payment')
+				processor: this.processor // Injected down into checkout context cleanly
 			});
 
 			await this.state.clear();
-			this.sidebar.navigate('user');
+			// Swap the modal to its confirmation state in place — no navigation.
+			this.checkoutUI.succeed(orderId);
 			return { status: 'success', orderId };
 		} catch (e: unknown) {
 			this.error = e instanceof Error ? e.message : 'Checkout failed.';
-			// FIX: Navigate back to checkout (not payment) so the error is visible.
-			this.sidebar.navigate('checkout');
+			// Stay on the modal's address step; cart.error renders there.
 			return { status: 'error', message: this.error };
 		} finally {
 			this.isPurchasing = false;
@@ -101,6 +111,7 @@ const CART_KEY = Symbol('cart');
 
 export function initCart(auth: AuthService, processor: PaymentProcessor): CartService {
 	const sidebar = useSidebar();
+	const checkoutUI = useCheckout();
 
 	// FIX: Skip the DB query entirely when unauthenticated instead of
 	// querying for userId: 'guest' which hits the database unnecessarily.
@@ -127,7 +138,7 @@ export function initCart(auth: AuthService, processor: PaymentProcessor): CartSe
 	};
 
 	const state = new CartState(auth, dbCartThunk, stateMutations);
-	const service = new CartService(state, auth, sidebar, processor, checkoutMutations);
+	const service = new CartService(state, auth, sidebar, checkoutUI, processor, checkoutMutations);
 
 	setContext(CART_KEY, service);
 	return service;

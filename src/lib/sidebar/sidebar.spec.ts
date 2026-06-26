@@ -5,7 +5,7 @@ import { describe, it, expect } from 'vitest';
 // Strips $state, DOM, and goto() — tests the state machine only.
 // ---------------------------------------------------------------------------
 
-type SidebarView = 'default' | 'shop' | 'cart' | 'auth';
+type SidebarView = 'default' | 'shop' | 'cart' | 'auth' | 'user';
 
 interface SidebarState {
 	view: SidebarView;
@@ -17,12 +17,22 @@ function initialState(): SidebarState {
 	return { view: 'default', isOpen: false, history: [] };
 }
 
-function open(state: SidebarState, v: SidebarView = 'default'): SidebarState {
-	return { view: v, isOpen: true, history: [] };
+// open/close/toggle only touch isOpen — view + history persist
+function open(state: SidebarState): SidebarState {
+	return { ...state, isOpen: true };
 }
 
 function close(state: SidebarState): SidebarState {
 	return { ...state, isOpen: false };
+}
+
+function toggle(state: SidebarState): SidebarState {
+	return state.isOpen ? close(state) : open(state);
+}
+
+// show() sets what's displayed (and opens) — replaces the old open('view')
+function show(state: SidebarState, v: SidebarView): SidebarState {
+	return { ...state, view: v, isOpen: true, history: [] };
 }
 
 function navigate(state: SidebarState, v: SidebarView): SidebarState {
@@ -34,8 +44,9 @@ function back(state: SidebarState): SidebarState {
 	return { ...state, history: state.history.slice(0, -1), view: prev ?? 'default' };
 }
 
-// navigateTo no longer accepts or sets a view — closes sidebar and clears history only
-function navigateTo(state: SidebarState): SidebarState {
+// exit() does not set a view — it closes the sidebar and clears history (the
+// real exit() also goto()s a URL, which is out of scope for this pure mirror).
+function exit(state: SidebarState): SidebarState {
 	return { ...state, history: [], isOpen: false };
 }
 
@@ -43,35 +54,59 @@ function canGoBack(state: SidebarState): boolean {
 	return state.history.length > 0;
 }
 
-function computeViewIs(view: SidebarView) {
-	return {
-		default: view === 'default',
-		shop: view === 'shop',
-		cart: view === 'cart',
-		auth: view === 'auth'
-	};
-}
-
 // ---------------------------------------------------------------------------
 // open()
 // ---------------------------------------------------------------------------
 
 describe('open', () => {
-	it('defaults to "default" view', () => {
+	it('opens without changing the persisted view or history', () => {
+		const prior: SidebarState = { view: 'cart', isOpen: false, history: ['default', 'shop'] };
+		const s = open(prior);
+		expect(s.isOpen).toBe(true);
+		expect(s.view).toBe('cart');
+		expect(s.history).toEqual(['default', 'shop']);
+	});
+
+	it('shows the default view when nothing has been shown yet', () => {
 		const s = open(initialState());
 		expect(s.view).toBe('default');
 		expect(s.isOpen).toBe(true);
 	});
+});
 
-	it('accepts an explicit view', () => {
-		expect(open(initialState(), 'shop').view).toBe('shop');
-		expect(open(initialState(), 'auth').view).toBe('auth');
-	});
+// ---------------------------------------------------------------------------
+// show() — sets the persisted view and opens
+// ---------------------------------------------------------------------------
 
-	it('always clears history, even if history existed', () => {
+describe('show', () => {
+	it('sets the view, opens, and clears history', () => {
+		expect(show(initialState(), 'shop').view).toBe('shop');
+		expect(show(initialState(), 'auth').isOpen).toBe(true);
+
 		const prior: SidebarState = { view: 'cart', isOpen: true, history: ['default', 'shop'] };
-		expect(open(prior).history).toEqual([]);
-		expect(canGoBack(open(prior))).toBe(false);
+		expect(show(prior, 'auth').history).toEqual([]);
+		expect(canGoBack(show(prior, 'auth'))).toBe(false);
+	});
+});
+
+// ---------------------------------------------------------------------------
+// toggle() — flips visibility, view persists
+// ---------------------------------------------------------------------------
+
+describe('toggle', () => {
+	it('opens when closed and closes when open, preserving the view', () => {
+		let s = show(initialState(), 'cart');
+		s = navigate(s, 'shop'); // view: shop, history: [cart]
+
+		s = toggle(s); // closes
+		expect(s.isOpen).toBe(false);
+		expect(s.view).toBe('shop');
+		expect(s.history).toEqual(['cart']);
+
+		s = toggle(s); // reopens to the same persisted view
+		expect(s.isOpen).toBe(true);
+		expect(s.view).toBe('shop');
+		expect(s.history).toEqual(['cart']);
 	});
 });
 
@@ -81,7 +116,7 @@ describe('open', () => {
 
 describe('close', () => {
 	it('sets isOpen false but preserves view and history', () => {
-		let s = open(initialState(), 'shop');
+		let s = show(initialState(), 'shop');
 		s = navigate(s, 'cart');
 		s = close(s);
 		expect(s.isOpen).toBe(false);
@@ -125,7 +160,7 @@ describe('back', () => {
 	});
 
 	it('falls back to "default" and never throws when history is empty', () => {
-		let s = open(initialState(), 'cart');
+		let s = show(initialState(), 'cart');
 		s = back(s);
 		s = back(s);
 		s = back(s);
@@ -140,7 +175,7 @@ describe('back', () => {
 
 describe('canGoBack', () => {
 	it('is false after open() and true after navigate(), false again after back() empties stack', () => {
-		let s = open(initialState(), 'shop');
+		let s = show(initialState(), 'shop');
 		expect(canGoBack(s)).toBe(false);
 
 		s = navigate(s, 'cart');
@@ -152,15 +187,15 @@ describe('canGoBack', () => {
 });
 
 // ---------------------------------------------------------------------------
-// navigateTo  — does NOT set view, only closes and clears history
+// exit  — does NOT set view, only closes and clears history
 // ---------------------------------------------------------------------------
 
-describe('navigateTo', () => {
+describe('exit', () => {
 	it('closes the sidebar and clears history without touching view', () => {
-		let s = open(initialState(), 'shop');
+		let s = show(initialState(), 'shop');
 		s = navigate(s, 'cart'); // view: cart, history: [shop]
 
-		s = navigateTo(s);
+		s = exit(s);
 
 		expect(s.isOpen).toBe(false);
 		expect(s.history).toEqual([]);
@@ -169,17 +204,16 @@ describe('navigateTo', () => {
 });
 
 // ---------------------------------------------------------------------------
-// is view helpers (includes auth added in hook)
+// show() as a root reset
+// (checkout/payment are no longer sidebar views — they live in their own modal)
 // ---------------------------------------------------------------------------
 
-describe('is view helpers', () => {
-	it('exactly one helper is true per view', () => {
-		const views: SidebarView[] = ['default', 'shop', 'cart', 'auth'];
-		for (const view of views) {
-			const h = computeViewIs(view);
-			const trueCount = [h.default, h.shop, h.cart, h.auth].filter(Boolean).length;
-			expect(trueCount).toBe(1);
-		}
+describe('show() resets to a root view', () => {
+	it('show(user) opens the account view as a fresh root', () => {
+		const s = show(navigate(show(initialState(), 'cart'), 'shop'), 'user');
+		expect(s.view).toBe('user');
+		expect(s.isOpen).toBe(true);
+		expect(canGoBack(s)).toBe(false); // show() always clears history
 	});
 });
 

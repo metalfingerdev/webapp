@@ -17,9 +17,11 @@ import type * as http from "../http.js";
 import type * as lib_pricing from "../lib/pricing.js";
 import type * as lib_settings from "../lib/settings.js";
 import type * as orders from "../orders.js";
+import type * as productSearch from "../productSearch.js";
 import type * as products from "../products.js";
 import type * as profile from "../profile.js";
 import type * as seed from "../seed.js";
+import type * as slugs from "../slugs.js";
 
 import type {
   ApiFromModules,
@@ -37,9 +39,11 @@ declare const fullApi: ApiFromModules<{
   "lib/pricing": typeof lib_pricing;
   "lib/settings": typeof lib_settings;
   orders: typeof orders;
+  productSearch: typeof productSearch;
   products: typeof products;
   profile: typeof profile;
   seed: typeof seed;
+  slugs: typeof slugs;
 }>;
 
 /**

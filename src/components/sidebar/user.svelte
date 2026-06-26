@@ -46,15 +46,13 @@
 		await signOut(authClient, (msg) => {
 			error = msg;
 		});
-		sidebar.navigateTo(resolve('/'));
-		sidebar.navigate('default');
+		sidebar.exit(resolve('/'));
 	}
 </script>
 
 <div class="profile-container">
 	<header>
-		<button class="primary" onclick={() => sidebar.navigateTo(resolve('/user'))}
-			>edit your profile</button
+		<button class="primary" onclick={() => sidebar.exit(resolve('/user'))}>edit your profile</button
 		>
 	</header>
 

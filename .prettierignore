@@ -5,6 +5,13 @@ yarn.lock
 bun.lock
 bun.lockb
 
+# Build outputs
+.svelte-kit
+.vercel
+.output
+build
+dist
+
 # Miscellaneous
 /static/
 

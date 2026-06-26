@@ -1,63 +1,7 @@
 // convex/products.ts
 import { query, mutation } from './_generated/server.js';
 import { paginationOptsValidator } from 'convex/server';
-import { TAX_CATEGORY } from './schema.js';
 import { v } from 'convex/values';
-
-export const bulkImport = mutation({
-	args: {
-		products: v.array(
-			v.object({
-				name: v.string(),
-				salePrice: v.number(),
-				stock: v.number(),
-				weight: v.number(),
-				category: v.union(v.literal('book'), v.literal('clothes'), v.literal('stationary')),
-				hsnCode: v.optional(v.string()),
-				maxRetailPrice: v.optional(v.number()),
-				purchasePrice: v.optional(v.number()),
-				barcode: v.optional(v.string()),
-				unit: v.optional(v.string()),
-				taxCategory: v.optional(TAX_CATEGORY),
-				details: v.union(
-					v.object({ type: v.literal('book'), author: v.string(), subject: v.string() }),
-					v.object({
-						type: v.literal('clothes'),
-						gender: v.string(),
-						size: v.string(),
-						variant: v.union(v.literal('sports'), v.literal('white'))
-					}),
-					v.object({ type: v.literal('stationary'), itemType: v.string() })
-				)
-			})
-		)
-	},
-	handler: async (ctx, { products }) => {
-		let imported = 0;
-		let skipped = 0;
-		for (const p of products) {
-			if (!p.name) {
-				skipped++;
-				continue;
-			}
-			
-			if (p.barcode) {
-				const existing = await ctx.db
-					.query('products')
-					.withIndex('by_barcode', (q) => q.eq('barcode', p.barcode!))
-					.unique();
-				if (existing) {
-					await ctx.db.patch(existing._id, p);
-					imported++;
-					continue;
-				}
-			}
-			await ctx.db.insert('products', p);
-			imported++;
-		}
-		return { imported, skipped };
-	}
-});
 
 export const getProducts = query({
 	args: {
@@ -82,6 +26,63 @@ export const getProductById = query({
 	args: { id: v.id('products') },
 	handler: async (ctx, args) => {
 		return await ctx.db.get(args.id);
+	}
+});
+
+// Public product lookup by URL slug — backs the SSR product page so the raw
+// Convex id never has to appear in the URL.
+export const getProductBySlug = query({
+	args: { slug: v.string() },
+	handler: async (ctx, { slug }) => {
+		return await ctx.db
+			.query('products')
+			.withIndex('by_slug', (q) => q.eq('slug', slug))
+			.first();
+	}
+});
+
+// Live search-as-you-type suggestions for the navbar search. Public, capped
+// small — backs the Apple-style autocomplete, not a full results page.
+export const searchProducts = query({
+	args: { term: v.string() },
+	handler: async (ctx, { term }) => {
+		const q = term.trim();
+		if (!q) return [];
+		const results = await ctx.db
+			.query('products')
+			.withSearchIndex('search_name', (s) => s.search('searchText', q))
+			.take(8);
+		return results.map((p) => ({
+			_id: p._id,
+			name: p.name,
+			category: p.category,
+			slug: p.slug ?? ''
+		}));
+	}
+});
+
+// Paginated full-text search backing the /shop?q=... results page (the navbar's
+// searchProducts is capped for autocomplete; this one pages through everything).
+export const searchProductsPaginated = query({
+	args: { term: v.string(), paginationOpts: paginationOptsValidator },
+	handler: async (ctx, { term, paginationOpts }) => {
+		const q = term.trim();
+		if (!q) return { page: [], isDone: true, continueCursor: '' };
+		return await ctx.db
+			.query('products')
+			.withSearchIndex('search_name', (s) => s.search('searchText', q))
+			.paginate(paginationOpts);
+	}
+});
+
+// Minimal projection of every product for building sitemap.xml. Public.
+export const getSitemapEntries = query({
+	args: {},
+	handler: async (ctx) => {
+		const products = await ctx.db.query('products').collect();
+		return products
+			.filter((p) => p.slug)
+			.map((p) => ({ category: p.category, slug: p.slug as string }));
 	}
 });
 

@@ -1,4 +1,10 @@
-import { initConvex, encodeConvexLoad, decodeConvexLoad } from 'convex-svelte/sveltekit';
+import {
+	initConvex,
+	encodeConvexLoad,
+	decodeConvexLoad,
+	encodeConvexLoadPaginated,
+	decodeConvexLoadPaginated
+} from 'convex-svelte/sveltekit';
 import { PUBLIC_CONVEX_URL } from '$env/static/public';
 
 // Initialize the Convex singleton on both server and client.
@@ -10,5 +16,9 @@ export const transport = {
 	ConvexLoadResult: {
 		encode: encodeConvexLoad,
 		decode: decodeConvexLoad
+	},
+	ConvexLoadPaginatedResult: {
+		encode: encodeConvexLoadPaginated,
+		decode: decodeConvexLoadPaginated
 	}
 };

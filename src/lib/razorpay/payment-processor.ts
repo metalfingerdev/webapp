@@ -9,5 +9,7 @@ export interface PaymentReceipt {
 }
 
 export interface PaymentProcessor {
-	charge(orderId: Id<'orders'>, amount: number): Promise<PaymentReceipt>;
+	// Amount is intentionally NOT a parameter: the charge amount is resolved
+	// server-side from the order (createPaymentOrder), never from the client cart.
+	charge(orderId: Id<'orders'>): Promise<PaymentReceipt>;
 }

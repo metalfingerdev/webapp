@@ -32,6 +32,14 @@ export default [
 		}
 	},
 	{
-		ignores: ['dist/**', '.svelte-kit/**', 'src/convex/_generated/**']
+		// Build outputs and generated code — never lint these.
+		ignores: [
+			'dist/**',
+			'build/**',
+			'.svelte-kit/**',
+			'.vercel/**',
+			'.output/**',
+			'src/convex/_generated/**'
+		]
 	}
 ];

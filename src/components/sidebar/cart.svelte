@@ -1,15 +1,19 @@
 <script lang="ts">
 	import { useSidebar } from '$lib/sidebar/index.js';
+	import { useCheckout } from '$lib/checkout/checkout.svelte.js';
 	import { useCart } from '$lib/cart/index.js';
 
 	const sidebar = useSidebar();
+	const checkout = useCheckout();
 	const cart = useCart();
 
 	const formatINR = (paise: number) =>
 		new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(paise / 100);
 
 	function goToCheckout() {
-		sidebar.navigate('checkout'); // Just open the view
+		// Hand off from the sidebar to the standalone checkout modal.
+		sidebar.close();
+		checkout.open();
 	}
 </script>
 

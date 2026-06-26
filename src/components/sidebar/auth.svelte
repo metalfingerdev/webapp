@@ -112,13 +112,11 @@
 	}
 </script>
 
-<header class="flex p-4 border-b gap-2">
-	<span class="mr-auto font-medium">
-		{isSignIn ? 'Sign In' : step === 'otp' ? 'Verify Email' : 'Sign Up'}
-	</span>
-	<button class="hover:underline" onclick={sidebar.back}>back</button>
-	<button class="hover:underline" onclick={sidebar.close}>close</button>
-</header>
+<!-- The dialog header (back/close/title) is owned by the host. This is just the
+     step label for the form itself. -->
+<h2 class="px-4 pt-4 font-medium">
+	{isSignIn ? 'Sign In' : step === 'otp' ? 'Verify Email' : 'Sign Up'}
+</h2>
 
 {#if auth.isAuthenticated}
 	<div>
