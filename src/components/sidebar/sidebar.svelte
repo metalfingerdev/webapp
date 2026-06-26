@@ -130,9 +130,41 @@
 		   needed so the absolutely-overlaid sliding  has something to size to. */
 		@apply fixed inset-[0_0_0_auto] max-h-none min-h-screen w-[calc(100%-4rem)] max-w-none flex-col squircle-l-4xl sm:w-96;
 
+		/* Drawer slide (hims.com-style): off-canvas to the right when closed.
+		   allow-discrete on display + overlay keeps the modal in the top layer
+		   through the exit, so the slide-out actually plays before it's hidden. */
+		translate: 100% 0;
+		transition:
+			translate 300ms ease,
+			overlay 300ms ease allow-discrete,
+			display 300ms ease allow-discrete;
+
 		/* display:flex only when open, else it beats the UA `:not([open]){display:none}`. */
 		&[open] {
 			@apply flex;
+			translate: 0 0;
+
+			/* Entry starts off-canvas, then transitions to translate:0. */
+			@starting-style {
+				translate: 100% 0;
+			}
+		}
+
+		/* Backdrop fades in/out with the panel. */
+		&::backdrop {
+			background-color: rgb(0 0 0 / 0);
+			transition:
+				background-color 300ms ease,
+				overlay 300ms ease allow-discrete,
+				display 300ms ease allow-discrete;
+		}
+
+		&[open]::backdrop {
+			background-color: rgb(0 0 0 / 0.4);
+
+			@starting-style {
+				background-color: rgb(0 0 0 / 0);
+			}
 		}
 
 		header {
