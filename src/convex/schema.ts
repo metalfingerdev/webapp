@@ -1,5 +1,5 @@
 import { defineSchema, defineTable } from 'convex/server';
-import { v } from 'convex/values';
+import { v, type Infer } from 'convex/values';
 
 export const CUSTOMER_ROLE = v.union(
 	v.literal('admin'),
@@ -36,12 +36,45 @@ export const TAX_CATEGORY = v.union(
 	v.literal('None')
 );
 
+export const PRODUCT_CATEGORY = v.union(
+	v.literal('book'),
+	v.literal('clothes'),
+	v.literal('stationary')
+);
+
+export type ProductCategory = Infer<typeof PRODUCT_CATEGORY>;
+
+// Runtime list of the categories, derived from the validator above so it can
+// never drift from the schema. Reused by the shop loaders + the param matcher.
+export const PRODUCT_CATEGORIES = PRODUCT_CATEGORY.members.map((m) => m.value);
+
+export const PRODUCT_DETAILS = v.union(
+	v.object({
+		type: v.literal('book'),
+		author: v.string(),
+		school: v.optional(v.id('schools')),
+		subject: v.string()
+	}),
+	v.object({
+		type: v.literal('clothes'),
+		gender: v.string(),
+		school: v.optional(v.id('schools')),
+		size: v.string(),
+		variant: v.union(v.literal('sports'), v.literal('white'))
+	}),
+	v.object({
+		type: v.literal('stationary'),
+		itemType: v.string()
+	})
+);
+
 export default defineSchema({
 	products: defineTable({
 		name: v.string(),
 		weight: v.number(),
 		imageUrl: v.optional(v.string()),
-		category: v.union(v.literal('book'), v.literal('clothes'), v.literal('stationary')),
+		category: PRODUCT_CATEGORY,
+		details: PRODUCT_DETAILS,
 		maxRetailPrice: v.optional(v.number()),
 		purchasePrice: v.optional(v.number()),
 		salePrice: v.number(),
@@ -50,33 +83,10 @@ export default defineSchema({
 		stock: v.number(),
 		unit: v.optional(v.string()),
 		barcode: v.optional(v.string()),
-		// URL slug (e.g. "ganga-hindi-2"). Generated once on insert and kept
-		// stable across renames so product URLs don't break. Optional so existing
-		// rows validate before the backfill runs.
 		slug: v.optional(v.string()),
-		details: v.union(
-			v.object({
-				type: v.literal('book'),
-				author: v.string(),
-				school: v.optional(v.id('schools')),
-				subject: v.string()
-			}),
-			v.object({
-				type: v.literal('clothes'),
-				gender: v.string(),
-				school: v.optional(v.id('schools')),
-				size: v.string(),
-				variant: v.union(v.literal('sports'), v.literal('white'))
-			}),
-			v.object({
-				type: v.literal('stationary'),
-				itemType: v.string()
-			})
-		),
 		searchText: v.string()
 	})
 		.index('by_category', ['category'])
-		// Price-ordered indexes back the shop's price sort + price-range filter.
 		.index('by_category_price', ['category', 'salePrice'])
 		.index('by_salePrice', ['salePrice'])
 		.index('by_barcode', ['barcode'])
@@ -104,17 +114,26 @@ export default defineSchema({
 
 	schools: defineTable({
 		name: v.string(),
-		code: v.optional(v.string())
-	}),
+		code: v.optional(v.string()),
+		// URL slug for the [school] segment (e.g. "dps-rkpuram").
+		slug: v.optional(v.string())
+	}).index('by_slug', ['slug']),
 
 	bundles: defineTable({
 		schoolId: v.id('schools'),
-		grade: v.string(),
-		productId: v.id('products')
+		grade: v.string()
 	})
-		.index('by_productId', ['productId'])
-		.index('by_school_grade', ['schoolId', 'grade'])
-		.index('by_school_grade_product', ['schoolId', 'grade', 'productId']),
+		.index('by_school', ['schoolId'])
+		.index('by_school_grade', ['schoolId', 'grade']),
+
+	bundleItems: defineTable({
+		bundleId: v.id('bundles'),
+		productId: v.id('products'),
+		quantity: v.number()
+	})
+		.index('by_bundle', ['bundleId'])
+		.index('by_bundle_product', ['bundleId', 'productId'])
+		.index('by_product', ['productId']),
 
 	orders: defineTable({
 		userId: v.string(),

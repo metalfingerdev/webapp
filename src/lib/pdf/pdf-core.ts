@@ -24,7 +24,7 @@ async function getPdfMake(): Promise<PdfMake> {
 			const pdfMod = (await import('pdfmake/build/pdfmake')) as Record<string, unknown>;
 			const fontMod = (await import('pdfmake/build/vfs_fonts')) as Record<string, unknown>;
 
-			const pdfMake = ((pdfMod.default ?? pdfMod) as PdfMake);
+			const pdfMake = (pdfMod.default ?? pdfMod) as PdfMake;
 			const vfs = (fontMod.default ??
 				(fontMod as { vfs?: unknown }).vfs ??
 				(fontMod as { pdfMake?: { vfs?: unknown } }).pdfMake?.vfs ??

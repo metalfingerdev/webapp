@@ -24,8 +24,7 @@ export type TrackingStatus =
 	| 'in_transit'
 	| 'out_for_delivery'
 	| 'delivered';
-export type DashTab = 'products' | 'schools' | 'orders';
-
+export type Tab = 'products' | 'schools' | 'orders';
 export type Product = Doc<'products'>;
 export type School = Doc<'schools'>;
 
@@ -72,8 +71,8 @@ export class DashboardService {
 	createSchool = useMutation(api.dashboard.createSchool);
 	updateSchool = useMutation(api.dashboard.updateSchool);
 	removeSchool = useMutation(api.dashboard.removeSchool);
-	addToBundle = useMutation(api.dashboard.addToBundle);
-	removeFromBundle = useMutation(api.dashboard.removeFromBundle);
+	setBundleItem = useMutation(api.bundle.setBundleItem);
+	removeBundleItem = useMutation(api.bundle.removeBundleItem);
 
 	updateOrderStatus = useMutation(api.dashboard.updateOrderStatus);
 	cancelOrder = useMutation(api.dashboard.cancelOrder);
@@ -91,20 +90,18 @@ export class DashboardService {
 		}
 		return '—';
 	}
-
-	fmt = fmtINR;
 }
 
-const DASHBOARD_KEY = Symbol('dashboard');
+const KEY = Symbol('dashboard');
 
 export function initDashboard() {
 	const dash = new DashboardService();
-	setContext(DASHBOARD_KEY, dash);
+	setContext(KEY, dash);
 	return dash;
 }
 
 export function useDashboard(): DashboardService {
-	const dash = getContext<DashboardService>(DASHBOARD_KEY);
+	const dash = getContext<DashboardService>(KEY);
 	if (!dash) throw new Error('useDashboard() must be called within initDashboard() tree');
 	return dash;
 }

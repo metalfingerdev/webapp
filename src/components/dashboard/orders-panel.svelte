@@ -3,17 +3,12 @@
 	import { usePaginatedQuery, useConvexClient } from 'convex-svelte';
 	import { api } from '$convex/_generated/api.js';
 	import { Download } from '@lucide/svelte';
-	import { Card, Button, Badge } from '../ui/index.js';
-	import OrderDetail from './order-detail.svelte';
-	import TrackingModal from './tracking-modal.svelte';
-	import {
-		useDashboard,
-		ORDER_STATUSES,
-		type OrderStatus
-	} from '$lib/dashboard/dashboard.svelte.js';
+	import { Card, Button, Badge } from './ui/index.js';
+	import OrderDetail from './orders/order-detail.svelte';
+	import TrackingModal from './orders/tracking-modal.svelte';
+	import { fmtINR, ORDER_STATUSES, type OrderStatus } from '$lib/dashboard/dashboard.svelte.js';
 	import { downloadPackingSlips } from '$lib/pdf/index.js';
 
-	const dash = useDashboard();
 	const convex = useConvexClient();
 
 	let statusFilter = $state<OrderStatus | 'all'>('all');
@@ -60,9 +55,13 @@
 </header>
 
 <div class="filters">
-	<button class="chip" class:active={statusFilter === 'all'} onclick={() => (statusFilter = 'all')}>All</button>
+	<button class="chip" class:active={statusFilter === 'all'} onclick={() => (statusFilter = 'all')}
+		>All</button
+	>
 	{#each ORDER_STATUSES as s (s)}
-		<button class="chip" class:active={statusFilter === s} onclick={() => (statusFilter = s)}>{s}</button>
+		<button class="chip" class:active={statusFilter === s} onclick={() => (statusFilter = s)}
+			>{s}</button
+		>
 	{/each}
 </div>
 
@@ -81,19 +80,29 @@
 					{#each ordersQ.results as o (o._id)}
 						<tr>
 							<td class="mono" data-label="Order">#{o._id.slice(-8)}</td>
-							<td data-label="Status"><Badge tone={TONE[o.status] ?? 'neutral'}>{o.status}</Badge></td>
+							<td data-label="Status"
+								><Badge tone={TONE[o.status] ?? 'neutral'}>{o.status}</Badge></td
+							>
 							<td data-label="Items">{o.items.length}</td>
-							<td class="tabular" data-label="Total">{dash.fmt(o.totalPrice)}</td>
-							<td class="muted" data-label="Date">{new Date(o.createdAt).toLocaleDateString('en-IN')}</td>
+							<td class="tabular" data-label="Total">{fmtINR(o.totalPrice)}</td>
+							<td class="muted" data-label="Date"
+								>{new Date(o.createdAt).toLocaleDateString('en-IN')}</td
+							>
 							<td class="rtable-full">
-								<Button size="sm" variant="ghost" onclick={() => (expandedId = expandedId === o._id ? null : o._id)}>
+								<Button
+									size="sm"
+									variant="ghost"
+									onclick={() => (expandedId = expandedId === o._id ? null : o._id)}
+								>
 									{expandedId === o._id ? 'Collapse' : 'Details'}
 								</Button>
 							</td>
 						</tr>
 						{#if expandedId === o._id}
 							<tr class="expanded rtable-sub">
-								<td colspan="6" class="rtable-full"><OrderDetail order={o} onTrack={(id) => tracking?.openFor(id)} /></td>
+								<td colspan="6" class="rtable-full"
+									><OrderDetail order={o} onTrack={(id) => tracking?.openFor(id)} /></td
+								>
 							</tr>
 						{/if}
 					{/each}

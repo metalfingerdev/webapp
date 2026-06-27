@@ -1,27 +1,33 @@
 <script lang="ts">
 	import { Card } from './ui/index.js';
-	import { useDashboard } from '$lib/dashboard/dashboard.svelte.js';
+	import { useDashboard, fmtINR } from '$lib/dashboard/dashboard.svelte.js';
 
 	const dash = useDashboard();
 
 	const cards = $derived.by(() => {
-		const s = dash.stats.data;
-		if (!s) return [];
+		const statistics = dash.stats.data;
+
+		if (!statistics) return [];
+
 		return [
-			{ label: 'Orders', value: String(s.totalOrders) },
-			{ label: 'Revenue', value: dash.fmt(s.totalRevenue) },
-			{ label: 'Products', value: String(s.totalProducts) },
-			{ label: 'Schools', value: String(s.totalSchools) },
-			{ label: 'Low stock', value: String(s.lowStockProducts.length), alert: s.lowStockProducts.length > 0 }
+			{ label: 'Orders', value: String(statistics.totalOrders) },
+			{ label: 'Revenue', value: fmtINR(statistics.totalRevenue) },
+			{ label: 'Products', value: String(statistics.totalProducts) },
+			{ label: 'Schools', value: String(statistics.totalSchools) },
+			{
+				label: 'Low stock',
+				value: String(statistics.lowStockProducts.length),
+				alert: statistics.lowStockProducts.length > 0
+			}
 		];
 	});
 </script>
 
 <section class="stats">
-	{#each cards as c (c.label)}
+	{#each cards as card (card.label)}
 		<Card class="stat">
-			<span class="label">{c.label}</span>
-			<span class="value" class:alert={c.alert}>{c.value}</span>
+			<span class="label">{card.label}</span>
+			<span class="value" class:alert={card.alert}>{card.value}</span>
 		</Card>
 	{/each}
 </section>

@@ -7,16 +7,28 @@
 	import { downloadInvoice, downloadPackingSlip } from '$lib/pdf/index.js';
 	import {
 		useDashboard,
+		fmtINR,
 		ORDER_STATUSES,
 		type OrderStatus
 	} from '$lib/dashboard/dashboard.svelte.js';
 
-	type OrderItem = { _id: string; quantity: number; priceAtPurchase: number; product: { name: string } | null };
+	type OrderItem = {
+		_id: string;
+		quantity: number;
+		priceAtPurchase: number;
+		product: { name: string } | null;
+	};
 	type OrderRow = {
 		_id: Id<'orders'>;
 		status: string;
 		trackingId?: string;
-		address: { street: string; city: string; state: string; pincode: string; label?: string } | null;
+		address: {
+			street: string;
+			city: string;
+			state: string;
+			pincode: string;
+			label?: string;
+		} | null;
 		items: OrderItem[];
 	};
 
@@ -36,7 +48,11 @@
 	async function saveStatus() {
 		savingStatus = true;
 		try {
-			await dash.updateOrderStatus({ id: order._id, status: statusDraft, trackingId: trackingId || undefined });
+			await dash.updateOrderStatus({
+				id: order._id,
+				status: statusDraft,
+				trackingId: trackingId || undefined
+			});
 		} finally {
 			savingStatus = false;
 		}
@@ -71,7 +87,7 @@
 				<tr>
 					<td>{item.product?.name ?? '—'}</td>
 					<td class="tabular">{item.quantity}</td>
-					<td class="tabular">{dash.fmt(item.priceAtPurchase)}</td>
+					<td class="tabular">{fmtINR(item.priceAtPurchase)}</td>
 				</tr>
 			{/each}
 		</tbody>
@@ -88,7 +104,9 @@
 			{savingStatus ? 'Saving…' : 'Update status'}
 		</Button>
 		{#if canCancel}
-			<Button size="sm" variant="destructive" onclick={() => dash.cancelOrder({ id: order._id })}>Cancel order</Button>
+			<Button size="sm" variant="destructive" onclick={() => dash.cancelOrder({ id: order._id })}
+				>Cancel order</Button
+			>
 		{/if}
 	</div>
 

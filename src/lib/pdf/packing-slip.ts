@@ -21,8 +21,18 @@ function packingContent(doc: OrderDocument): Content[] {
 			{
 				width: 'auto',
 				stack: [
-					{ text: 'SHIP TO:', style: 'docTitle', fontSize: 18, alignment: 'right', margin: [0, 0, 0, 6] },
-					...addressLines(doc).map((l, i) => ({ text: l, bold: i === 0, alignment: 'right' as const }))
+					{
+						text: 'SHIP TO:',
+						style: 'docTitle',
+						fontSize: 18,
+						alignment: 'right',
+						margin: [0, 0, 0, 6]
+					},
+					...addressLines(doc).map((l, i) => ({
+						text: l,
+						bold: i === 0,
+						alignment: 'right' as const
+					}))
 				]
 			}
 		],

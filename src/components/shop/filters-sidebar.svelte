@@ -17,7 +17,11 @@
 
 		<fieldset>
 			<label for="sort">Sort by</label>
-			<select id="sort" value={f.sort} onchange={(e) => f.setSort(e.currentTarget.value as SortValue)}>
+			<select
+				id="sort"
+				value={f.sort}
+				onchange={(e) => f.setSort(e.currentTarget.value as SortValue)}
+			>
 				{#each SORT_OPTIONS as opt (opt.value)}
 					<option value={opt.value}>{opt.label}</option>
 				{/each}

@@ -1,17 +1,16 @@
 import { convexLoadPaginated } from 'convex-svelte/sveltekit';
 import { api } from '$convex/_generated/api.js';
 import { error } from '@sveltejs/kit';
+import { PRODUCT_CATEGORIES, type ProductCategory } from '$convex/schema.js';
 import { parseShopFilters } from '$lib/shop/query-params.js';
 import type { PageLoad } from './$types.js';
 
-const CATEGORIES = ['book', 'clothes', 'stationary'] as const;
-type Category = (typeof CATEGORIES)[number];
-
 export const load = (async ({ params, url }) => {
-	if (!CATEGORIES.includes(params.category as Category)) {
+	const category = params.category as ProductCategory;
+	// The matcher already gates this route, but keep the guard for safety.
+	if (!PRODUCT_CATEGORIES.includes(category)) {
 		error(404, 'Unknown category');
 	}
-	const category = params.category as Category;
 
 	return {
 		category,

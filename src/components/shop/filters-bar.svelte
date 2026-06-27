@@ -104,7 +104,12 @@
 		{/if}
 
 		<div class="tabs">
-			<button type="button" class="tab" class:active={panel === 'sort'} onclick={() => toggle('sort')}>
+			<button
+				type="button"
+				class="tab"
+				class:active={panel === 'sort'}
+				onclick={() => toggle('sort')}
+			>
 				<ArrowDownUp size={18} />
 				Sort By
 			</button>
@@ -135,7 +140,7 @@
 	}
 
 	.bar {
-		@apply pointer-events-auto flex flex-col  bg-white;
+		@apply pointer-events-auto flex flex-col bg-white;
 	}
 
 	/* Expanded panel above the buttons. border-b separates it from the tab row. */

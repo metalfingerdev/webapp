@@ -86,29 +86,8 @@ export const getSitemapEntries = query({
 	}
 });
 
-export const getSchoolProducts = query({
-	args: {
-		paginationOpts: paginationOptsValidator,
-		schoolId: v.id('schools'),
-		grade: v.string(),
-		category: v.optional(v.union(v.literal('book'), v.literal('clothes'), v.literal('stationary')))
-	},
-	handler: async (ctx, args) => {
-		const bundlePage = await ctx.db
-			.query('bundles')
-			.withIndex('by_school_grade', (q) => q.eq('schoolId', args.schoolId).eq('grade', args.grade))
-			.paginate(args.paginationOpts);
-
-		const products = await Promise.all(bundlePage.page.map((b) => ctx.db.get(b.productId)));
-
-		return {
-			...bundlePage,
-			page: products
-				.filter((p): p is NonNullable<typeof p> => p !== null)
-				.filter((p) => !args.category || p.category === args.category)
-		};
-	}
-});
+// (Superseded by bundle.ts — the old getSchoolProducts used the flat bundle
+// model and is replaced by getBundle / getSchoolBundles there.)
 
 // Backs the /shop and /shop/[category] grids with all filters applied
 // server-side. Chooses an access path from the active filters so each maps to an
@@ -116,9 +95,7 @@ export const getSchoolProducts = query({
 export const listShopProducts = query({
 	args: {
 		paginationOpts: paginationOptsValidator,
-		category: v.optional(
-			v.union(v.literal('book'), v.literal('clothes'), v.literal('stationary'))
-		),
+		category: v.optional(v.union(v.literal('book'), v.literal('clothes'), v.literal('stationary'))),
 		q: v.optional(v.string()),
 		sort: v.optional(
 			v.union(

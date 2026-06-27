@@ -1,12 +1,13 @@
 <script lang="ts">
-	import type { Snippet } from 'svelte';
-	import { Package, School, ShoppingBag, ArrowUpRight } from '@lucide/svelte';
-	import type { DashTab } from '$lib/dashboard/dashboard.svelte.js';
+	import type { Snippet, Component } from 'svelte';
+	import { Package, School, ShoppingBag, ArrowUpRight, type LucideProps } from '@lucide/svelte';
+	import type { Tab } from '$lib/dashboard/dashboard.svelte.js';
 
-	let { tab = $bindable('products' as DashTab), children }: { tab?: DashTab; children: Snippet } =
-		$props();
+	type Icon = Component<LucideProps>;
 
-	const nav: { id: DashTab; label: string; icon: typeof Package }[] = [
+	let { tab = $bindable('products' as Tab), children }: { tab: Tab; children: Snippet } = $props();
+
+	const nav: { id: Tab; label: string; icon: Icon }[] = [
 		{ id: 'products', label: 'Products', icon: Package },
 		{ id: 'schools', label: 'Schools', icon: School },
 		{ id: 'orders', label: 'Orders', icon: ShoppingBag }
@@ -18,7 +19,7 @@
 		<a class="brand" href="/">
 			Aggarwalkart <span>Admin</span>
 		</a>
-		<nav class="nav">
+		<menu class="nav">
 			{#each nav as item (item.id)}
 				{@const Icon = item.icon}
 				<button class="item" class:active={tab === item.id} onclick={() => (tab = item.id)}>
@@ -26,8 +27,8 @@
 					<span>{item.label}</span>
 				</button>
 			{/each}
-		</nav>
-		<a class="store" href="/">Store <ArrowUpRight size={14} /></a>
+		</menu>
+		<a class="store" href="/"><span><ArrowUpRight size={16} /></span> Store</a>
 	</aside>
 
 	<main class="content">
@@ -71,7 +72,7 @@
 
 	/* "Back to store" link — pinned to the bottom of the sidebar on desktop. */
 	.store {
-		@apply ml-auto inline-flex shrink-0 items-center gap-1 rounded-lg px-3 py-2 text-sm text-neutral-500 hover:bg-neutral-100 md:mt-auto md:ml-0;
+		@apply ml-auto inline-flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-sm text-neutral-500 hover:bg-neutral-100 md:ml-0;
 	}
 
 	.content {

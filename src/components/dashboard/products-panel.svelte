@@ -1,10 +1,11 @@
 <script lang="ts">
 	import type { Id } from '$convex/_generated/dataModel.js';
 	import { Plus } from '@lucide/svelte';
-	import { Card, Button, Badge } from '../ui/index.js';
-	import ProductModal from './product-modal.svelte';
+	import { Card, Button, Badge } from './ui/index.js';
+	import ProductModal from './products/product-modal.svelte';
 	import {
 		useDashboard,
+		fmtINR,
 		PRODUCT_FILTERS,
 		type ProductFilter
 	} from '$lib/dashboard/dashboard.svelte.js';
@@ -43,7 +44,9 @@
 
 <div class="filters">
 	{#each PRODUCT_FILTERS as { value, label } (value)}
-		<button class="chip" class:active={filter === value} onclick={() => (filter = value)}>{label}</button>
+		<button class="chip" class:active={filter === value} onclick={() => (filter = value)}
+			>{label}</button
+		>
 	{/each}
 </div>
 
@@ -56,7 +59,8 @@
 		<div class="table-wrap">
 			<table class="rtable">
 				<thead>
-					<tr><th>Name</th><th>Category</th><th>School</th><th>Price</th><th>Stock</th><th></th></tr>
+					<tr><th>Name</th><th>Category</th><th>School</th><th>Price</th><th>Stock</th><th></th></tr
+					>
 				</thead>
 				<tbody>
 					{#each rows as p (p._id)}
@@ -64,7 +68,7 @@
 							<td class="name" data-label="Name">{p.name}</td>
 							<td data-label="Category"><Badge>{p.details.type}</Badge></td>
 							<td class="muted" data-label="School">{dash.schoolNameOf(p)}</td>
-							<td class="tabular" data-label="Price">{dash.fmt(p.salePrice)}</td>
+							<td class="tabular" data-label="Price">{fmtINR(p.salePrice)}</td>
 							<td class="tabular" data-label="Stock" class:low={p.stock <= 5}>{p.stock}</td>
 							<td class="rtable-full">
 								{#if deleteId === p._id}
@@ -75,10 +79,24 @@
 									</span>
 								{:else}
 									<div class="actions">
-										<Button size="sm" variant="outline" onclick={() => modal?.openEdit(p)}>Edit</Button>
-										<Button size="sm" variant="ghost" onclick={() => (deleteId = p._id)}>Delete</Button>
-										<input class="qty" type="number" placeholder="±qty" bind:value={stockDelta[p._id]} />
-										<Button size="sm" variant="outline" disabled={!stockDelta[p._id]} onclick={() => adjust(p._id)}>
+										<Button size="sm" variant="outline" onclick={() => modal?.openEdit(p)}
+											>Edit</Button
+										>
+										<Button size="sm" variant="ghost" onclick={() => (deleteId = p._id)}
+											>Delete</Button
+										>
+										<input
+											class="qty"
+											type="number"
+											placeholder="±qty"
+											bind:value={stockDelta[p._id]}
+										/>
+										<Button
+											size="sm"
+											variant="outline"
+											disabled={!stockDelta[p._id]}
+											onclick={() => adjust(p._id)}
+										>
 											Adjust
 										</Button>
 									</div>

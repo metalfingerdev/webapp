@@ -18,9 +18,7 @@
 
 	type Crumb = { label: string; href: string };
 
-	const onShop = $derived(
-		page.url.pathname === '/shop' || page.url.pathname.startsWith('/shop/')
-	);
+	const onShop = $derived(page.url.pathname === '/shop' || page.url.pathname.startsWith('/shop/'));
 
 	// /shop -> /shop/[category] -> /shop/[category]/[slug]. Category labels reuse
 	// navItems; the product leaf uses the real name from page.data (falling back

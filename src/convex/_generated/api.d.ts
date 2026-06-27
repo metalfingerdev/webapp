@@ -10,6 +10,7 @@
 
 import type * as addresses from "../addresses.js";
 import type * as auth from "../auth.js";
+import type * as bundle from "../bundle.js";
 import type * as cart from "../cart.js";
 import type * as dashboard from "../dashboard.js";
 import type * as emails from "../emails.js";
@@ -33,6 +34,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   addresses: typeof addresses;
   auth: typeof auth;
+  bundle: typeof bundle;
   cart: typeof cart;
   dashboard: typeof dashboard;
   emails: typeof emails;

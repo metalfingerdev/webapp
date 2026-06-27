@@ -104,9 +104,13 @@
 <Modal bind:open title={editingId ? 'Edit product' : 'New product'}>
 	<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
 		<Field label="Name" class="col-span-2"><input bind:value={f.name} /></Field>
-		<Field label="Price (₹)"><input type="number" min="0" step="0.01" bind:value={f.priceRupees} /></Field>
+		<Field label="Price (₹)"
+			><input type="number" min="0" step="0.01" bind:value={f.priceRupees} /></Field
+		>
 		<Field label="Stock"><input type="number" min="0" bind:value={f.stock} /></Field>
-		<Field label="Weight (g)"><input type="number" min="0" step="0.01" bind:value={f.weight} /></Field>
+		<Field label="Weight (g)"
+			><input type="number" min="0" step="0.01" bind:value={f.weight} /></Field
+		>
 		<Field label="Category">
 			<select bind:value={f.category}>
 				<option value="book">Book</option>
@@ -114,7 +118,9 @@
 				<option value="stationary">Stationary</option>
 			</select>
 		</Field>
-		<Field label="Image URL" class="col-span-2"><input bind:value={f.imageUrl} placeholder="optional" /></Field>
+		<Field label="Image URL" class="col-span-2"
+			><input bind:value={f.imageUrl} placeholder="optional" /></Field
+		>
 
 		{#if f.category === 'book'}
 			<Field label="Author"><input bind:value={f.author} /></Field>

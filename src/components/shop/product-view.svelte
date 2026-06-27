@@ -1,17 +1,21 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { useCart } from '$lib/cart/index.js';
-	import type { PageData } from './$types.js';
+	import type { FunctionReturnType } from 'convex/server';
+	import { api } from '$convex/_generated/api.js';
 
-	let { data }: { data: PageData } = $props();
+	type Result = {
+		data: FunctionReturnType<typeof api.products.getProductBySlug> | undefined;
+		isLoading: boolean;
+	};
+	let { product: result }: { product: Result } = $props();
 
 	const cart = useCart();
-	const product = $derived(data.product.data);
+	const product = $derived(result.data);
 
 	const inr = (paise: number) =>
 		new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(paise / 100);
 
-	// Product structured data for rich search results (price + availability).
 	const jsonLd = $derived(
 		product
 			? {
@@ -40,14 +44,12 @@
 			content={`Buy ${product.name} for ${inr(product.salePrice)} at Aggarwal Book & Stationery Mart, Faridabad.`}
 		/>
 		<link rel="canonical" href={`${page.url.origin}/shop/${product.category}/${product.slug}`} />
-		<!-- Closing tag is split (`</${'script'}>`) so the literal "</script>" never
-		     appears in source — that substring terminates Svelte/ESLint parsing, and
-		     Prettier strips the usual `<\/script>` escape back to `</script>`. -->
+		<!-- Closing tag is split so the literal "</script>" never appears in source. -->
 		{@html `<script type="application/ld+json">${JSON.stringify(jsonLd)}</${'script'}>`}
 	{/if}
 </svelte:head>
 
-{#if data.product.isLoading}
+{#if result.isLoading}
 	<p>Loading product details...</p>
 {:else if !product}
 	<p>Product not found.</p>
@@ -76,5 +78,5 @@
 {/if}
 
 <style lang="postcss">
-	@reference "src/app.css";
+	@reference 'src/app.css';
 </style>

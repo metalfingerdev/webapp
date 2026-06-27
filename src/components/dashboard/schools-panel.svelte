@@ -1,9 +1,9 @@
 <script lang="ts">
 	import type { Id } from '$convex/_generated/dataModel.js';
 	import { Plus } from '@lucide/svelte';
-	import { Card, Button } from '../ui/index.js';
-	import SchoolModal from './school-modal.svelte';
-	import BundlePanel from './bundle-panel.svelte';
+	import { Card, Button } from './ui/index.js';
+	import SchoolModal from './schools/school-modal.svelte';
+	import BundlePanel from './schools/bundle-panel.svelte';
 	import { useDashboard } from '$lib/dashboard/dashboard.svelte.js';
 
 	const dash = useDashboard();
@@ -51,14 +51,34 @@
 									<span class="confirm">
 										{deleteError || 'Delete?'}
 										<Button size="sm" variant="destructive" onclick={confirmDelete}>Yes</Button>
-										<Button size="sm" variant="ghost" onclick={() => { deleteId = null; deleteError = ''; }}>No</Button>
+										<Button
+											size="sm"
+											variant="ghost"
+											onclick={() => {
+												deleteId = null;
+												deleteError = '';
+											}}>No</Button
+										>
 									</span>
 								{:else}
 									<div class="actions">
-										<Button size="sm" variant="outline" onclick={() => modal?.openEdit(s)}>Edit</Button>
-										<Button size="sm" variant="ghost" onclick={() => { deleteId = s._id; deleteError = ''; }}>Delete</Button>
-										<Button size="sm" variant="ghost" onclick={() => (expandedId = expandedId === s._id ? null : s._id)}>
-											{expandedId === s._id ? 'Hide bundles' : 'Bundles'}
+										<Button size="sm" variant="outline" onclick={() => modal?.openEdit(s)}
+											>Edit</Button
+										>
+										<Button
+											size="sm"
+											variant="ghost"
+											onclick={() => {
+												deleteId = s._id;
+												deleteError = '';
+											}}>Delete</Button
+										>
+										<Button
+											size="sm"
+											variant="outline"
+											onclick={() => (expandedId = expandedId === s._id ? null : s._id)}
+										>
+											{expandedId === s._id ? 'Hide bundles' : 'Manage bundles'}
 										</Button>
 									</div>
 								{/if}
@@ -66,7 +86,9 @@
 						</tr>
 						{#if expandedId === s._id}
 							<tr class="expanded rtable-sub">
-								<td colspan="3" class="rtable-full"><BundlePanel schoolId={s._id} /></td>
+								<td colspan="3" class="rtable-full">
+									<BundlePanel schoolId={s._id} schoolName={s.name} />
+								</td>
 							</tr>
 						{/if}
 					{/each}

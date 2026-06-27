@@ -1,5 +1,19 @@
 <script lang="ts">
+	import { useQuery } from 'convex-svelte';
+	import { api } from '$convex/_generated/api.js';
 	import { useNavbar } from '$lib/navbar/navbar.svelte.js';
+
+	// Schools panel (index 0): one link per bundle, grouped by school.
+	const catalog = useQuery(api.bundle.listBundleCatalog, {});
+	const bundleLinks = $derived(
+		(catalog.data ?? []).flatMap((s) =>
+			s.grades.map((g) => ({
+				title: `${s.schoolName} · ${g.grade}`,
+				href: `/shop/${s.schoolSlug}/${g.gradeSlug}`,
+				description: 'Grade-wise book & uniform set.'
+			}))
+		)
+	);
 
 	const books: { title: string; href: string; description: string }[] = [
 		{
@@ -160,7 +174,7 @@
 		class:snap={nav.justOpened}
 		style="width: {nav.viewportWidth}px; height: {nav.viewportHeight}px; transform: translateX({nav.viewportX}px);"
 	>
-		<!-- Panel 0: hardcoded intro panel -->
+		<!-- Panel 0: Schools — its own viewport with a hero + bundle links. -->
 		<div
 			class="content-panel"
 			class:active={nav.activeIndex === 0}
@@ -169,31 +183,27 @@
 		>
 			<ul class="panel-grid">
 				<li class="hero">
-					<a href="/" class="hero-card">
-						<div class="hero-title">Bits UI</div>
-						<p class="hero-desc">The headless components for Svelte.</p>
+					<a href="/schools" class="hero-card">
+						<div class="hero-title">Shop by school</div>
+						<p class="hero-desc">Grade-wise book &amp; uniform sets for your school.</p>
 					</a>
 				</li>
 
-				{@render ListItem({
-					href: '/docs',
-					title: 'Introduction',
-					content: 'Headless components for Svelte and SvelteKit'
-				})}
-				{@render ListItem({
-					href: '/docs/getting-started',
-					title: 'Getting Started',
-					content: 'How to install and use Bits UI'
-				})}
-				{@render ListItem({
-					href: '/docs/styling',
-					title: 'Styling',
-					content: 'How to style Bits UI components'
-				})}
+				{#if bundleLinks.length === 0}
+					{@render ListItem({
+						title: 'No bundles yet',
+						href: '/schools',
+						content: 'School bundles will appear here once added.'
+					})}
+				{:else}
+					{#each bundleLinks as link (link.href)}
+						{@render ListItem({ title: link.title, href: link.href, content: link.description })}
+					{/each}
+				{/if}
 			</ul>
 		</div>
 
-		<!-- Panels 1+: dynamic panels from the panels array -->
+		<!-- Panels 1+: one per category trigger (Books / Uniforms / Stationary). -->
 		{#each panels as panel, i}
 			<div
 				class="content-panel"

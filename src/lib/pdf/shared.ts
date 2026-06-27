@@ -21,7 +21,12 @@ export const BRAND_DARK = '#111827';
 export const MUTED = '#6b7280';
 export const HAIRLINE = '#e5e7eb';
 
-export const DEFAULT_STYLE: Style = { font: 'Roboto', fontSize: 10, color: '#1f2937', lineHeight: 1.2 };
+export const DEFAULT_STYLE: Style = {
+	font: 'Roboto',
+	fontSize: 10,
+	color: '#1f2937',
+	lineHeight: 1.2
+};
 
 export const DOC_STYLES: Record<string, Style> = {
 	docTitle: { fontSize: 22, bold: true },

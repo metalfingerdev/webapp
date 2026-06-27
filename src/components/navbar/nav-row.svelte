@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
+	import { goto } from '$app/navigation';
 	import { useQuery } from 'convex-svelte';
 	import { api } from '$convex/_generated/api.js';
 	import { ChevronDown, Search, User, Menu, ShoppingCart, LogIn } from '@lucide/svelte';
@@ -15,8 +16,11 @@
 	const sidebar = useSidebar();
 	const userQuery = useQuery(api.auth.getCurrentUser);
 
-	const navItems = [
-		{ id: 'schools', label: 'Schools' },
+	// Dropdown triggers (mega-menu), in the same order as the panels in
+	// mega-menu.svelte. "Schools" is index 0 (its panel lists the bundles) and
+	// also navigates to /schools on click via `href`.
+	const navItems: { id: string; label: string; href?: string }[] = [
+		{ id: 'schools', label: 'Schools', href: '/schools' },
 		{ id: 'books', label: 'Books' },
 		{ id: 'unifrom', label: 'Unifroms' },
 		{ id: 'stationary', label: 'Stationary' }
@@ -43,6 +47,7 @@
 				bind:this={nav.triggerRefs[i]}
 				onmouseenter={() => nav.openPanel(i)}
 				onfocus={() => nav.openPanel(i)}
+				onclick={() => item.href && goto(item.href)}
 			>
 				{item.label} <span class="caret"><ChevronDown size={15} /></span>
 			</button>

@@ -4,7 +4,7 @@
 	import { api } from '$convex/_generated/api.js';
 	import { useSidebar } from '$lib/sidebar/index.js';
 
-	type CategoryKey = 'shop' | 'books' | 'uniform' | 'stationary' | 'school';
+	type CategoryKey = 'shop' | 'books' | 'uniform' | 'stationary';
 	type ShopCategory = 'book' | 'clothes' | 'stationary';
 
 	let { view }: { view: CategoryKey } = $props();
@@ -45,7 +45,7 @@
 			card: { heading: 'Find your NCERT set', cta: 'Shop books', href: '/shop/book' },
 			explore: [
 				{ label: 'All books', href: '/shop/book' },
-				{ label: 'Shop by school', href: '/shop' }
+				{ label: 'Shop by school', href: '/schools' }
 			]
 		},
 		uniform: {
@@ -54,7 +54,7 @@
 			card: { heading: 'Kit out for the new term', cta: 'Shop uniforms', href: '/shop/clothes' },
 			explore: [
 				{ label: 'All uniforms', href: '/shop/clothes' },
-				{ label: 'Shop by school', href: '/shop' }
+				{ label: 'Shop by school', href: '/schools' }
 			]
 		},
 		stationary: {
@@ -62,16 +62,6 @@
 			category: 'stationary',
 			card: { heading: 'Stock up on essentials', cta: 'Shop stationary', href: '/shop/stationary' },
 			explore: [{ label: 'All stationary', href: '/shop/stationary' }]
-		},
-		school: {
-			title: 'School',
-			category: null,
-			card: { heading: 'Everything for the year', cta: 'Shop all', href: '/shop' },
-			explore: [
-				{ label: 'Books', href: '/shop/book' },
-				{ label: 'Uniforms', href: '/shop/clothes' },
-				{ label: 'Stationary', href: '/shop/stationary' }
-			]
 		}
 	};
 

@@ -53,7 +53,11 @@
 		<section class="preview">
 			<table>
 				<thead>
-					<tr><th>Sr.</th><th>Product</th><th>HSN</th><th>GST %</th><th>QTY</th><th class="r">Price</th></tr>
+					<tr
+						><th>Sr.</th><th>Product</th><th>HSN</th><th>GST %</th><th>QTY</th><th class="r"
+							>Price</th
+						></tr
+					>
 				</thead>
 				<tbody>
 					{#each doc.lines as line (line.sr)}

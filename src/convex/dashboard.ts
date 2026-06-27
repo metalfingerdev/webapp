@@ -1,7 +1,7 @@
 import { mutation, query } from './_generated/server.js';
 import { v } from 'convex/values';
 import type { GenericQueryCtx, GenericMutationCtx } from 'convex/server';
-import type { DataModel, Doc } from './_generated/dataModel.js';
+import type { DataModel, Doc, Id } from './_generated/dataModel.js';
 import { authComponent } from './auth.js';
 import { components } from './_generated/api.js';
 import { assembleOrderDocument } from './lib/orderDocument.js';
@@ -14,7 +14,7 @@ type Ctx = GenericQueryCtx<DataModel> | GenericMutationCtx<DataModel>;
 
 // ─── Role guard ────────────────────────────────────────────────────────────────
 
-async function requireElevated(ctx: Ctx) {
+export async function requireElevated(ctx: Ctx) {
 	const user = await authComponent.safeGetAuthUser(ctx);
 	if (!user) throw new Error('Unauthenticated');
 	const roleDoc = await ctx.db
@@ -27,7 +27,7 @@ async function requireElevated(ctx: Ctx) {
 	return user;
 }
 
-async function requireAdmin(ctx: Ctx) {
+export async function requireAdmin(ctx: Ctx) {
 	const user = await authComponent.safeGetAuthUser(ctx);
 	if (!user) throw new Error('Unauthenticated');
 	const roleDoc = await ctx.db
@@ -64,6 +64,23 @@ const detailsV = v.union(
 
 // ─── Schools ───────────────────────────────────────────────────────────────────
 
+// A school's URL slug (the [school] segment). Unique among schools; -2, -3… on
+// collision. Pass excludeId when updating so a school doesn't collide with itself.
+async function uniqueSchoolSlug(ctx: Ctx, base: string, excludeId?: Id<'schools'>): Promise<string> {
+	const root = slugify(base);
+	let slug = root;
+	let n = 1;
+	for (;;) {
+		const hit = await ctx.db
+			.query('schools')
+			.withIndex('by_slug', (q) => q.eq('slug', slug))
+			.first();
+		if (!hit || hit._id === excludeId) return slug;
+		n += 1;
+		slug = `${root}-${n}`;
+	}
+}
+
 export const listSchools = query({
 	args: {},
 	handler: async (ctx) => {
@@ -83,11 +100,13 @@ export const getSchool = query({
 export const createSchool = mutation({
 	args: {
 		name: v.string(),
-		code: v.optional(v.string())
+		code: v.optional(v.string()),
+		slug: v.optional(v.string())
 	},
-	handler: async (ctx, args) => {
+	handler: async (ctx, { name, code, slug }) => {
 		await requireElevated(ctx);
-		return ctx.db.insert('schools', args);
+		const finalSlug = await uniqueSchoolSlug(ctx, slug || name);
+		return ctx.db.insert('schools', { name, code, slug: finalSlug });
 	}
 });
 
@@ -95,11 +114,17 @@ export const updateSchool = mutation({
 	args: {
 		id: v.id('schools'),
 		name: v.string(),
-		code: v.optional(v.string())
+		code: v.optional(v.string()),
+		slug: v.optional(v.string())
 	},
-	handler: async (ctx, { id, ...patch }) => {
+	handler: async (ctx, { id, name, code, slug }) => {
 		await requireElevated(ctx);
-		await ctx.db.patch(id, patch);
+		const current = await ctx.db.get(id);
+		// Use the provided slug, else keep the existing one, else backfill from name.
+		const finalSlug = slug
+			? await uniqueSchoolSlug(ctx, slug, id)
+			: (current?.slug ?? (await uniqueSchoolSlug(ctx, name, id)));
+		await ctx.db.patch(id, { name, code, slug: finalSlug });
 	}
 });
 
@@ -347,58 +372,8 @@ export const adjustStock = mutation({
 	}
 });
 
-// ─── Bundles ───────────────────────────────────────────────────────────────────
-
-// Returns every bundle for a school, optionally filtered by grade.
-export const listBundles = query({
-	args: {
-		schoolId: v.id('schools'),
-		grade: v.optional(v.string())
-	},
-	handler: async (ctx, { schoolId, grade }) => {
-		await requireElevated(ctx);
-		const q = ctx.db.query('bundles').withIndex('by_school_grade', (q) => {
-			if (grade) return q.eq('schoolId', schoolId).eq('grade', grade);
-			return q.eq('schoolId', schoolId);
-		});
-		const bundles = await q.collect();
-		// Hydrate product details so the dashboard doesn't need a second round-trip.
-		return Promise.all(
-			bundles.map(async (b) => ({
-				...b,
-				product: await ctx.db.get(b.productId)
-			}))
-		);
-	}
-});
-
-export const addToBundle = mutation({
-	args: {
-		schoolId: v.id('schools'),
-		grade: v.string(),
-		productId: v.id('products')
-	},
-	handler: async (ctx, args) => {
-		await requireElevated(ctx);
-		// Prevent duplicate entries in the same bundle.
-		const existing = await ctx.db
-			.query('bundles')
-			.withIndex('by_school_grade_product', (q) =>
-				q.eq('schoolId', args.schoolId).eq('grade', args.grade).eq('productId', args.productId)
-			)
-			.unique();
-		if (existing) throw new Error('Product already in this bundle.');
-		return ctx.db.insert('bundles', args);
-	}
-});
-
-export const removeFromBundle = mutation({
-	args: { id: v.id('bundles') },
-	handler: async (ctx, { id }) => {
-		await requireElevated(ctx);
-		await ctx.db.delete(id);
-	}
-});
+// Bundle functions live in bundles.ts (admin + public) — they share the
+// requireElevated guard exported above.
 
 // ─── Orders ────────────────────────────────────────────────────────────────────
 

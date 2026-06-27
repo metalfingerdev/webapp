@@ -108,8 +108,10 @@ export async function assembleOrderDocument(
 	).sort((a, b) => parseFloat(a) - parseFloat(b));
 	const taxBreakdown: { label: string; amount: number }[] = [];
 	for (const rate of rateLabels) {
-		if (priced.cgstBreakdown[rate]) taxBreakdown.push({ label: `CGST ${rate}`, amount: priced.cgstBreakdown[rate] });
-		if (priced.sgstBreakdown[rate]) taxBreakdown.push({ label: `SGST ${rate}`, amount: priced.sgstBreakdown[rate] });
+		if (priced.cgstBreakdown[rate])
+			taxBreakdown.push({ label: `CGST ${rate}`, amount: priced.cgstBreakdown[rate] });
+		if (priced.sgstBreakdown[rate])
+			taxBreakdown.push({ label: `SGST ${rate}`, amount: priced.sgstBreakdown[rate] });
 	}
 
 	return {

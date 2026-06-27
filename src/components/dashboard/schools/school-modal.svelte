@@ -7,20 +7,20 @@
 
 	let open = $state(false);
 	let editingId = $state<Id<'schools'> | null>(null);
-	let form = $state({ name: '', code: '' });
+	let form = $state({ name: '', code: '', slug: '' });
 	let submitting = $state(false);
 	let error = $state('');
 
 	export function openCreate() {
 		editingId = null;
-		form = { name: '', code: '' };
+		form = { name: '', code: '', slug: '' };
 		error = '';
 		open = true;
 	}
 
 	export function openEdit(s: School) {
 		editingId = s._id;
-		form = { name: s.name, code: s.code ?? '' };
+		form = { name: s.name, code: s.code ?? '', slug: s.slug ?? '' };
 		error = '';
 		open = true;
 	}
@@ -29,7 +29,11 @@
 		submitting = true;
 		error = '';
 		try {
-			const payload = { name: form.name, code: form.code || undefined };
+			const payload = {
+				name: form.name,
+				code: form.code || undefined,
+				slug: form.slug || undefined
+			};
 			if (editingId) await dash.updateSchool({ id: editingId, ...payload });
 			else await dash.createSchool(payload);
 			open = false;
@@ -42,8 +46,14 @@
 </script>
 
 <Modal bind:open title={editingId ? 'Edit school' : 'New school'}>
-	<Field label="Name"><input bind:value={form.name} placeholder="e.g. Delhi Public School" /></Field>
-	<Field label="Code" hint="Optional short code"><input bind:value={form.code} placeholder="e.g. DPS-01" /></Field>
+	<Field label="Name"><input bind:value={form.name} placeholder="e.g. Delhi Public School" /></Field
+	>
+	<Field label="URL slug" hint="Used in /shop/<slug>/<grade>. Leave blank to derive from the name."
+		><input bind:value={form.slug} placeholder="e.g. dps-rkpuram" /></Field
+	>
+	<Field label="Code" hint="Optional short code"
+		><input bind:value={form.code} placeholder="e.g. DPS-01" /></Field
+	>
 	{#if error}<p class="err">{error}</p>{/if}
 
 	{#snippet footer()}

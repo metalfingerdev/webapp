@@ -1,7 +1,7 @@
 <script lang="ts">
 	// src/components/sidebar/sidebar.svelte
 	import { useSidebar } from '$lib/sidebar/sidebar.svelte.js';
-	import { Menu, Cart, Auth, User, Category } from '$components/sidebar/index.js';
+	import { Menu, Cart, Auth, User, Category, School } from '$components/sidebar/index.js';
 	import { X, ChevronLeft, Search, User as UserIcon, LogIn, ShoppingCart } from '@lucide/svelte';
 	import { resolve } from '$app/paths';
 	import { fly } from 'svelte/transition';
@@ -120,7 +120,7 @@
 				{:else if sidebar.view === 'stationary'}
 					<Category view="stationary" />
 				{:else if sidebar.view === 'school'}
-					<Category view="school" />
+					<School />
 				{:else}
 					<Menu />
 				{/if}

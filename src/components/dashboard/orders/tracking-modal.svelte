@@ -51,7 +51,9 @@
 	</Field>
 	<Field label="Carrier"><input bind:value={form.carrier} placeholder="e.g. Delhivery" /></Field>
 	<Field label="Location"><input bind:value={form.location} placeholder="e.g. Mumbai hub" /></Field>
-	<Field label="Message"><input bind:value={form.message} placeholder="e.g. Out for delivery" /></Field>
+	<Field label="Message"
+		><input bind:value={form.message} placeholder="e.g. Out for delivery" /></Field
+	>
 
 	{#snippet footer()}
 		<Button variant="outline" onclick={() => (open = false)}>Cancel</Button>
