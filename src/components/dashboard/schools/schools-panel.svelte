@@ -37,16 +37,16 @@
 		<p class="empty">No schools yet.</p>
 	{:else}
 		<div class="table-wrap">
-			<table>
+			<table class="rtable">
 				<thead>
 					<tr><th>Name</th><th>Code</th><th></th></tr>
 				</thead>
 				<tbody>
 					{#each dash.schools.data ?? [] as s (s._id)}
 						<tr>
-							<td class="name">{s.name}</td>
-							<td class="muted">{s.code ?? '—'}</td>
-							<td>
+							<td class="name" data-label="Name">{s.name}</td>
+							<td class="muted" data-label="Code">{s.code ?? '—'}</td>
+							<td class="rtable-full">
 								{#if deleteId === s._id}
 									<span class="confirm">
 										{deleteError || 'Delete?'}
@@ -65,8 +65,8 @@
 							</td>
 						</tr>
 						{#if expandedId === s._id}
-							<tr class="expanded">
-								<td colspan="3"><BundlePanel schoolId={s._id} /></td>
+							<tr class="expanded rtable-sub">
+								<td colspan="3" class="rtable-full"><BundlePanel schoolId={s._id} /></td>
 							</tr>
 						{/if}
 					{/each}
@@ -112,7 +112,7 @@
 		@apply text-neutral-500;
 	}
 	.actions {
-		@apply flex items-center gap-2;
+		@apply flex flex-wrap items-center gap-2;
 	}
 	.confirm {
 		@apply inline-flex items-center gap-2 text-sm text-neutral-600;

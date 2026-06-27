@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import { Package, School, ShoppingBag } from '@lucide/svelte';
+	import { Package, School, ShoppingBag, ArrowUpRight } from '@lucide/svelte';
 	import type { DashTab } from '$lib/dashboard/dashboard.svelte.js';
 
 	let { tab = $bindable('products' as DashTab), children }: { tab?: DashTab; children: Snippet } =
@@ -15,7 +15,9 @@
 
 <div class="shell">
 	<aside class="rail">
-		<div class="brand">Aggarwalkart <span>Admin</span></div>
+		<a class="brand" href="/">
+			Aggarwalkart <span>Admin</span>
+		</a>
 		<nav class="nav">
 			{#each nav as item (item.id)}
 				{@const Icon = item.icon}
@@ -25,6 +27,7 @@
 				</button>
 			{/each}
 		</nav>
+		<a class="store" href="/">Store <ArrowUpRight size={14} /></a>
 	</aside>
 
 	<main class="content">
@@ -40,14 +43,14 @@
 	}
 
 	.rail {
-		@apply flex shrink-0 gap-1 border-neutral-200 bg-white p-3;
-		/* Mobile: a top bar. md+: a sticky left sidebar. */
-		@apply overflow-x-auto border-b;
-		@apply md:sticky md:top-0 md:h-dvh md:w-56 md:flex-col md:gap-1 md:border-r md:border-b-0 md:p-4 md:pt-20;
+		/* Mobile: a sticky top bar (the shop navbar is hidden on /dashboard, so this
+		   owns the top). md+: a sticky full-height left sidebar. */
+		@apply sticky top-0 z-10 flex shrink-0 items-center gap-2 overflow-x-auto border-b border-neutral-200 bg-white/95 p-3 backdrop-blur;
+		@apply md:top-0 md:h-dvh md:w-56 md:flex-col md:items-stretch md:gap-1 md:overflow-x-visible md:overflow-y-auto md:border-r md:border-b-0 md:p-4;
 	}
 
 	.brand {
-		@apply hidden items-baseline gap-1 px-2 pb-4 text-lg font-semibold text-neutral-900 md:flex;
+		@apply flex shrink-0 items-baseline gap-1 px-1 text-base font-semibold whitespace-nowrap text-neutral-900 md:pb-4 md:text-lg;
 
 		span {
 			@apply text-xs font-medium text-neutral-400 uppercase;
@@ -55,7 +58,7 @@
 	}
 
 	.nav {
-		@apply flex gap-1 md:flex-col;
+		@apply flex gap-1 md:mt-0 md:flex-col;
 	}
 
 	.item {
@@ -66,7 +69,12 @@
 		}
 	}
 
+	/* "Back to store" link — pinned to the bottom of the sidebar on desktop. */
+	.store {
+		@apply ml-auto inline-flex shrink-0 items-center gap-1 rounded-lg px-3 py-2 text-sm text-neutral-500 hover:bg-neutral-100 md:mt-auto md:ml-0;
+	}
+
 	.content {
-		@apply flex-1 p-4 md:p-6 md:pt-20;
+		@apply flex-1 p-4 md:p-6;
 	}
 </style>

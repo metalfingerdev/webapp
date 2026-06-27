@@ -73,27 +73,27 @@
 		<p class="empty">No orders{statusFilter !== 'all' ? ` with status "${statusFilter}"` : ''}.</p>
 	{:else}
 		<div class="table-wrap">
-			<table>
+			<table class="rtable">
 				<thead>
 					<tr><th>Order</th><th>Status</th><th>Items</th><th>Total</th><th>Date</th><th></th></tr>
 				</thead>
 				<tbody>
 					{#each ordersQ.results as o (o._id)}
 						<tr>
-							<td class="mono">#{o._id.slice(-8)}</td>
-							<td><Badge tone={TONE[o.status] ?? 'neutral'}>{o.status}</Badge></td>
-							<td>{o.items.length}</td>
-							<td class="tabular">{dash.fmt(o.totalPrice)}</td>
-							<td class="muted">{new Date(o.createdAt).toLocaleDateString('en-IN')}</td>
-							<td>
+							<td class="mono" data-label="Order">#{o._id.slice(-8)}</td>
+							<td data-label="Status"><Badge tone={TONE[o.status] ?? 'neutral'}>{o.status}</Badge></td>
+							<td data-label="Items">{o.items.length}</td>
+							<td class="tabular" data-label="Total">{dash.fmt(o.totalPrice)}</td>
+							<td class="muted" data-label="Date">{new Date(o.createdAt).toLocaleDateString('en-IN')}</td>
+							<td class="rtable-full">
 								<Button size="sm" variant="ghost" onclick={() => (expandedId = expandedId === o._id ? null : o._id)}>
 									{expandedId === o._id ? 'Collapse' : 'Details'}
 								</Button>
 							</td>
 						</tr>
 						{#if expandedId === o._id}
-							<tr class="expanded">
-								<td colspan="6"><OrderDetail order={o} onTrack={(id) => tracking?.openFor(id)} /></td>
+							<tr class="expanded rtable-sub">
+								<td colspan="6" class="rtable-full"><OrderDetail order={o} onTrack={(id) => tracking?.openFor(id)} /></td>
 							</tr>
 						{/if}
 					{/each}

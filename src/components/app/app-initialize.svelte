@@ -1,5 +1,6 @@
 <script lang="ts">
 	// src/components/app/app-initialize.svelte
+	import { page } from '$app/state';
 	import { useQuery, useAction } from 'convex-svelte';
 	import { api } from '$convex/_generated/api.js';
 	import { useAuth } from '$lib/svelte/index.js';
@@ -34,9 +35,16 @@
 	);
 
 	let { children, data } = $props();
+
+	// The admin dashboard is its own console with its own nav — the floating shop
+	// navbar would just overlap it (badly so on mobile, where the pill is
+	// full-width). Hide it there.
+	const showNavbar = $derived(!page.url.pathname.startsWith('/dashboard'));
 </script>
 
-<NavigationBar />
+{#if showNavbar}
+	<NavigationBar />
+{/if}
 
 <Sidebar {data} />
 

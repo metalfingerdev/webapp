@@ -102,7 +102,7 @@
 </script>
 
 <Modal bind:open title={editingId ? 'Edit product' : 'New product'}>
-	<div class="grid grid-cols-2 gap-4">
+	<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
 		<Field label="Name" class="col-span-2"><input bind:value={f.name} /></Field>
 		<Field label="Price (₹)"><input type="number" min="0" step="0.01" bind:value={f.priceRupees} /></Field>
 		<Field label="Stock"><input type="number" min="0" bind:value={f.stock} /></Field>

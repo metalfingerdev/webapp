@@ -2,7 +2,57 @@
 @import '@klinking/squircle/tailwind/utils.css';
 @plugin '@tailwindcss/forms';
 
-/* http://meyerweb.com/eric/tools/css/reset/ 
+/* http://meyerweb.com/eric/tools/css/reset/
    v2.0 | 20110126
    License: none (public domain)
 */
+
+/* Responsive tables: on phones each row collapses into a card (label/value
+   pairs) instead of forcing a horizontal scroll. Usage:
+   - class="rtable" on the <table>
+   - data-label="…" on data cells (renders the label on the left)
+   - class="rtable-full" on action/expanded cells that span full width, no label
+   - class="rtable-sub" on an expanded detail <tr> (no card chrome) */
+@media (max-width: 767px) {
+	.rtable thead {
+		display: none;
+	}
+	.rtable,
+	.rtable tbody,
+	.rtable tr,
+	.rtable td {
+		display: block;
+		width: auto;
+	}
+	.rtable tr {
+		border: 1px solid #e5e7eb;
+		border-radius: 0.75rem;
+		margin-bottom: 0.5rem;
+		overflow: hidden;
+	}
+	.rtable td {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+		border: 0 !important;
+		padding: 0.5rem 0.875rem;
+		text-align: right;
+	}
+	.rtable td[data-label]::before {
+		content: attr(data-label);
+		font-weight: 500;
+		color: #6b7280;
+		text-align: left;
+	}
+	.rtable td.rtable-full {
+		display: block;
+		padding: 0;
+		text-align: left;
+	}
+	.rtable tr.rtable-sub {
+		border: 0;
+		margin: 0;
+		border-radius: 0;
+	}
+}

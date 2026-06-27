@@ -54,19 +54,19 @@
 		<p class="empty">No products{filter !== 'all' ? ` in ${filter}` : ''}.</p>
 	{:else}
 		<div class="table-wrap">
-			<table>
+			<table class="rtable">
 				<thead>
 					<tr><th>Name</th><th>Category</th><th>School</th><th>Price</th><th>Stock</th><th></th></tr>
 				</thead>
 				<tbody>
 					{#each rows as p (p._id)}
 						<tr>
-							<td class="name">{p.name}</td>
-							<td><Badge>{p.details.type}</Badge></td>
-							<td class="muted">{dash.schoolNameOf(p)}</td>
-							<td class="tabular">{dash.fmt(p.salePrice)}</td>
-							<td class="tabular" class:low={p.stock <= 5}>{p.stock}</td>
-							<td>
+							<td class="name" data-label="Name">{p.name}</td>
+							<td data-label="Category"><Badge>{p.details.type}</Badge></td>
+							<td class="muted" data-label="School">{dash.schoolNameOf(p)}</td>
+							<td class="tabular" data-label="Price">{dash.fmt(p.salePrice)}</td>
+							<td class="tabular" data-label="Stock" class:low={p.stock <= 5}>{p.stock}</td>
+							<td class="rtable-full">
 								{#if deleteId === p._id}
 									<span class="confirm">
 										Delete?
@@ -146,7 +146,7 @@
 		@apply font-semibold text-amber-600;
 	}
 	.actions {
-		@apply flex items-center gap-2;
+		@apply flex flex-wrap items-center gap-2;
 	}
 	.confirm {
 		@apply inline-flex items-center gap-2 text-sm text-neutral-600;
