@@ -181,7 +181,7 @@
 
 		/* Static icon row — no transition, matching the close button. */
 		.actions {
-			@apply mx-1 flex items-center gap-8;
+			@apply mx-1 flex items-center gap-4;
 
 			button {
 				@apply inline-flex cursor-pointer items-center;

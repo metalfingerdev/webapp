@@ -66,7 +66,11 @@ const detailsV = v.union(
 
 // A school's URL slug (the [school] segment). Unique among schools; -2, -3… on
 // collision. Pass excludeId when updating so a school doesn't collide with itself.
-async function uniqueSchoolSlug(ctx: Ctx, base: string, excludeId?: Id<'schools'>): Promise<string> {
+async function uniqueSchoolSlug(
+	ctx: Ctx,
+	base: string,
+	excludeId?: Id<'schools'>
+): Promise<string> {
 	const root = slugify(base);
 	let slug = root;
 	let n = 1;
