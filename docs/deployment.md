@@ -73,6 +73,32 @@ Ordered by importance.
    the profile page (`setMyPassword`).
 5. **Verify roles.** Ensure the right admin emails exist in `userRoles` so the
    dashboard is reachable by you and locked for everyone else.
+6. **GST-compliant invoice numbering.** The invoice/packing-slip PDFs
+   (`src/lib/pdf/`, data from `src/convex/lib/orderDocument.ts`) currently use the
+   order's short id for both "Invoice Number" and "Order Number". A legal GST
+   invoice needs a **unique sequential** number per financial year — add an
+   `orders.invoiceNumber` field + an atomic counter assigned at `confirmOrder`,
+   and render that on the invoice.
+7. **Snapshot recipient details onto the order.** The order stores only an
+   `addressId` (no recipient name/phone) and there's no customer-notes field, so
+   the invoice falls back to the account name and the packing slip shows the
+   address only — and both can change if the user later edits their profile.
+   Capture name + phone (+ optional notes) at checkout so documents stay accurate
+   and immutable. See `assembleOrderDocument` / `getOrderDocument`.
+
+### Nice-to-haves (not blockers)
+
+- **Wire up the shop filters.** Sort / price / in-stock in `src/lib/shop/filters.svelte.ts`
+  (UI: `filters-sidebar.svelte`, `filters-bar.svelte`) are currently cosmetic —
+  they don't affect the `/shop` product query yet.
+- **Real logo on the PDFs.** The invoice/packing-slip letterhead embeds
+  `favicon.svg` as a placeholder (`LOGO_SVG` in `src/lib/pdf/shared.ts`) — swap in
+  the Aggarwalkart logo.
+- **Remove the unused `paneforge` dependency** (`pnpm remove paneforge`) — the shop
+  layout no longer uses it.
+- **Navbar clearance is a fixed guess.** `/shop` content uses `pt-24` to clear the
+  floating navbar pill (which is taller now that it carries breadcrumbs); revisit
+  if the pill wraps to two lines on narrow widths.
 
 ## 4. After launch
 

@@ -55,11 +55,12 @@
 	@reference "src/app.css";
 
 	section {
-		@apply grid h-full gap-2 overflow-auto;
+		@apply grid gap-4;
 		/* Mobile-first: a column that never outgrows the viewport (min(…,100%)
-		   avoids overflow on narrow phones) and shorter cards. */
-		grid-template-columns: repeat(auto-fill, minmax(min(12rem, 100%), 1fr));
-		grid-auto-rows: 16rem;
+		   avoids overflow on narrow phones) and shorter cards. The layout's
+		   .content element owns scrolling and clearance now. */
+		grid-template-columns: repeat(auto-fill, minmax(min(8rem, 100%), 1fr));
+		grid-auto-rows: 12rem;
 
 		article.card {
 			@apply flex flex-col items-center justify-center squircle-4xl border bg-neutral-100 shadow;
@@ -72,8 +73,15 @@
 	/* Roomier cards from tablet up (matches the layout's 768px breakpoint). */
 	@media (min-width: 768px) {
 		section {
-			grid-template-columns: repeat(auto-fill, minmax(24rem, 1fr));
-			grid-auto-rows: 32rem;
+			grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+			grid-auto-rows: 16rem;
+		}
+	}
+
+	@media (min-width: 1374px) {
+		section {
+			grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+			grid-auto-rows: 24rem;
 		}
 	}
 </style>

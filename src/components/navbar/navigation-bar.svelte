@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { useNavbar } from '$lib/navbar/navbar.svelte.js';
 	import NavRow from './nav-row.svelte';
+	import NavBreadcrumbs from './nav-breadcrumbs.svelte';
 	import SearchPanel from './search-panel.svelte';
 	import MegaMenu from './mega-menu.svelte';
 
@@ -22,8 +23,11 @@
 </script>
 
 <nav class="bar" bind:this={nav.navbarRef} onmouseleave={nav.scheduleClose}>
+	<!-- The menu pill hosts stacked "views" below the nav row: the breadcrumb
+	     trail (on /shop) and the search field. Each expands the pill in place. -->
 	<menu>
 		<NavRow />
+		<NavBreadcrumbs />
 		<SearchPanel />
 	</menu>
 

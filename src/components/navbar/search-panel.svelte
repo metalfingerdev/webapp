@@ -33,7 +33,11 @@
 	);
 
 	$effect(() => {
-		if (nav.isSearchOpen) nav.searchInputRef?.focus();
+		// preventScroll: focusing the input while the pill is mid-slide (its height
+		// is ~0 and overflow is hidden) would otherwise make the browser scroll the
+		// panel to reveal the input, then unwind as it grows — which reads as the
+		// field drifting down. Keep focus, skip the scroll.
+		if (nav.isSearchOpen) nav.searchInputRef?.focus({ preventScroll: true });
 	});
 </script>
 
@@ -96,9 +100,12 @@
 
 	/* Layout-only wrapper — no chrome of its own; the menu's pill is the only
 	   visible container. Mounted only while open (see {#if} above), so it adds
-	   no footprint when closed; `slide` animates its height + padding. */
+	   no footprint when closed; `slide` animates its height + padding.
+	   w-0 + min-w-full: fill the pill's width (set by the nav row) without ever
+	   widening it, so opening search doesn't grow/recenter the pill and shift the
+	   row above. */
 	.search-panel {
-		@apply flex flex-col gap-2 p-2;
+		@apply flex w-0 min-w-full flex-col gap-2 p-2;
 
 		/* Leading icon sits inside the field, beside the input. */
 		.search-field {

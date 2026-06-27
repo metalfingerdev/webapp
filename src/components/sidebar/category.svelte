@@ -4,7 +4,7 @@
 	import { api } from '$convex/_generated/api.js';
 	import { useSidebar } from '$lib/sidebar/index.js';
 
-	type CategoryKey = 'books' | 'uniform' | 'stationary' | 'school';
+	type CategoryKey = 'shop' | 'books' | 'uniform' | 'stationary' | 'school';
 	type ShopCategory = 'book' | 'clothes' | 'stationary';
 
 	let { view }: { view: CategoryKey } = $props();
@@ -15,16 +15,30 @@
 		new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(paise / 100);
 
 	// One config per drill-down view. `category` is the products-table category to
-	// query (null for the School overview, which only links out to the others).
+	// query for the section list; `allProducts` lists across every category (the
+	// Shop overview). When both are unset the view only links out (e.g. School).
 	const CONFIG: Record<
 		CategoryKey,
 		{
 			title: string;
 			category: ShopCategory | null;
+			allProducts?: boolean;
 			card: { heading: string; cta: string; href: string };
 			explore: { label: string; href: string }[];
 		}
 	> = {
+		shop: {
+			title: 'Shop',
+			category: null,
+			allProducts: true,
+			card: { heading: 'Everything for the new term', cta: 'Shop all products', href: '/shop' },
+			explore: [
+				{ label: 'Books', href: '/shop/book' },
+				{ label: 'Uniforms', href: '/shop/clothes' },
+				{ label: 'Stationary', href: '/shop/stationary' },
+				{ label: 'All products', href: '/shop' }
+			]
+		},
 		books: {
 			title: 'Books',
 			category: 'book',
@@ -63,11 +77,14 @@
 
 	const config = $derived(CONFIG[view]);
 
-	// Live products for the section list — skipped on the School overview.
+	// Live products for the section list. A category filters; `allProducts` lists
+	// across every category (Shop); otherwise the section is skipped (School).
 	const products = useQuery(api.products.getProducts, () =>
 		config.category
 			? { category: config.category, paginationOpts: { numItems: 6, cursor: null } }
-			: 'skip'
+			: config.allProducts
+				? { paginationOpts: { numItems: 6, cursor: null } }
+				: 'skip'
 	);
 
 	// Only list products with a slug — the detail route is /shop/[category]/[slug].
@@ -95,7 +112,7 @@
 		{/each}
 	</div>
 
-	{#if config.category}
+	{#if config.category || config.allProducts}
 		<div class="group">
 			<span class="label">Products</span>
 			{#if products.isLoading}
