@@ -123,12 +123,9 @@ export const getProductsThatAre = query({
 	}
 });
 
-export const deleteProduct = mutation({
-	args: { id: v.id('products') },
-	handler: async (ctx, args) => {
-		await ctx.db.delete(args.id);
-	}
-});
+// NOTE: the old public, auth-less `deleteProduct` was removed — it let anyone
+// delete any product by id. Admin deletion lives in dashboard.ts `removeProduct`
+// (guarded by requireAdmin), which is what the dashboard already calls.
 
 export const validateCartStock = mutation({
 	args: {

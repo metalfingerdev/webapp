@@ -39,7 +39,7 @@ export class CartState {
 			let poll: ReturnType<typeof setInterval> | null = null;
 
 			this.mutations
-				.mergeGuestCart({ userId: this.auth.getUserId(), items: itemsToMerge })
+				.mergeGuestCart({ items: itemsToMerge })
 				.then(() => {
 					poll = setInterval(() => {
 						const db = this.dbCart();
@@ -86,7 +86,6 @@ export class CartState {
 	) {
 		if (this.auth.isAuthenticated()) {
 			await this.mutations.updateQuantity({
-				userId: this.auth.getUserId(),
 				productId,
 				delta
 			});
@@ -108,7 +107,7 @@ export class CartState {
 
 	async clear() {
 		if (this.auth.isAuthenticated()) {
-			await this.mutations.clearCart({ userId: this.auth.getUserId() });
+			await this.mutations.clearCart({});
 		} else {
 			this.guestItems = [];
 			CartStorage.clear();

@@ -113,11 +113,9 @@ export function initCart(auth: AuthService, processor: PaymentProcessor): CartSe
 	const sidebar = useSidebar();
 	const checkoutUI = useCheckout();
 
-	// FIX: Skip the DB query entirely when unauthenticated instead of
-	// querying for userId: 'guest' which hits the database unnecessarily.
-	const queryResult = useQuery(api.cart.getCart, () =>
-		auth.isAuthenticated() ? { userId: auth.getUserId() } : 'skip'
-	);
+	// Skip the DB query entirely when unauthenticated. When authed, send no args:
+	// the server resolves the cart owner from the session, not from the client.
+	const queryResult = useQuery(api.cart.getCart, () => (auth.isAuthenticated() ? {} : 'skip'));
 
 	const dbCartThunk = () => queryResult as unknown as DbCartState;
 

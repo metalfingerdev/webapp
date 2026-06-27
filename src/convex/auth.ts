@@ -178,6 +178,9 @@ export const myAuthMethods = query({
 // satisfies "authenticate the existing account first"). Better Auth's
 // setPassword links a credential only when none exists yet, and this runs in an
 // action because password hashing needs randomness (disallowed in mutations).
+// NOTE: the `getPublicData` test query was removed — it was dead scaffolding and
+// needless public attack surface. Add a real query when there's data to serve.
+
 export const setMyPassword = action({
 	args: { newPassword: v.string() },
 	handler: async (ctx, { newPassword }) => {
@@ -199,16 +202,5 @@ export const setMyPassword = action({
 			throw new ConvexError(e instanceof Error ? e.message : 'Failed to set password.');
 		}
 		return { success: true };
-	}
-});
-
-// Public query for testing - no auth required
-export const getPublicData = query({
-	args: {},
-	handler: async () => {
-		return {
-			message: 'This is public data',
-			timestamp: Date.now()
-		};
 	}
 });

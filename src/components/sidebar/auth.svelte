@@ -247,7 +247,8 @@
 	{/if}
 </section>
 
-<style>
+<style lang="postcss">
+	@reference "src/app.css";
 	/* Local design tokens — app.css ships no theme, so define a small neutral
 	   palette here in oklch and derive states with color-mix(). */
 	.auth {
@@ -261,152 +262,95 @@
 		--ring: oklch(0.71 0 0);
 		--destructive: oklch(0.58 0.22 27);
 
-		display: flex;
-		height: 100%;
-		flex-direction: column;
-		gap: 1.5rem;
-		padding: 8rem 2rem 2rem 2rem;
-		color: var(--fg);
+		@apply flex h-full flex-col gap-6 px-8 pt-32 pb-8 text-(--fg);
 	}
 
 	.head {
-		display: grid;
-		gap: 0.375rem;
+		@apply grid gap-1.5;
 
 		h2 {
-			font-size: 1.5rem;
-			line-height: 1.15;
-			font-weight: 600;
-			letter-spacing: -0.015em;
+			@apply text-2xl leading-[1.15] font-semibold tracking-[-0.015em];
 		}
 	}
 
 	.muted {
-		margin: 0;
-		color: var(--muted-fg);
-		font-size: 0.875rem;
-		line-height: 1.4;
+		@apply m-0 text-sm leading-[1.4] text-(--muted-fg);
 	}
 
 	.fields {
-		display: grid;
-		gap: 1rem;
+		@apply grid gap-4;
 	}
 
 	.field {
-		display: grid;
-		gap: 0.5rem;
+		@apply grid gap-2;
 
 		label {
-			font-size: 0.875rem;
-			font-weight: 500;
+			@apply text-sm font-medium;
 		}
 	}
 
 	.input {
-		inline-size: 100%;
-		padding-block: 0.5rem;
-		padding-inline: 0.75rem;
-		font-size: 0.875rem;
-		color: var(--fg);
-		background: var(--bg);
-		border: 1px solid var(--border);
-		border-radius: var(--radius);
-		transition:
-			border-color 120ms ease,
-			box-shadow 120ms ease;
+		@apply w-full rounded-(--radius) border border-(--border) bg-(--bg) px-3 py-2 text-sm text-(--fg) transition-[border-color,box-shadow] duration-120 ease-[ease];
 
 		&::placeholder {
-			color: color-mix(in oklab, var(--muted-fg) 65%, transparent);
+			@apply text-[color-mix(in_oklab,var(--muted-fg)_65%,transparent)];
 		}
 
 		&:focus-visible {
-			outline: none;
-			border-color: var(--ring);
-			box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 30%, transparent);
+			@apply border-(--ring) shadow-[0_0_0_3px_color-mix(in_oklab,var(--ring)_30%,transparent)] outline-none;
 		}
 	}
 
 	.btn {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		gap: 0.5rem;
-		inline-size: 100%;
-		padding-block: 0.5rem;
-		padding-inline: 1rem;
-		font-size: 0.875rem;
-		font-weight: 500;
-		border: 1px solid transparent;
-		border-radius: var(--radius);
-		cursor: pointer;
-		transition:
-			background-color 120ms ease,
-			border-color 120ms ease,
-			opacity 120ms ease;
+		@apply inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-(--radius) border border-transparent px-4 py-2 text-sm font-medium transition-[background-color,border-color,opacity] duration-120 ease-[ease];
 
 		& svg {
-			inline-size: 1rem;
-			block-size: 1rem;
+			@apply size-4;
 		}
 
 		&:disabled {
-			opacity: 0.55;
-			cursor: not-allowed;
+			@apply cursor-not-allowed opacity-[0.55];
 		}
 
 		&.primary {
-			background: var(--primary);
-			color: var(--primary-fg);
+			@apply bg-(--primary) text-(--primary-fg);
 
 			&:not(:disabled):hover {
-				background: color-mix(in oklab, var(--primary) 88%, white);
+				@apply bg-[color-mix(in_oklab,var(--primary)_88%,white)];
 			}
 		}
 
 		&.outline {
-			background: var(--bg);
-			color: var(--fg);
-			border-color: var(--border);
+			@apply border-(--border) bg-(--bg) text-(--fg);
 
 			&:not(:disabled):hover {
-				background: color-mix(in oklab, var(--fg) 5%, var(--bg));
+				@apply bg-[color-mix(in_oklab,var(--fg)_5%,var(--bg))];
 			}
 		}
 
 		&.ghost {
-			background: transparent;
-			color: var(--muted-fg);
+			@apply bg-transparent text-(--muted-fg);
 
 			&:not(:disabled):hover {
-				color: var(--fg);
+				@apply text-(--fg);
 			}
 		}
 	}
 
 	.foot {
-		text-align: center;
+		@apply text-center;
 	}
 
 	.link {
-		padding: 0;
 		font: inherit;
-		font-weight: 500;
-		color: var(--fg);
-		background: none;
-		border: none;
-		cursor: pointer;
-		text-decoration: underline;
-		text-underline-offset: 2px;
+		@apply cursor-pointer border-none bg-none p-0 font-medium text-(--fg) underline underline-offset-2;
 
 		&:hover {
-			color: color-mix(in oklab, var(--fg) 75%, var(--muted-fg));
+			@apply text-[color-mix(in_oklab,var(--fg)_75%,var(--muted-fg))];
 		}
 	}
 
 	.error {
-		margin: 0;
-		font-size: 0.875rem;
-		color: var(--destructive);
+		@apply m-0 text-sm text-(--destructive);
 	}
 </style>

@@ -1,8 +1,9 @@
 <script lang="ts">
-	import { useQuery, useMutation } from 'convex-svelte';
+	import { useQuery, useMutation, useConvexClient } from 'convex-svelte';
 	import { api } from '$convex/_generated/api.js';
 	import type { Id } from '$convex/_generated/dataModel.js';
 	import { usePaginatedQuery } from 'convex-svelte';
+	import { downloadInvoice, downloadPackingSlip, downloadPackingSlips } from '$lib/pdf/index.js';
 
 	type Category = 'book' | 'clothes' | 'stationary';
 	type ProductFilter = 'all' | Category;
@@ -300,6 +301,46 @@
 		() => ({ status: orderStatusFilter === 'all' ? undefined : orderStatusFilter }),
 		{ initialNumItems: 50 }
 	);
+
+	// ── Documents (invoice / packing slip PDFs) ────────────────────────────────
+	const convex = useConvexClient();
+	let pdfBusy = $state<Record<string, boolean>>({});
+	let batchBusy = $state(false);
+
+	async function downloadOrderInvoice(id: Id<'orders'>) {
+		pdfBusy = { ...pdfBusy, [id]: true };
+		try {
+			const doc = await convex.query(api.dashboard.getOrderDocument, { orderId: id });
+			await downloadInvoice(doc);
+		} finally {
+			pdfBusy = { ...pdfBusy, [id]: false };
+		}
+	}
+
+	async function downloadOrderPackingSlip(id: Id<'orders'>) {
+		pdfBusy = { ...pdfBusy, [id]: true };
+		try {
+			const doc = await convex.query(api.dashboard.getOrderDocument, { orderId: id });
+			await downloadPackingSlip(doc);
+		} finally {
+			pdfBusy = { ...pdfBusy, [id]: false };
+		}
+	}
+
+	// One combined PDF of every packing slip currently loaded in the table — the
+	// "print the day's slips" action handed to the delivery person.
+	async function downloadAllPackingSlips() {
+		batchBusy = true;
+		try {
+			const docs = await Promise.all(
+				ordersQ.results.map((o) => convex.query(api.dashboard.getOrderDocument, { orderId: o._id }))
+			);
+			const day = new Date().toISOString().slice(0, 10);
+			await downloadPackingSlips(docs, `packing-slips-${day}.pdf`);
+		} finally {
+			batchBusy = false;
+		}
+	}
 
 	// Per-order status update form
 	let orderStatusDraft = $state<Record<string, OrderStatus>>({});
@@ -644,6 +685,12 @@
 		<button onclick={() => (orderStatusFilter = s)}>{s}</button>
 	{/each}
 
+	{#if ordersQ.results.length}
+		<button onclick={downloadAllPackingSlips} disabled={batchBusy}>
+			{batchBusy ? 'Building…' : `Download packing slips (${ordersQ.results.length})`}
+		</button>
+	{/if}
+
 	{#if ordersQ.isLoading}
 		<p>Loading…</p>
 	{:else if ordersQ.results.length === 0}
@@ -720,6 +767,15 @@
 
 								{#if o.trackingId}<p>Carrier ID: {o.trackingId}</p>{/if}
 								<button onclick={() => openTrackingModal(o._id)}>+ Push tracking event</button>
+
+								<div class="doc-actions">
+									<button onclick={() => downloadOrderInvoice(o._id)} disabled={pdfBusy[o._id]}>
+										{pdfBusy[o._id] ? 'Preparing…' : 'Invoice PDF'}
+									</button>
+									<button onclick={() => downloadOrderPackingSlip(o._id)} disabled={pdfBusy[o._id]}>
+										{pdfBusy[o._id] ? 'Preparing…' : 'Packing slip'}
+									</button>
+								</div>
 							</td>
 						</tr>
 					{/if}

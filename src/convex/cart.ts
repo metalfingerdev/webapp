@@ -1,14 +1,24 @@
 // convex/cart.ts
 import { mutation, query } from './_generated/server.js';
 import { v } from 'convex/values';
+import { authComponent } from './auth.js';
 
-// Get all cart items for a user, populated with product information
+// SECURITY: every function here derives the owner from the authenticated
+// session (authComponent.safeGetAuthUser), NOT from a client-supplied userId.
+// A `userId` argument would be attacker-controlled — anyone could read or wipe
+// another user's cart by passing a different id. This matches the project rule
+// in _generated/ai/guidelines.md: never trust a userId arg for authorization.
+
+// Get all cart items for the current user, populated with product information.
 export const getCart = query({
-	args: { userId: v.string() },
-	handler: async (ctx, args) => {
+	args: {},
+	handler: async (ctx) => {
+		const user = await authComponent.safeGetAuthUser(ctx);
+		if (!user) return [];
+
 		const items = await ctx.db
 			.query('cartItems')
-			.withIndex('by_userId', (q) => q.eq('userId', args.userId))
+			.withIndex('by_userId', (q) => q.eq('userId', user._id))
 			.collect();
 
 		// Hydrate item with product details
@@ -23,13 +33,15 @@ export const getCart = query({
 	}
 });
 
-// Sync guest/local items into database upon login
+// Sync guest/local items into the database cart upon login.
 export const mergeGuestCart = mutation({
 	args: {
-		userId: v.string(),
 		items: v.array(v.object({ productId: v.id('products'), quantity: v.number() }))
 	},
 	handler: async (ctx, args) => {
+		const user = await authComponent.safeGetAuthUser(ctx);
+		if (!user) throw new Error('Not authenticated');
+
 		for (const guestItem of args.items) {
 			const product = await ctx.db.get(guestItem.productId);
 			if (!product) continue; // Skip if the product doesn't exist anymore
@@ -37,7 +49,7 @@ export const mergeGuestCart = mutation({
 			const existing = await ctx.db
 				.query('cartItems')
 				.withIndex('by_userId_product', (q) =>
-					q.eq('userId', args.userId).eq('productId', guestItem.productId)
+					q.eq('userId', user._id).eq('productId', guestItem.productId)
 				)
 				.unique();
 
@@ -50,7 +62,7 @@ export const mergeGuestCart = mutation({
 				const quantity = Math.min(guestItem.quantity, maxStock);
 				if (quantity > 0) {
 					await ctx.db.insert('cartItems', {
-						userId: args.userId,
+						userId: user._id,
 						productId: guestItem.productId,
 						quantity,
 						addedAt: Date.now()
@@ -61,31 +73,33 @@ export const mergeGuestCart = mutation({
 	}
 });
 
-// Handles both adding new items and updating quantities safely
+// Handles both adding new items and updating quantities safely.
 export const updateQuantity = mutation({
 	args: {
-		userId: v.string(),
 		productId: v.id('products'),
 		delta: v.number() // +1 or -1 (or any change offset)
 	},
 	handler: async (ctx, args) => {
+		const user = await authComponent.safeGetAuthUser(ctx);
+		if (!user) throw new Error('Not authenticated');
+
 		const product = await ctx.db.get(args.productId);
 		if (!product) return;
 
 		const existing = await ctx.db
 			.query('cartItems')
 			.withIndex('by_userId_product', (q) =>
-				q.eq('userId', args.userId).eq('productId', args.productId)
+				q.eq('userId', user._id).eq('productId', args.productId)
 			)
 			.unique();
 
-		// FIX: Handle item creation if it doesn't exist in the database cart yet
+		// Handle item creation if it doesn't exist in the database cart yet
 		if (!existing) {
 			if (args.delta > 0) {
 				const quantity = Math.min(args.delta, product.stock);
 				if (quantity > 0) {
 					await ctx.db.insert('cartItems', {
-						userId: args.userId,
+						userId: user._id,
 						productId: args.productId,
 						quantity,
 						addedAt: Date.now()
@@ -108,13 +122,16 @@ export const updateQuantity = mutation({
 	}
 });
 
-// Clears all items belonging to a specific user
+// Clears all items belonging to the current user.
 export const clearCart = mutation({
-	args: { userId: v.string() },
-	handler: async (ctx, args) => {
+	args: {},
+	handler: async (ctx) => {
+		const user = await authComponent.safeGetAuthUser(ctx);
+		if (!user) throw new Error('Not authenticated');
+
 		const items = await ctx.db
 			.query('cartItems')
-			.withIndex('by_userId', (q) => q.eq('userId', args.userId))
+			.withIndex('by_userId', (q) => q.eq('userId', user._id))
 			.collect();
 		for (const item of items) {
 			await ctx.db.delete(item._id);

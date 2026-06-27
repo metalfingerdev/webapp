@@ -3,6 +3,8 @@ import { v } from 'convex/values';
 import type { GenericQueryCtx, GenericMutationCtx } from 'convex/server';
 import type { DataModel, Doc } from './_generated/dataModel.js';
 import { authComponent } from './auth.js';
+import { components } from './_generated/api.js';
+import { assembleOrderDocument } from './lib/orderDocument.js';
 import { ORDER_STATUS, TRACKING_STATUS, TAX_CATEGORY } from './schema.js';
 import { buildSearchText } from './productSearch.js';
 import { slugify, reserveUniqueSlug } from './slugs.js';
@@ -466,6 +468,35 @@ export const getOrder = query({
 			.order('desc')
 			.collect();
 		return { ...order, address, items, tracking };
+	}
+});
+
+// Full document model for an order — backs the dashboard's invoice + packing
+// slip PDFs. Admin-only; the customer's own copy goes through
+// orders.getOrderInvoice (owner-guarded). Both share assembleOrderDocument so
+// the two never diverge.
+export const getOrderDocument = query({
+	args: { orderId: v.id('orders') },
+	handler: async (ctx, { orderId }) => {
+		await requireElevated(ctx);
+		const order = await ctx.db.get(orderId);
+		if (!order) throw new Error('Order not found.');
+
+		// Best-effort customer name/email for the header. Degrades to address-only
+		// if the auth component can't resolve the user (the delivery address alone
+		// is enough for the packing slip).
+		let customer: { name?: string; email?: string } | null = null;
+		try {
+			const u = (await ctx.runQuery(components.betterAuth.adapter.findOne, {
+				model: 'user',
+				where: [{ field: 'id', value: order.userId }]
+			})) as { name?: string; email?: string } | null;
+			if (u) customer = { name: u.name, email: u.email };
+		} catch {
+			customer = null;
+		}
+
+		return assembleOrderDocument(ctx, order, customer);
 	}
 });
 

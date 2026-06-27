@@ -3,6 +3,7 @@ import { v } from 'convex/values';
 import { authComponent } from './auth.js';
 import { loadSettings } from './lib/settings.js';
 import { calculateOrder, type OrderLine } from './lib/pricing.js';
+import { assembleOrderDocument } from './lib/orderDocument.js';
 import { action, mutation, internalQuery, query } from './_generated/server.js';
 import { internal } from './_generated/api.js';
 import type { Id } from './_generated/dataModel.js';
@@ -46,6 +47,14 @@ export const confirmOrder = mutation({
 		if (order.userId !== user._id) throw new Error('Unauthorized');
 		if (order.status !== 'pending') throw new Error('Order is not in pending state');
 
+		// ⚠️ SECURITY (payments are currently MOCKED): paymentId is accepted from
+		// the client and never verified against a gateway, so a user can mark
+		// their own pending order "confirmed" without paying. The ownership +
+		// pending checks above stop cross-user abuse, but BEFORE accepting real
+		// money this must verify the payment server-side (e.g. Razorpay signature
+		// / order capture) instead of trusting this string. Tracked in SECURITY.md.
+		if (!args.paymentId.trim()) throw new Error('Missing payment reference.');
+
 		await ctx.db.patch(args.orderId, {
 			status: 'confirmed',
 			paymentId: args.paymentId
@@ -64,24 +73,18 @@ export const confirmOrder = mutation({
 export const getOrderInvoice = query({
 	args: { orderId: v.id('orders') },
 	handler: async (ctx, args) => {
+		// SECURITY: an invoice exposes the shipping address (PII). Without these
+		// checks any caller could read any order by guessing/enumerating ids
+		// (IDOR). Mirror getMyOrder: require a session and assert ownership.
+		const user = await authComponent.safeGetAuthUser(ctx);
+		if (!user) throw new Error('Not authenticated');
+
 		const order = await ctx.db.get(args.orderId);
 		if (!order) return null;
+		if (order.userId !== user._id) throw new Error('Unauthorized.');
 
-		const purchases = await ctx.db
-			.query('purchases')
-			.withIndex('by_orderId', (q) => q.eq('orderId', args.orderId))
-			.collect();
-
-		const lines = await Promise.all(
-			purchases.map(async (p) => {
-				const product = await ctx.db.get(p.productId);
-				return { ...p, product };
-			})
-		);
-
-		const address = await ctx.db.get(order.address);
-
-		return { order, lines, address };
+		// The caller IS the owner, so the session user is the customer on the doc.
+		return assembleOrderDocument(ctx, order, { name: user.name, email: user.email });
 	}
 });
 
@@ -98,6 +101,12 @@ export const createOrder = mutation({
 	handler: async (ctx, args) => {
 		const user = await authComponent.safeGetAuthUser(ctx);
 		if (!user) throw new Error('Not authenticated');
+
+		// SECURITY: the address id comes from the client — confirm it actually
+		// belongs to this user before stamping it onto the order, otherwise a
+		// caller could attach an arbitrary (or another user's) address.
+		const address = await ctx.db.get(args.addressId);
+		if (!address || address.userId !== user._id) throw new Error('Invalid address.');
 
 		const s = await loadSettings(ctx.db);
 

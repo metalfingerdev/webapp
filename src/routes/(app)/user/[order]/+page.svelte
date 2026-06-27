@@ -3,55 +3,148 @@
 	import { api } from '$convex/_generated/api.js';
 	import { page } from '$app/state';
 	import type { Id } from '$convex/_generated/dataModel.js';
+	import { downloadInvoice, printInvoice } from '$lib/pdf/index.js';
+	import { inr, formatDate } from '$lib/pdf/format.js';
 
 	const orderId = page.params.order as Id<'orders'>;
-
 	const invoice = useQuery(api.orders.getOrderInvoice, { orderId });
 
-	$effect(() => {
-		if (invoice.data) window.print();
-	});
+	let busy = $state(false);
+
+	async function download() {
+		if (!invoice.data) return;
+		busy = true;
+		try {
+			await downloadInvoice(invoice.data);
+		} finally {
+			busy = false;
+		}
+	}
+
+	async function print() {
+		if (!invoice.data) return;
+		await printInvoice(invoice.data);
+	}
 </script>
 
-{#if invoice.data}
-	{@const { order, lines } = invoice.data}
-	<div class="invoice">
-		<h1>Aggarwal Books And Stationery Mart</h1>
-		<p>SCF-119, HUDA Market Part-1, Sector-19, Faridabad</p>
-		<p>GST No. 06AHUPT7589A1ZM</p>
+<main class="wrap">
+	{#if invoice.isLoading}
+		<p class="status">Loading invoice…</p>
+	{:else if invoice.error}
+		<p class="status error">{invoice.error.message}</p>
+	{:else if !invoice.data}
+		<p class="status">Invoice not found.</p>
+	{:else}
+		{@const doc = invoice.data}
+		<header class="bar">
+			<div>
+				<h1>Invoice {doc.orderRef}</h1>
+				<p class="muted">{formatDate(doc.createdAt)} · {doc.status}</p>
+			</div>
+			<div class="actions">
+				<button class="primary" onclick={download} disabled={busy}>
+					{busy ? 'Preparing…' : 'Download PDF'}
+				</button>
+				<button onclick={print} disabled={busy}>Print</button>
+			</div>
+		</header>
 
-		<h2>INVOICE</h2>
-		<p>Order: {order._id}</p>
-		<p>Date: {new Date(order.createdAt).toLocaleDateString('en-IN')}</p>
+		<!-- On-screen preview; the canonical document is the generated PDF. -->
+		<section class="preview">
+			<table>
+				<thead>
+					<tr><th>Sr.</th><th>Product</th><th>HSN</th><th>GST %</th><th>QTY</th><th class="r">Price</th></tr>
+				</thead>
+				<tbody>
+					{#each doc.lines as line (line.sr)}
+						<tr>
+							<td>{line.sr}</td>
+							<td>{line.name}</td>
+							<td>{line.hsnCode}</td>
+							<td>{line.gstLabel}</td>
+							<td>{line.quantity}</td>
+							<td class="r">{inr(line.lineTotal)}</td>
+						</tr>
+					{/each}
+				</tbody>
+			</table>
 
-		<table>
-			<thead>
-				<tr><th>Product</th><th>HSN</th><th>GST%</th><th>Qty</th><th>Price</th></tr>
-			</thead>
-			<tbody>
-				{#each lines as line}
-					<tr>
-						<td>{line.product?.name}</td>
-						<td>{line.product?.hsnCode ?? ''}</td>
-						<td>{line.product?.taxCategory ?? 'Exempt'}</td>
-						<td>{line.quantity}</td>
-						<td>₹{((line.priceAtPurchase * line.quantity) / 100).toFixed(2)}</td>
-					</tr>
-				{/each}
-			</tbody>
-		</table>
-
-		<p>Shipping: ₹{(order.shipping / 100).toFixed(2)}</p>
-		<p><strong>Total: ₹{(order.totalPrice / 100).toFixed(2)}</strong></p>
-	</div>
-{/if}
+			<div class="totals">
+				<div><span>Subtotal</span><span>{inr(doc.totals.subtotal)}</span></div>
+				<div><span>Shipping</span><span>{inr(doc.totals.shipping)}</span></div>
+				<div class="grand"><span>Total</span><span>{inr(doc.totals.total)}</span></div>
+			</div>
+		</section>
+	{/if}
+</main>
 
 <style lang="postcss">
-	@media print {
-		:global(nav),
-		:global(header),
-		:global(footer) {
-			display: none;
+	@reference 'src/app.css';
+
+	.wrap {
+		@apply mx-auto grid max-w-3xl gap-6 p-6;
+	}
+	.status {
+		@apply text-sm text-neutral-500;
+	}
+	.status.error {
+		@apply text-red-600;
+	}
+	.bar {
+		@apply flex items-start justify-between gap-4;
+
+		h1 {
+			@apply text-xl font-semibold;
+		}
+	}
+	.muted {
+		@apply text-sm text-neutral-500;
+	}
+	.actions {
+		@apply flex gap-2;
+
+		button {
+			@apply cursor-pointer rounded-lg border border-neutral-200 px-4 py-2 text-sm font-medium transition-colors;
+
+			&:hover:not(:disabled) {
+				@apply bg-neutral-100;
+			}
+			&:disabled {
+				@apply cursor-not-allowed opacity-60;
+			}
+		}
+		.primary {
+			@apply border-transparent bg-neutral-900 text-white;
+
+			&:hover:not(:disabled) {
+				@apply bg-neutral-800;
+			}
+		}
+	}
+	.preview {
+		@apply grid gap-4 rounded-xl border border-neutral-200 p-4;
+
+		table {
+			@apply w-full border-collapse text-sm;
+		}
+		thead th {
+			@apply border-b border-neutral-200 px-2 py-2 text-left font-semibold;
+		}
+		tbody td {
+			@apply border-b border-neutral-100 px-2 py-2;
+		}
+		.r {
+			@apply text-right tabular-nums;
+		}
+	}
+	.totals {
+		@apply ml-auto grid w-64 gap-1 text-sm;
+
+		div {
+			@apply flex justify-between;
+		}
+		.grand {
+			@apply mt-1 border-t border-neutral-300 pt-2 font-semibold;
 		}
 	}
 </style>

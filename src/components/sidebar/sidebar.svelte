@@ -1,7 +1,7 @@
 <script lang="ts">
 	// src/components/sidebar/sidebar.svelte
 	import { useSidebar } from '$lib/sidebar/sidebar.svelte.js';
-	import { Menu, Shop, Cart, Auth, User } from '$components/sidebar/index.js';
+	import { Menu, Shop, Cart, Auth, User, Category } from '$components/sidebar/index.js';
 	import { X, ChevronLeft, Search, User as UserIcon, LogIn, ShoppingCart } from '@lucide/svelte';
 	import { resolve } from '$app/paths';
 	import { fly } from 'svelte/transition';
@@ -50,7 +50,7 @@
 	id="sidebar-dialog"
 >
 	<header>
-		<!-- Same {#key}/--enter slide as the s below, so the Menu link / back
+		<!-- Same {#key}/fly slide as the views below, so the Menu link / back
 		     button slide in sync with the view they belong to (hims.com-style). -->
 		<div class="nav">
 			{#key sidebar.view}
@@ -113,6 +113,14 @@
 					<Shop />
 				{:else if sidebar.view === 'cart'}
 					<Cart />
+				{:else if sidebar.view === 'books'}
+					<Category view="books" />
+				{:else if sidebar.view === 'uniform'}
+					<Category view="uniform" />
+				{:else if sidebar.view === 'stationary'}
+					<Category view="stationary" />
+				{:else if sidebar.view === 'school'}
+					<Category view="school" />
 				{:else}
 					<Menu />
 				{/if}
@@ -173,7 +181,7 @@
 
 		/* Static icon row — no transition, matching the close button. */
 		.actions {
-			@apply flex items-center gap-8;
+			@apply mx-1 flex items-center gap-8;
 
 			button {
 				@apply inline-flex cursor-pointer items-center;
@@ -189,38 +197,27 @@
 		}
 
 		/* Clip region for the sliding nav button — mirrors `.views` for the header.
-		   flex-1 makes it span up to the X; min-h matches the 24px icon button so
-		   the absolutely-positioned slot has bounds. */
+		   Single-cell grid: the keyed slots stack in the same cell so the old/new
+		   button overlap during the fly, with no absolute positioning. */
 		.nav {
-			@apply relative h-6 flex-1 overflow-hidden;
+			@apply grid h-6 flex-1 grid-cols-[minmax(0,1fr)] grid-rows-[minmax(0,1fr)] overflow-hidden;
 		}
 
-		/* Same transform/timing/@starting-style as `.view` so header and 
-		   slide together in the same direction. */
 		.nav-slot {
-			@apply absolute inset-0 flex items-center;
-			transition: transform 250ms cubic-bezier(0.22, 1, 0.36, 1);
-			transform: translateX(0);
-
-			@starting-style {
-				transform: translateX(var(--enter));
-			}
+			@apply col-start-1 row-start-1 flex items-center;
 		}
 
-		/* Sliding viewport — clips the  as it slides in. */
+		/* Sliding viewport — clips the views as they fly. Same single-cell grid
+		   stack as `.nav`; the Svelte `fly` in the markup drives the motion. */
 		.views {
-			@apply relative flex-1 overflow-hidden;
+			@apply grid flex-1 grid-cols-[minmax(0,1fr)] grid-rows-[minmax(0,1fr)] overflow-hidden;
 		}
 
 		.view {
-			@apply absolute inset-0 overflow-y-auto;
-			transition: transform 250ms cubic-bezier(0.22, 1, 0.36, 1);
-			transform: translateX(0);
-
-			/* Where the  starts before sliding to 0 — set per-direction via --enter. */
-			@starting-style {
-				transform: translateX(var(--enter));
-			}
+			/* overflow-x-clip, not just overflow-y-auto: setting only the Y axis
+			   makes the spec compute overflow-x as `auto`, so the fly's X translate
+			   spawns a stray horizontal scrollbar. Clip the X to kill it. */
+			@apply col-start-1 row-start-1 overflow-x-clip overflow-y-auto;
 		}
 	}
 </style>

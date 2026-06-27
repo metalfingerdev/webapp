@@ -1,12 +1,13 @@
 // src/lib/cart/types.ts
 import type { Id } from '$convex/_generated/dataModel.js';
 
+// The DB cart is owned by the authenticated session: the server derives the
+// userId from the auth token, so these mutations no longer take (or trust) one.
 export interface CartStateMutations {
 	/**
 	 * Merges guest items from local storage into the user's database cart upon a successful login.
 	 */
 	mergeGuestCart: (args: {
-		userId: string;
 		items: {
 			productId: Id<'products'>;
 			quantity: number;
@@ -17,15 +18,14 @@ export interface CartStateMutations {
 	 * Increments, decrements, or removes an item from the user's database cart.
 	 */
 	updateQuantity: (args: {
-		userId: string;
 		productId: Id<'products'>;
 		delta: number; // Expects +1 or -1
 	}) => Promise<void>;
 
 	/**
-	 * Clears all items belonging to a specific user out of the database cart table.
+	 * Clears all items belonging to the current user out of the database cart table.
 	 */
-	clearCart: (args: { userId: string }) => Promise<void>;
+	clearCart: (args: Record<string, never>) => Promise<void>;
 }
 
 export type ProductCategory = 'book' | 'clothes' | 'stationary';

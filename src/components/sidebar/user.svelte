@@ -52,7 +52,8 @@
 
 <div class="profile-container">
 	<header>
-		<button class="primary" onclick={() => sidebar.exit(resolve('/user'))}>edit your profile</button
+		<button class="primary w-full" onclick={() => sidebar.exit(resolve('/user'))}
+			>Edit your profile</button
 		>
 	</header>
 
@@ -131,9 +132,9 @@
 								{:else if orderDetailQuery?.data}
 									<ul class="order-items">
 										{#each orderDetailQuery.data.items as item}
-											<li class="text-sm text-gray-600 flex justify-between">
+											<li class="flex justify-between text-sm">
 												<span>{item.product?.name ?? 'Unknown Item'}</span>
-												<span class="text-gray-400">x{item.quantity ?? 1}</span>
+												<span class="text-(--muted-fg)">x{item.quantity ?? 1}</span>
 											</li>
 										{/each}
 									</ul>
@@ -153,12 +154,156 @@
 	</section>
 
 	{#if error}
-		<p>{error}</p>
+		<p class="error-text" role="alert">{error}</p>
 	{/if}
 
-	<button onclick={handleSignOut}>Sign out</button>
+	<button class="signout" onclick={handleSignOut}>Sign out</button>
 </div>
 
 <style lang="postcss">
 	@reference "src/app.css";
+	/* Local design tokens — shared palette with auth.svelte / cart.svelte so the
+	   sidebar panels stay visually consistent (neutral oklch + color-mix states). */
+	.profile-container {
+		--radius: 0.65rem;
+		--bg: oklch(1 0 0);
+		--fg: oklch(0.21 0 0);
+		--muted-fg: oklch(0.55 0 0);
+		--border: oklch(0.92 0 0);
+		--primary: oklch(0.21 0 0);
+		--primary-fg: oklch(0.98 0 0);
+		--ring: oklch(0.71 0 0);
+		--destructive: oklch(0.58 0.22 27);
+
+		@apply flex h-full flex-col gap-6 overflow-y-auto p-8 text-(--fg);
+
+		section {
+			@apply grid gap-3;
+		}
+
+		h3 {
+			@apply m-0 text-xs font-semibold tracking-wide text-(--muted-fg) uppercase;
+		}
+	}
+
+	.section-header {
+		@apply flex items-center justify-between gap-2;
+	}
+
+	/* ── Buttons ──────────────────────────────────────────────────────────── */
+	.primary {
+		@apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-(--radius) border border-transparent bg-(--primary) px-4 py-2 text-sm font-medium text-(--primary-fg) transition-colors duration-120 ease-[ease];
+
+		&:not(:disabled):hover {
+			@apply bg-[color-mix(in_oklab,var(--primary)_88%,white)];
+		}
+
+		&:disabled {
+			@apply cursor-not-allowed opacity-[0.55];
+		}
+	}
+
+	.secondary,
+	.signout {
+		@apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-(--radius) border border-(--border) bg-(--bg) px-3 py-1.5 text-sm font-medium text-(--fg) transition-colors duration-120 ease-[ease];
+
+		&:not(:disabled):hover {
+			@apply bg-[color-mix(in_oklab,var(--fg)_5%,var(--bg))];
+		}
+	}
+
+	.signout {
+		@apply mt-auto w-full;
+	}
+
+	.danger {
+		@apply inline-flex cursor-pointer items-center justify-center rounded-(--radius) px-2 py-1 text-xs font-medium text-(--destructive) transition-colors duration-120 ease-[ease];
+
+		&:not(:disabled):hover {
+			@apply bg-[color-mix(in_oklab,var(--destructive)_10%,var(--bg))];
+		}
+	}
+
+	/* ── Address form ─────────────────────────────────────────────────────── */
+	.address-form {
+		@apply grid gap-2;
+
+		input {
+			@apply w-full rounded-(--radius) border border-(--border) bg-(--bg) px-3 py-2 text-sm text-(--fg) transition-[border-color,box-shadow] duration-120 ease-[ease];
+
+			&::placeholder {
+				@apply text-[color-mix(in_oklab,var(--muted-fg)_65%,transparent)];
+			}
+
+			&:focus-visible {
+				@apply border-(--ring) shadow-[0_0_0_3px_color-mix(in_oklab,var(--ring)_30%,transparent)] outline-none;
+			}
+		}
+	}
+
+	.status-text {
+		@apply m-0 text-sm text-(--muted-fg);
+	}
+
+	/* ── Saved addresses ──────────────────────────────────────────────────── */
+	.grid {
+		@apply grid gap-3;
+	}
+
+	.card {
+		@apply grid gap-1 rounded-(--radius) border border-(--border) p-3;
+	}
+
+	.address-tag {
+		@apply text-sm font-medium;
+	}
+
+	.address-details {
+		@apply m-0 text-sm text-(--muted-fg);
+	}
+
+	.card-actions {
+		@apply mt-1 flex justify-end;
+	}
+
+	/* ── Orders ───────────────────────────────────────────────────────────── */
+	.order-list {
+		@apply grid gap-2;
+	}
+
+	.order-card {
+		@apply overflow-hidden rounded-(--radius) border border-(--border);
+	}
+
+	.order-header {
+		@apply flex w-full cursor-pointer items-center justify-between gap-2 bg-(--bg) px-3 py-2 text-sm text-(--fg) transition-colors duration-120 ease-[ease];
+
+		&:hover {
+			@apply bg-[color-mix(in_oklab,var(--fg)_4%,var(--bg))];
+		}
+
+		.status {
+			@apply ml-auto rounded-full bg-[color-mix(in_oklab,var(--fg)_6%,var(--bg))] px-2 py-0.5 text-xs text-(--muted-fg);
+		}
+	}
+
+	.order-detail-expanded {
+		@apply border-t border-(--border) px-3 py-2;
+	}
+
+	.order-items {
+		@apply m-0 grid list-none gap-1 p-0;
+	}
+
+	.load-more {
+		@apply inline-flex w-full cursor-pointer items-center justify-center rounded-(--radius) border border-(--border) bg-(--bg) px-3 py-2 text-sm font-medium text-(--fg) transition-colors duration-120 ease-[ease];
+
+		&:hover {
+			@apply bg-[color-mix(in_oklab,var(--fg)_5%,var(--bg))];
+		}
+	}
+
+	.error-text {
+		@apply m-0 text-sm text-(--destructive);
+	}
 </style>

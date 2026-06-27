@@ -4,7 +4,18 @@ import { goto } from '$app/navigation';
 
 // 'checkout' and 'payment' moved out of the sidebar into their own modal
 // (CheckoutController) — a linear flow must not be back-navigable.
-export type SidebarView = 'default' | 'shop' | 'cart' | 'auth' | 'user';
+// 'books' | 'uniform' | 'stationary' | 'school' are hims.com-style category
+// drill-downs, all rendered by category.svelte (parameterised by the view).
+export type SidebarView =
+	| 'default'
+	| 'shop'
+	| 'cart'
+	| 'auth'
+	| 'user'
+	| 'books'
+	| 'uniform'
+	| 'stationary'
+	| 'school';
 
 type PostAuthAction = () => void | Promise<void>;
 
