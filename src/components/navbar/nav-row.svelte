@@ -139,7 +139,7 @@
 		}
 
 		button.action {
-			@apply mx-0.5 my-1 inline-flex cursor-pointer items-center rounded-full p-3 transition;
+			@apply mx-0.5 my-1 inline-flex cursor-pointer items-center rounded-full py-3 px-1.5 transition;
 
 			&:hover,
 			&.active {
