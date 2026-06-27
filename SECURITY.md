@@ -16,7 +16,7 @@ pre-launch requirement because it can't be truly fixed without a real gateway.
 
 Reminder about the threat model: in Convex, **every `query` / `mutation` /
 `action` that is not `internal*` is publicly callable** by anyone who has the
-deployment URL. A login-gated *page* does **not** protect the function behind
+deployment URL. A login-gated _page_ does **not** protect the function behind
 it. Authorization must live inside each function.
 
 ---
@@ -36,7 +36,7 @@ it. Authorization must live inside each function.
   `removeProduct`, which is already correctly guarded by `requireAdmin`. Adding a
   guard would have kept a redundant second deletion path alive (two things to
   keep in sync, two things to get wrong later). The most secure code is code
-  that doesn't exist: removing the duplicate eliminates the vulnerability *and*
+  that doesn't exist: removing the duplicate eliminates the vulnerability _and_
   the future footgun. A short comment now points readers to the canonical
   guarded path.
 
@@ -48,8 +48,8 @@ it. Authorization must live inside each function.
   (street, city, pincode). Classic Insecure Direct Object Reference — anyone
   could read any customer's order + address by supplying an id.
 - **Fix:** Require an authenticated session and assert `order.userId ===
-  user._id` before returning anything.
-- **Why this fix:** It makes `getOrderInvoice` consistent with the *correct*
+user._id` before returning anything.
+- **Why this fix:** It makes `getOrderInvoice` consistent with the _correct_
   sibling already in the codebase, `profile.ts` → `getMyOrder`, which does
   exactly this. Reusing the established, proven pattern (rather than inventing a
   new check) keeps the two order-reading paths behaving identically and easy to
@@ -67,9 +67,9 @@ it. Authorization must live inside each function.
   passed its own id (`auth.getUserId()`). The server never verified it, so
   swapping in another user's id let an attacker **read, modify, or wipe any
   user's cart**. This also directly violates the project's own rule in
-  `src/convex/_generated/ai/guidelines.md`: *"NEVER accept a `userId` … as a
+  `src/convex/_generated/ai/guidelines.md`: _"NEVER accept a `userId` … as a
   function argument for authorization purposes. Always derive the user identity
-  server-side."*
+  server-side."_
 - **Fix:** Removed the `userId` argument from all four functions and derive the
   owner server-side via `authComponent.safeGetAuthUser(ctx)`. Updated the client
   to stop sending it:
@@ -78,7 +78,7 @@ it. Authorization must live inside each function.
   - `src/lib/cart/service.svelte.ts` — `getCart` is now called with `{}` (still
     `'skip'` when unauthenticated).
 - **Why this fix (and not "validate the userId matches the session"):** You
-  *could* keep the argument and check `args.userId === user._id`, but then the
+  _could_ keep the argument and check `args.userId === user._id`, but then the
   parameter is pure dead weight — the server already knows who the caller is from
   the auth token, so the client should never be in the business of asserting its
   own identity. Removing the parameter makes misuse **impossible by
@@ -110,7 +110,7 @@ it. Authorization must live inside each function.
   `internalAction`.
 - **Why `internalAction` instead of deletion here:** Unlike `getPublicData`, a
   test-email helper is genuinely useful during development — but as a public
-  `action` *anyone* could trigger it to send mail and burn Resend quota (a cheap
+  `action` _anyone_ could trigger it to send mail and burn Resend quota (a cheap
   abuse/billing vector). `internalAction` keeps it runnable from the Convex
   dashboard / other server functions (admin-only) while making it
   **uncallable from the public client**, which removes the abuse vector without
@@ -127,7 +127,7 @@ it. Authorization must live inside each function.
 - **Status:** `confirmOrder` already checks ownership and that the order is
   `pending`, so there is **no cross-user abuse**. However, it accepts any
   `paymentId` string and never verifies it against a payment gateway — so a user
-  can mark *their own* pending order "confirmed" without actually paying.
+  can mark _their own_ pending order "confirmed" without actually paying.
 - **What I did:** Added an explicit `⚠️ SECURITY` comment and a minimal
   non-empty guard on `paymentId`. I deliberately did **not** fake a stronger
   check, because anything short of real gateway verification would be security

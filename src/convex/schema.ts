@@ -76,6 +76,9 @@ export default defineSchema({
 		searchText: v.string()
 	})
 		.index('by_category', ['category'])
+		// Price-ordered indexes back the shop's price sort + price-range filter.
+		.index('by_category_price', ['category', 'salePrice'])
+		.index('by_salePrice', ['salePrice'])
 		.index('by_barcode', ['barcode'])
 		.index('by_hsn', ['hsnCode'])
 		.index('by_slug', ['slug'])

@@ -6,18 +6,27 @@ here, then dive into the code or [deployment.md](./deployment.md) for going live
 ## What it is
 
 Aggarwalkart is an e-commerce storefront (books, clothes, stationery, school
-bundles) with a customer-facing shop, a cart/checkout flow, user accounts, and
-an admin dashboard for managing products and stock.
+bundles) with:
+
+- a customer-facing **shop** with URL-driven filtering, sorting and full-text
+  search, a category browse, and product pages;
+- a **cart + checkout** flow (guest cart in `localStorage`, merged on login);
+- **user accounts** (profile, addresses, order history, downloadable invoices);
+- an **admin dashboard** for products, schools/bundles, orders, stock and
+  fulfilment (invoice + packing-slip PDFs);
+- a shared **navbar** (expanding search + breadcrumb panels) and a **sidebar**
+  with hims.com-style drill-down views.
 
 ## Tech stack
 
 | Layer    | Choice                                                                        |
 | -------- | ----------------------------------------------------------------------------- |
-| Frontend | SvelteKit (Svelte 5 runes), Tailwind CSS v4, bits-ui, paneforge               |
+| Frontend | SvelteKit (Svelte 5 runes), Tailwind CSS v4                                   |
 | Backend  | Convex (serverless functions + reactive database)                             |
 | Auth     | Better Auth via `@convex-dev/better-auth` (email/password, email OTP, Google) |
 | Email    | Resend (OTP / transactional)                                                  |
-| Payments | Razorpay (behind a swappable `PaymentProcessor` interface)                    |
+| Payments | Razorpay (behind a swappable `PaymentProcessor` interface) — **mocked today** |
+| PDFs     | pdfmake (invoice + packing slip), lazy-loaded client-side                     |
 | Hosting  | Vercel (`@sveltejs/adapter-vercel`, Node 22) + Convex cloud                   |
 
 ## How a request flows
@@ -33,8 +42,9 @@ Browser ──> SvelteKit (Vercel, SSR + client)
                                           └─ src/convex/*  (functions, auth, payments, email)
 ```
 
-- **SSR + hydration:** server load functions fetch from Convex via
-  `createConvexHttpClient`; the client then takes over with live subscriptions.
+- **SSR + hydration:** server `load` functions fetch from Convex via the HTTP
+  client; the client then takes over with live subscriptions. The shop grid uses
+  `convexLoadPaginated`, so it SSRs and stays a live paginated subscription.
 - **Auth:** `$lib/svelte` and `$lib/sveltekit` bridge SvelteKit and Convex Better
   Auth (token cookie, SSR auth state, and the `/api/auth` proxy). These are
   load-bearing — the app depends on them.
@@ -43,21 +53,35 @@ Browser ──> SvelteKit (Vercel, SSR + client)
 
 ```
 src/
-  routes/            SvelteKit pages & endpoints
-    (app)/           the storefront: home, shop/[category]/[slug], cart, user, dashboard
-    api/auth/        Better Auth handler (proxied to Convex)
-    sitemap.xml/     generated sitemap
-  components/        UI: navbar, sidebar, checkout, shop, app shell
+  routes/
+    (app)/
+      (home)/                home
+      shop/                  catalog: +layout (filter rail) + grid; [category]/[slug]
+      user/                  profile, addresses, orders; [order] = invoice page
+      dashboard/             admin console (+page.server.ts gates non-admins)
+    api/auth/                Better Auth handler (proxied to Convex)
+  components/
+    navbar/                  bar + row + search panel + breadcrumb panel + mega menu
+    sidebar/                 drawer with drill-down views (menu, category, cart, auth, user)
+    shop/                    filters-sidebar (desktop) + filters-bar (mobile)
+    dashboard/               shadcn-style admin kit: ui/, stat-cards, shell, products/ schools/ orders/
+    checkout/  app/          checkout modal, app shell
   lib/
-    cart/            cart state, checkout orchestration (processCheckout)
-    products/        stock-sheet import parsing
-    razorpay/        PaymentProcessor + Mock/Convex implementations
-    svelte/ sveltekit/  Convex Better Auth adapter (load-bearing)
-  convex/            backend functions + schema
-    lib/             pricing.ts (GST/money), settings.ts
-    schema.ts        tables: products, orders, addresses, cartItems, settings, userRoles, …
-    auth.ts          Better Auth config (Resend, Google, OTP)
-docs/                this documentation
+    cart/                    cart state + checkout orchestration (processCheckout)
+    shop/                    filters.svelte.ts (URL-backed) + query-params.ts
+    dashboard/               dashboard.svelte.ts (context: shared queries/mutations)
+    pdf/                     invoice + packing-slip builders (pdfmake), shared helpers
+    navbar/  sidebar/        navbar + sidebar context services
+    razorpay/                PaymentProcessor + Mock/Convex implementations
+    products/                stock-sheet import parsing
+    svelte/  sveltekit/      Convex Better Auth adapter (load-bearing)
+  convex/                    backend functions + schema
+    lib/                     pricing.ts (GST/money), settings.ts, orderDocument.ts (PDF data)
+    schema.ts                products, orders, addresses, cartItems, settings, userRoles, schools, bundles, …
+    products.ts              public catalog + listShopProducts (filter/sort/search)
+    dashboard.ts             admin functions (requireElevated / requireAdmin)
+    auth.ts                  Better Auth config (Resend, Google, OTP)
+docs/                        this documentation
 ```
 
 ## Key concepts worth knowing
@@ -66,13 +90,37 @@ docs/                this documentation
   math goes through `calculateOrder` / `loadSettings` in `src/convex/lib/` — never
   ad-hoc arithmetic. Stored prices are **GST-inclusive**; tax is back-calculated.
 - **Pricing settings** live in the `settings` table (overriding `DEFAULT_SETTINGS`).
-  The seed values are in `src/convex/seed.ts` and must be seeded per deployment.
+  Seed values are in `src/convex/seed.ts` and must be seeded per deployment.
 - **Roles** live in the `userRoles` table (by email). Admin/dashboard functions are
   guarded by `requireElevated` / `requireAdmin` (`src/convex/dashboard.ts`).
 - **No `users` table** — owners are stored as `userId: v.string()` (the Better Auth
-  user id), not a Convex `Id<'users'>`.
-- **Payments are abstracted** behind `PaymentProcessor`. A `MockPaymentProcessor`
-  is wired today (no real charges); switching to real Razorpay is a deployment step.
+  user id), derived server-side, never accepted as a client argument.
+- **Shop filters are URL state.** `src/lib/shop/filters.svelte.ts` reads/writes the
+  query string; changing a filter re-runs the loader, which calls
+  `products.listShopProducts` (index-backed filter/sort + full-text search).
+- **Documents** (invoice + packing slip) share one data model
+  (`convex/lib/orderDocument.ts`); the client renders them with pdfmake
+  (`src/lib/pdf/`).
+- **Payments are abstracted** behind `PaymentProcessor`. `MockPaymentProcessor`
+  is wired today (no real charges) — see the pre-launch checklist.
+
+## Project status — what's done / what's left
+
+**Working:** shop browse + category + search, URL-driven filters/sort, cart +
+guest-merge, checkout (mock payment), accounts/addresses/orders, admin dashboard
+(products/schools/bundles/orders/stock), invoice + packing-slip PDFs, role-gated
+admin, security pass on Convex functions (see [SECURITY.md](../SECURITY.md)).
+
+**Left before / shortly after launch** — the authoritative, detailed list is the
+**[pre-launch checklist](./deployment.md#3-pre-launch-checklist-close-these-before-real-orders)**.
+In brief:
+
+- **Blockers:** real Razorpay + server-side payment verification; seed `settings`
+  in prod; verified email domain; GST-compliant sequential invoice numbers;
+  snapshot recipient name/phone/notes onto orders.
+- **Nice-to-haves:** shop card/UX polish (MRP strikethrough, discount badge,
+  skeletons, result count, empty states); a customer-facing "shop by school /
+  grade" bundle flow; real logo on the PDFs; remove now-unused deps/queries.
 
 ## Conventions
 

@@ -86,19 +86,31 @@ Ordered by importance.
    Capture name + phone (+ optional notes) at checkout so documents stay accurate
    and immutable. See `assembleOrderDocument` / `getOrderDocument`.
 
+> **Indexes:** the shop's filter/sort uses the `by_category_price` and
+> `by_salePrice` indexes on `products`. They're declared in `schema.ts`, so
+> `npx convex deploy` creates + backfills them automatically — no manual step.
+
 ### Nice-to-haves (not blockers)
 
-- **Wire up the shop filters.** Sort / price / in-stock in `src/lib/shop/filters.svelte.ts`
-  (UI: `filters-sidebar.svelte`, `filters-bar.svelte`) are currently cosmetic —
-  they don't affect the `/shop` product query yet.
+- **Shop card / UX polish.** The product cards are minimal. Add an MRP
+  strikethrough and a discount badge (data is there: `maxRetailPrice` vs
+  `salePrice`), skeleton loading, a result count, and proper empty states.
+- **Customer "shop by school / grade" flow.** The data exists (`schools`,
+  `bundles`, `getSchoolProducts`) but there's no customer-facing bundle browse
+  yet.
 - **Real logo on the PDFs.** The invoice/packing-slip letterhead embeds
   `favicon.svg` as a placeholder (`LOGO_SVG` in `src/lib/pdf/shared.ts`) — swap in
   the Aggarwalkart logo.
-- **Remove the unused `paneforge` dependency** (`pnpm remove paneforge`) — the shop
-  layout no longer uses it.
+- **Sorted-search cap.** `products.listShopProducts` ranks the top **200**
+  relevance matches before sorting them by price (Convex can't `.order()` a search
+  index). Fine for this catalog; raise the cap if search terms get very broad.
+- **Remove now-unused code:** the `paneforge` dependency (`pnpm remove paneforge`),
+  the `playwright` dev dependency if you don't want it, and the superseded
+  `getProductsThatAre` / `searchProductsPaginated` Convex queries (the loaders use
+  `listShopProducts` now).
 - **Navbar clearance is a fixed guess.** `/shop` content uses `pt-24` to clear the
-  floating navbar pill (which is taller now that it carries breadcrumbs); revisit
-  if the pill wraps to two lines on narrow widths.
+  floating navbar pill (taller now that it carries breadcrumbs); revisit if the
+  pill wraps to two lines on narrow widths.
 
 ## 4. After launch
 

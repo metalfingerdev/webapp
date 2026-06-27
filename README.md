@@ -6,8 +6,10 @@ An e-commerce storefront built with **SvelteKit** and a **Convex** backend
 
 ## Documentation
 
-- [Overview](docs/overview.md) — architecture, stack, and how the pieces fit
-- [Deployment & production readiness](docs/deployment.md) — going live + the pre-launch checklist
+- [Overview](docs/overview.md) — architecture, stack, how the pieces fit, and current status
+- [Deployment & production readiness](docs/deployment.md) — going live + the pre-launch checklist (what's left)
+- [Security review](SECURITY.md) — Convex function authorization review and the fixes applied
+- [Convex conventions](src/convex/CONVENTIONS.md) — backend rules; read before touching `src/convex/`
 
 ## Local development
 

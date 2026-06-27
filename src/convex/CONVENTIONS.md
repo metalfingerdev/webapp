@@ -77,6 +77,36 @@ This project uses **`@convex-dev/better-auth`** (wired in `convex.config.ts` and
   (`slugs.ts`). **Never change an existing slug** — product URLs depend on it.
   Backfill missing slugs only (see `dashboard.backfillSlugs`).
 
+## Shop catalog query (`products.listShopProducts`)
+
+The storefront grid (both `/shop` and `/shop/[category]`) is backed by the single
+paginated query `listShopProducts`. It picks an **access path per active filter**
+so each maps to an index:
+
+- text search (`q`) → `search_name` full-text index (with `category` as a filter
+  field);
+- price sort or price range → `by_category_price` / `by_salePrice` index, walked
+  in price order with `.gte`/`.lte` bounds;
+- otherwise → `by_category` (or whole table) in creation order.
+
+`in-stock` is a `stock > 0` `.filter()` on top. A search index **can't be
+`.order()`'d**, so when a search is combined with an explicit sort the query
+collects the top matches (`SEARCH_CAP`), filters + sorts in memory, and paginates
+by a **numeric-offset cursor** (returns a hand-built `PaginationResult`). Filters
+are URL state on the client (`src/lib/shop/`), so the loaders just parse the query
+string into these args.
+
+## Documents (invoice + packing slip)
+
+Both PDFs render from **one** server-built model: `assembleOrderDocument(ctx,
+order, customer)` in `lib/orderDocument.ts`. Line prices come from
+`purchases.priceAtPurchase`; shipping/total come from the **stored** order (so the
+document reflects what was charged); the GST split is back-calculated via
+`calculateOrder`. The customer's invoice goes through `orders.getOrderInvoice`
+(owner-guarded); the dashboard's copies through `dashboard.getOrderDocument`
+(`requireElevated`). The client renderers live in `src/lib/pdf/` — keep them
+presentation-only; all amounts are decided server-side.
+
 ## Enums live in schema.ts
 
 Reuse the exported validators instead of re-declaring literal unions:

@@ -6,6 +6,8 @@
 
 	const f = useShopFilters();
 
+	const toNum = (v: string) => (v ? Number(v) : null);
+
 	// The bar is two buttons; tapping one expands the bar upward (like the navbar
 	// pill) to reveal that panel. Tapping the active one collapses it again.
 	let panel = $state<'sort' | 'filters' | null>(null);
@@ -50,7 +52,7 @@
 									class="option"
 									class:active={f.sort === opt.value}
 									onclick={() => {
-										f.sort = opt.value;
+										f.setSort(opt.value);
 										close();
 									}}
 								>
@@ -63,7 +65,7 @@
 				{:else}
 					<div class="head">
 						<span class="title">Filters</span>
-						<button type="button" class="clear" onclick={f.clear}>Clear all</button>
+						<button type="button" class="clear" onclick={() => f.clear()}>Clear all</button>
 					</div>
 
 					<fieldset>
@@ -73,7 +75,8 @@
 								type="number"
 								min="0"
 								placeholder="Min"
-								bind:value={f.minPrice}
+								value={f.minPrice ?? ''}
+								onchange={(e) => f.setMin(toNum(e.currentTarget.value))}
 								aria-label="Minimum price"
 							/>
 							<span aria-hidden="true">–</span>
@@ -81,14 +84,19 @@
 								type="number"
 								min="0"
 								placeholder="Max"
-								bind:value={f.maxPrice}
+								value={f.maxPrice ?? ''}
+								onchange={(e) => f.setMax(toNum(e.currentTarget.value))}
 								aria-label="Maximum price"
 							/>
 						</div>
 					</fieldset>
 
 					<label class="check">
-						<input type="checkbox" bind:checked={f.inStockOnly} />
+						<input
+							type="checkbox"
+							checked={f.inStockOnly}
+							onchange={(e) => f.setInStock(e.currentTarget.checked)}
+						/>
 						In stock only
 					</label>
 				{/if}
