@@ -14,7 +14,7 @@ bundles) with:
 - **user accounts** (profile, addresses, order history, downloadable invoices);
 - an **admin dashboard** for products, schools/bundles, orders, stock and
   fulfilment (invoice + packing-slip PDFs);
-- a shared **navbar** (expanding search + breadcrumb panels) and a **sidebar**
+- a shared **navbar** (expanding search panel) and a **sidebar**
   with hims.com-style drill-down views.
 
 ## Tech stack
@@ -61,7 +61,7 @@ src/
       dashboard/             admin console (+page.server.ts gates non-admins)
     api/auth/                Better Auth handler (proxied to Convex)
   components/
-    navbar/                  bar + row + search panel + breadcrumb panel + mega menu
+    navbar/                  bar + row + search panel + mega menu
     sidebar/                 drawer with drill-down views (menu, category, cart, auth, user)
     shop/                    filters-sidebar (desktop) + filters-bar (mobile)
     dashboard/               shadcn-style admin kit: ui/, stat-cards, shell, products/ schools/ orders/

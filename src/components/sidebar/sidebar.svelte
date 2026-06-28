@@ -136,7 +136,7 @@
 		/* min-h-screen (not h-dvh) keeps full height: min-height beats the modal
 		   <dialog> UA max-height clamp that was cutting it short. Defined width is
 		   needed so the absolutely-overlaid sliding  has something to size to. */
-		@apply fixed inset-[0_0_0_auto] max-h-none min-h-screen w-[calc(100%-4rem)] max-w-none flex-col squircle-l-4xl sm:w-96;
+		@apply bg-background-light fixed inset-[0_0_0_auto] max-h-none min-h-screen w-[calc(100%-4rem)] max-w-none flex-col squircle-l-4xl sm:w-96;
 
 		/* Drawer slide (hims.com-style): off-canvas to the right when closed.
 		   allow-discrete on display + overlay keeps the modal in the top layer

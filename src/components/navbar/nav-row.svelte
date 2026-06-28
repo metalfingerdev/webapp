@@ -16,9 +16,6 @@
 	const sidebar = useSidebar();
 	const userQuery = useQuery(api.auth.getCurrentUser);
 
-	// Dropdown triggers (mega-menu), in the same order as the panels in
-	// mega-menu.svelte. "Schools" is index 0 (its panel lists the bundles) and
-	// also navigates to /schools on click via `href`.
 	const navItems: { id: string; label: string; href?: string }[] = [
 		{ id: 'schools', label: 'Schools', href: '/schools' },
 		{ id: 'books', label: 'Books' },
@@ -31,21 +28,22 @@
 	);
 </script>
 
-<div class="nav-row">
-	<li class="nav-item">
+<menu class="row">
+	<li class="st brand">
 		<a class="link" href={resolve('/')}> Aggarwalkart </a>
 	</li>
 
-	<li class="nav-item nav-link">
+	<li class="st redirect">
 		<a class="link" href={resolve('/shop')}> Shop </a>
 	</li>
 
 	{#each navItems as item, i (item.id)}
-		<li class="nav-item nav-link">
+		<li class="st redirect">
 			<button
 				class="trigger {nav.activeIndex === i ? 'active' : ''}"
 				bind:this={nav.triggerRefs[i]}
-				onmouseenter={() => nav.openPanel(i)}
+				onmouseenter={() => nav.hoverPanel(i)}
+				onmouseleave={nav.scheduleClose}
 				onfocus={() => nav.openPanel(i)}
 				onclick={() => item.href && goto(item.href)}
 			>
@@ -55,14 +53,14 @@
 	{/each}
 
 	{#if isStaff}
-		<li class="nav-item nav-link">
+		<li class="st redirect">
 			<a class="link" id="dashboard" href={resolve('/dashboard')}>Dashboard</a>
 		</li>
 	{/if}
 
-	<div class="seperator nav-link">|</div>
+	<div class="seperator">|</div>
 
-	<li class="nav-item max-lg:ml-auto">
+	<li class="st search">
 		<button
 			class="action {nav.isSearchOpen ? 'active' : ''}"
 			aria-label="Search"
@@ -73,18 +71,18 @@
 	</li>
 
 	{#if auth.isAuthenticated}
-		<li class="nav-item">
+		<li class="st user">
 			<button class="action" onclick={() => sidebar.show('user')}> <User size={16} /> </button>
 		</li>
 	{:else}
-		<li class="nav-item">
+		<li class="st login">
 			<button class="action" onclick={() => sidebar.show('auth')}>
 				<LogIn size={16} />
 			</button>
 		</li>
 	{/if}
 
-	<li class="nav-item">
+	<li class="st cart">
 		<button class="action" onclick={() => sidebar.show('cart')}>
 			<ShoppingCart size={16} />
 			{#if !cart.isEmpty}
@@ -93,7 +91,7 @@
 		</button>
 	</li>
 
-	<li class="nav-item">
+	<li class="st menu">
 		<button
 			class="action"
 			onclick={() => (sidebar.isOpen ? sidebar.close() : sidebar.show('default'))}
@@ -101,57 +99,68 @@
 			<Menu size={16} />
 		</button>
 	</li>
-</div>
+</menu>
 
 <style lang="postcss">
 	@reference 'src/app.css';
 
-	.nav-row {
-		@apply flex h-10 shrink-0 items-center;
-	}
+	menu.row {
+		@apply flex h-10 items-center;
 
-	.seperator {
-		@apply mx-4 flex items-center px-1 text-neutral-300 select-none;
-	}
+		div.seperator {
+			@apply mx-4 hidden items-center text-text-muted select-none lg:flex;
+		}
 
-	.nav-link {
-		@apply max-lg:hidden;
-	}
+		li.st {
+			@apply relative h-full w-auto text-text;
 
-	li.nav-item {
-		@apply relative;
-
-		button.trigger {
-			@apply inline-flex cursor-pointer items-center gap-2 squircle-4xl px-4 py-2 transition;
-
-			.caret {
-				transition: transform 0.2s;
+			&.brand {
+				@apply font-semibold max-lg:mr-auto;
 			}
 
-			&:hover,
-			&.active {
-				@apply bg-neutral-100;
+			&.redirect {
+				@apply max-lg:hidden;
+			}
 
-				.caret {
-					transform: rotate(180deg);
+			&.search,
+			&.user,
+			&.login,
+			&.cart,
+			&.menu {
+				@apply flex h-10 w-10 items-center justify-center;
+			}
+
+			a.link {
+				@apply inline-flex cursor-pointer items-center squircle-4xl px-4 py-2 transition;
+
+				&:hover {
+					@apply bg-background;
 				}
 			}
-		}
 
-		button.action {
-			@apply mx-0.5 my-1 inline-flex cursor-pointer items-center rounded-full py-3 px-1.5 transition;
+			button {
+				@apply inline-flex cursor-pointer items-center transition;
 
-			&:hover,
-			&.active {
-				@apply bg-neutral-100;
-			}
-		}
+				&.trigger {
+					@apply gap-2 squircle-4xl px-4 py-2;
+				}
 
-		.link {
-			@apply inline-flex cursor-pointer items-center squircle-4xl px-4 py-2 transition;
+				&.action {
+					@apply rounded-full p-2;
+				}
 
-			&:hover {
-				@apply bg-neutral-100;
+				.caret {
+					transition: transform 0.2s;
+				}
+
+				&:hover,
+				&.active {
+					@apply bg-background;
+
+					.caret {
+						transform: rotate(180deg);
+					}
+				}
 			}
 		}
 	}

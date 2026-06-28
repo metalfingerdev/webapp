@@ -13,17 +13,12 @@
 
 	let dialog = $state<HTMLDialogElement>();
 
-	// Mirror the controller's open state onto the native <dialog>.
 	$effect(() => {
 		if (!dialog) return;
 		if (checkout.isOpen && !dialog.open) dialog.showModal();
 		else if (!checkout.isOpen && dialog.open) dialog.close();
 	});
 
-	// Lock the modal shut while a payment is in flight: swallow the ESC-triggered
-	// `cancel` so the user can't bail mid-charge. The close button is hidden then
-	// too, and there's no backdrop dismissal — so there's simply no way out until
-	// the charge resolves or the gateway itself is cancelled.
 	function onCancel(e: Event) {
 		if (cart.isPurchasing) e.preventDefault();
 	}

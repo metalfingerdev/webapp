@@ -2,10 +2,54 @@
 @import '@klinking/squircle/tailwind/utils.css';
 @plugin '@tailwindcss/forms';
 
-/* http://meyerweb.com/eric/tools/css/reset/
-   v2.0 | 20110126
-   License: none (public domain)
-*/
+:root {
+	color-scheme: light dark;
+	--bg-dark: light-dark(hsl(0 0% 90%), oklch(0.1 0 180));
+	--bg: light-dark(hsl(300 0% 95%), oklch(0.15 0 180));
+	--bg-light: light-dark(hsl(300 50% 100%), oklch(0.2 0 180));
+
+	--text: light-dark(hsl(300 0% 4%), oklch(0.96 0 180));
+	--text-muted: light-dark(hsl(0 0% 28%), oklch(0.76 0 180));
+
+	--highlight: light-dark(hsl(300 50% 100%), oklch(0.5 0 180));
+	--border: light-dark(hsl(0 0% 50%), oklch(0.4 0 180));
+	--border-muted: light-dark(hsl(340 0% 62%), oklch(0.3 0 180));
+
+	--primary: light-dark(hsl(173 100% 9%), oklch(0.76 0.1 180));
+	--secondary: light-dark(hsl(338 43% 31%), oklch(0.76 0.1 0));
+
+	--danger: light-dark(hsl(9 21% 41%), oklch(0.7 0.05 30));
+	--warning: light-dark(hsl(52 23% 34%), oklch(0.7 0.05 100));
+	--success: light-dark(hsl(147 19% 36%), oklch(0.7 0.05 160));
+	--info: light-dark(hsl(217 22% 41%), oklch(0.7 0.05 260));
+}
+
+@theme {
+	--color-background-dark: var(--bg-dark);
+	--color-background: var(--bg);
+	--color-background-light: var(--bg-light);
+
+	--color-text: var(--text);
+	--color-text-muted: var(--text-muted);
+
+	--color-highlight: var(--highlight);
+	--color-border: var(--border);
+	--color-border-muted: var(--border-muted);
+
+	--color-primary: var(--primary);
+	--color-secondary: var(--secondary);
+
+	--color-danger: var(--danger);
+	--color-warning: var(--warning);
+	--color-success: var(--success);
+	--color-info: var(--info);
+}
+
+@layer {
+	body {
+		@apply bg-background-dark;
+	}
+}
 
 /* Responsive tables: on phones each row collapses into a card (label/value
    pairs) instead of forcing a horizontal scroll. Usage:

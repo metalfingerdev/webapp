@@ -12,16 +12,13 @@
 	const cart = useCart();
 	const sidebar = useSidebar();
 	const checkout = useCheckout();
-
 	const addresses = useQuery(api.addresses.getMyAddresses);
 	const addAddress = useMutation(api.addresses.addAddress);
 
-	let selectedAddressId = $state<Id<'addresses'> | undefined>(undefined);
-	let isAddingAddress = $state(false);
-	let newAddress = $state({ label: '', street: '', city: '', state: '', pincode: '' });
-
-	// FIX: Guard against the effect firing multiple times if auth state flickers
 	let pendingAddressSaved = false;
+	let isAddingAddress = $state(false);
+	let selectedAddressId = $state<Id<'addresses'> | undefined>(undefined);
+	let newAddress = $state({ label: '', street: '', city: '', state: '', pincode: '' });
 
 	$effect(() => {
 		if (auth.isAuthenticated && !pendingAddressSaved) {
@@ -46,8 +43,6 @@
 
 		if (!auth.isAuthenticated) {
 			AddressStorage.save(newAddress);
-			// Hand off to the sidebar's auth view, then reopen the checkout modal
-			// (closing the sidebar first so the two modals never stack).
 			checkout.close();
 			sidebar.openAuth(() => {
 				sidebar.close();
@@ -68,9 +63,6 @@
 
 	async function handleCheckout() {
 		if (!selectedAddressId) return;
-		// cart.checkout() drives the modal from here: it shows the payment gateway,
-		// then either the success state or — on a stock/payment error — leaves us on
-		// this step with cart.error visible.
 		await cart.checkout(selectedAddressId);
 	}
 </script>
@@ -115,7 +107,6 @@
 		</div>
 	{/if}
 
-	<!-- FIX: Show checkout/stock errors here where the user can see them -->
 	{#if cart.error}
 		<p class="error-text">{cart.error}</p>
 	{/if}

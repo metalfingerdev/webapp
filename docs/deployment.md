@@ -109,8 +109,7 @@ Ordered by importance.
   `getProductsThatAre` / `searchProductsPaginated` Convex queries (the loaders use
   `listShopProducts` now).
 - **Navbar clearance is a fixed guess.** `/shop` content uses `pt-24` to clear the
-  floating navbar pill (taller now that it carries breadcrumbs); revisit if the
-  pill wraps to two lines on narrow widths.
+  floating navbar pill; revisit if the pill wraps to two lines on narrow widths.
 
 ## 4. After launch
 
