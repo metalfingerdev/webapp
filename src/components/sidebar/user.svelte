@@ -212,10 +212,6 @@
 		}
 	}
 
-	.signout {
-		@apply mt-auto w-full;
-	}
-
 	.danger {
 		@apply inline-flex cursor-pointer items-center justify-center rounded-(--radius) px-2 py-1 text-xs font-medium text-(--destructive) transition-colors duration-120 ease-[ease];
 
