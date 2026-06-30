@@ -97,29 +97,18 @@
 
 <style lang="postcss">
 	@reference 'src/app.css';
-
-	/* Layout-only wrapper — no chrome of its own; the menu's pill is the only
-	   visible container. Mounted only while open (see {#if} above), so it adds
-	   no footprint when closed; `slide` animates its height + padding.
-	   w-0 + min-w-full: fill the pill's width (set by the nav row) without ever
-	   widening it, so opening search doesn't grow/recenter the pill and shift the
-	   row above. */
 	.search-panel {
 		@apply flex w-0 min-w-full flex-col gap-2 p-2;
 
-		/* Leading icon sits inside the field, beside the input. */
-		.search-field {
-			@apply flex items-center gap-2 rounded-lg border px-3 py-2 text-neutral-500;
-		}
+		form.search-field {
+			@apply flex items-center gap-2 rounded-lg border-0 px-3 py-2 text-neutral-500;
 
-		input {
-			/* border-0 drops @tailwindcss/forms' default input border; only the
-			   wrapper (.search-field) shows a container. */
-			@apply w-full border-0 bg-transparent text-neutral-900 outline-none;
+			input {
+				@apply w-full border-0 bg-transparent text-neutral-900 outline-none;
 
-			/* …and kill its box-shadow focus ring too. */
-			&:focus {
-				box-shadow: none;
+				&:focus {
+					box-shadow: none;
+				}
 			}
 		}
 
