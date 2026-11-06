@@ -12,16 +12,19 @@ export const strings = {
 		account: 'My account',
 		schoolsSoon: 'Book sets and uniforms by school are coming soon.',
 		dashboard: 'Dashboard',
-		viewAll: (name: string) => `View all ${name}`,
-		browse: 'Browse',
-		popular: 'Popular'
+		viewAll: (name: string) => `View all ${name}`
 	},
 	search: {
 		title: 'Search',
 		label: 'Search by title, author or ISBN',
-		placeholder: 'Search books',
-		seeAll: 'See all results',
-		none: 'Nothing found. Try another word.',
+		placeholder: 'Search for books, uniforms, stationery',
+		noMatches: (text: string) => `No matches for “${text}”.`,
+		seeAllFor: (text: string) => `See all results for “${text}”`,
+		quickLinks: 'Quick links',
+		recent: 'Recent searches',
+		clearRecent: 'Clear',
+		clear: 'Clear search',
+		loadingTitle: 'Loading a result',
 		searching: 'Searching'
 	},
 	home: {

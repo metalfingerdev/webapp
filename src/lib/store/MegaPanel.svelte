@@ -38,10 +38,10 @@
 	@reference 'src/app.css';
 
 	.panel {
-		@apply grid gap-4 p-5 md:grid-cols-[1fr_2fr] md:p-8;
+		@apply grid gap-3 p-6;
 	}
 	.lead {
-		@apply flex items-start justify-between gap-3 text-3xl leading-tight font-extrabold;
+		@apply flex items-start justify-between gap-3 text-2xl leading-tight font-extrabold;
 	}
 	.plain {
 		@apply block;
@@ -57,6 +57,6 @@
 		@apply transition-colors hover:bg-midground focus-visible:bg-midground;
 	}
 	.note {
-		@apply text-sm text-text-muted md:col-start-2;
+		@apply text-sm text-text-muted;
 	}
 </style>

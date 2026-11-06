@@ -4,6 +4,7 @@
 	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
 	import MenuIcon from '@lucide/svelte/icons/menu';
 	import SearchIcon from '@lucide/svelte/icons/search';
+	import XIcon from '@lucide/svelte/icons/x';
 	import { useIsAppAdmin } from '#lib/admin/api/admin.svelte.js';
 	import { ADMIN_ROUTE } from '#lib/admin/utils/admin.constants.js';
 	import UserButton from '#lib/users/ui/UserButton.svelte';
@@ -31,34 +32,55 @@
 		...categories.map((category) => ({ id: category.slug, label: category.name }))
 	]);
 
-	// One panel is open at a time: a mega panel (by index), the search panel, or none
+	// Desktop and phone are separate UIs: the triggers and the box below exist from lg up; on a phone
+	// the menu button opens the sheet instead. One thing is open at a time: a panel, the search, or none.
 	let active = $state<number | null>(null);
-	let previous = $state<number | null>(null);
 	let searchOpen = $state(false);
 	let menuOpen = $state(false);
-	let bar = $state<HTMLElement>();
+	// The bar, the box and the search results: what counts as "inside" for hover and taps
+	let header = $state<HTMLElement>();
+	let triggerEls = $state<HTMLElement[]>([]);
+	// Where the box points: the middle of the active trigger, from the bar's left edge (the bar is
+	// the triggers' offset parent)
+	let centre = $state(0);
+	// True for the first frame of opening from closed, so the box appears in place instead of gliding
+	let snap = $state(false);
 	const open = $derived(active !== null || searchOpen);
-	// Which way the new panel arrives from, so moving along the row feels like one surface
-	const from = $derived(
-		active === null || previous === null ? 'none' : active > previous ? 'right' : 'left'
-	);
 
-	const dismiss = () => {
-		active = null;
-		previous = null;
-		searchOpen = false;
-	};
-	const toggle = (index: number) => {
-		if (active === index) return dismiss();
-		previous = active;
+	const show = (index: number) => {
+		const el = triggerEls[index];
+		snap = active === null;
+		centre = el.offsetLeft + el.offsetWidth / 2;
 		active = index;
 		searchOpen = false;
+		if (snap) requestAnimationFrame(() => requestAnimationFrame(() => (snap = false)));
 	};
-	const toggleSearch = () => {
-		if (searchOpen) return dismiss();
+	const dismiss = () => {
 		active = null;
-		previous = null;
-		searchOpen = true;
+		searchOpen = false;
+	};
+	const toggle = (index: number) => (active === index ? dismiss() : show(index));
+
+	// A mouse opens a panel after a short pause (so brushing past a trigger does nothing) and closes it
+	// a moment after leaving the bar. Touch and keyboard use the click.
+	let openTimer: ReturnType<typeof setTimeout>;
+	let closeTimer: ReturnType<typeof setTimeout>;
+	const hover = (index: number, event: PointerEvent) => {
+		if (event.pointerType !== 'mouse') return;
+		clearTimeout(closeTimer);
+		clearTimeout(openTimer);
+		if (active !== null) show(index);
+		else openTimer = setTimeout(() => show(index), 120);
+	};
+	const leave = (event: PointerEvent) => {
+		if (event.pointerType !== 'mouse') return;
+		clearTimeout(openTimer);
+		closeTimer = setTimeout(() => (active = null), 250);
+	};
+
+	const toggleSearch = () => {
+		active = null;
+		searchOpen = !searchOpen;
 	};
 
 	// Close everything when the visitor moves to another page
@@ -72,7 +94,7 @@
 	$effect(() => {
 		if (!open) return;
 		const onPointer = (event: PointerEvent) => {
-			if (bar && !bar.contains(event.target as Node)) dismiss();
+			if (header && !header.contains(event.target as Node)) dismiss();
 		};
 		const onKey = (event: KeyboardEvent) => {
 			if (event.key === 'Escape') dismiss();
@@ -86,20 +108,29 @@
 	});
 </script>
 
-<header class="bar-wrap">
-	<nav class="bar" aria-label="Main" bind:this={bar}>
+<!-- Hover is a mouse shortcut only: every panel also opens by click, tap or Enter -->
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<header
+	class="bar-wrap"
+	bind:this={header}
+	onpointerenter={() => clearTimeout(closeTimer)}
+	onpointerleave={leave}
+>
+	<nav class="bar" aria-label="Main">
 		<menu class="row">
 			<li class="brand"><a href={resolve('/(shop)')}>{strings.brand}</a></li>
 
 			{#each triggers as trigger, i (trigger.id)}
 				<li class="wide">
 					<button
+						bind:this={triggerEls[i]}
 						class="trigger"
 						class:active={active === i}
 						type="button"
 						aria-expanded={active === i}
-						aria-controls="mega-panel"
+						aria-controls="mega-box"
 						onclick={() => toggle(i)}
+						onpointerenter={(event) => hover(i, event)}
 					>
 						{trigger.label}
 						<ChevronDownIcon class="caret size-4" aria-hidden="true" />
@@ -118,12 +149,16 @@
 					class="action"
 					class:active={searchOpen}
 					type="button"
-					aria-label={strings.nav.search}
+					aria-label={searchOpen ? strings.nav.close : strings.nav.search}
 					aria-expanded={searchOpen}
-					aria-controls="mega-panel"
+					aria-controls="search-panel"
 					onclick={toggleSearch}
 				>
-					<SearchIcon class="size-5" aria-hidden="true" />
+					{#if searchOpen}
+						<XIcon class="size-5" aria-hidden="true" />
+					{:else}
+						<SearchIcon class="size-5" aria-hidden="true" />
+					{/if}
 				</button>
 			</li>
 			<li><UserButton {initialData} /></li>
@@ -138,19 +173,32 @@
 				</button>
 			</li>
 		</menu>
-
-		{#if open}
-			<div class="drop" id="mega-panel" data-from={from}>
-				{#if searchOpen}
-					<SearchPanel {categories} onclose={dismiss} />
-				{:else if active === 0}
-					<MegaPanel {schools} />
-				{:else if active !== null}
-					<MegaPanel category={categories[active - 1]} />
-				{/if}
-			</div>
+		{#if searchOpen}
+			<SearchPanel {categories} onclose={dismiss} />
 		{/if}
 	</nav>
+
+	<!-- All panels are stacked in one box, so it is as tall as the tallest and never resizes. Only its
+	     position glides, to sit under the active trigger. Closed panels are inert (not focusable). -->
+	<div class="box-wrap" class:open={active !== null} class:snap style="--centre: {centre}px">
+		<div class="arrow" aria-hidden="true"></div>
+		<div class="box" id="mega-box">
+			{#each triggers as trigger, i (trigger.id)}
+				<div
+					class="slot"
+					class:current={active === i}
+					style="--side: {active === null ? 0 : Math.sign(i - active)}"
+					inert={active !== i}
+				>
+					{#if i === 0}
+						<MegaPanel {schools} />
+					{:else}
+						<MegaPanel category={categories[i - 1]} />
+					{/if}
+				</div>
+			{/each}
+		</div>
+	</div>
 </header>
 
 <!-- On a phone the row is too narrow for the triggers: the menu button opens this instead -->
@@ -201,33 +249,32 @@
 <style lang="postcss">
 	@reference 'src/app.css';
 
+	/* The old floating bar, softer: a rounded card with a light shadow and no hard edge. The panels
+	   position against the header, which is the same width as the bar. */
 	.bar-wrap {
-		@apply sticky top-0 z-30 px-3 pt-3;
+		@apply sticky top-0 z-30 mx-auto max-w-6xl px-3 pt-3;
+		container-type: inline-size;
 	}
-	/* The old floating bar, softer: a rounded card on the page with a light shadow and no hard edge */
 	.bar {
-		@apply relative mx-auto max-w-6xl rounded-3xl border border-border-muted bg-foreground p-1.5 shadow-lg;
+		@apply relative rounded-3xl border border-border-muted bg-foreground p-1.5 shadow-lg;
 	}
 	.row {
-		@apply flex min-h-12 items-center gap-0.5;
+		@apply flex min-h-11 items-center gap-0.5;
 	}
 	.brand {
-		@apply mr-2 text-lg font-extrabold text-primary;
+		@apply mr-2 flex-1 text-lg font-extrabold text-primary lg:flex-none;
 	}
 	.brand a {
 		@apply flex min-h-11 items-center px-3;
 	}
 	.spacer {
-		@apply flex-1;
+		@apply hidden lg:block lg:flex-1;
 	}
 	.wide {
 		@apply hidden lg:block;
 	}
 	.narrow {
 		@apply lg:hidden;
-	}
-	.brand {
-		@apply max-lg:flex-1;
 	}
 	.trigger,
 	.link {
@@ -250,38 +297,51 @@
 		@apply grid size-11 place-items-center rounded-full transition-colors;
 	}
 
-	/* The panel drops from the bar. It is mounted only while open. */
-	.drop {
-		@apply absolute inset-x-0 top-full mt-2 max-h-[80dvh] overflow-y-auto rounded-3xl border border-border-muted bg-foreground shadow-lg;
-		animation: drop-in 180ms cubic-bezier(0.16, 1, 0.3, 1);
+	/* The sliding box, desktop only. Its position follows the active trigger; nothing else is measured. */
+	.box-wrap {
+		@apply pointer-events-none invisible absolute inset-x-3 top-full z-10 mt-2 -translate-y-2 opacity-0 max-lg:hidden;
+		transition:
+			opacity 200ms ease,
+			translate 200ms ease,
+			visibility 200ms;
 	}
-	.drop[data-from='right'] {
-		animation-name: drop-from-right;
+	.box-wrap.open {
+		@apply pointer-events-auto visible translate-y-0 opacity-100;
 	}
-	.drop[data-from='left'] {
-		animation-name: drop-from-left;
+	.box {
+		@apply relative grid w-[34rem] max-w-full rounded-3xl border border-border-muted bg-foreground shadow-lg;
+		/* centred under the trigger, never past the bar's edges (100cqw is the bar's width) */
+		transform: translateX(clamp(0px, calc(var(--centre) - 17rem), calc(100cqw - 34rem)));
+		transition: transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
 	}
-	@keyframes drop-in {
-		from {
-			opacity: 0;
-			translate: 0 -8px;
-		}
+	.arrow {
+		@apply absolute -top-1.5 left-0 z-10 size-3 border-t border-l border-border-muted bg-foreground;
+		transform: translateX(calc(var(--centre) - 6px)) rotate(45deg);
+		transition: transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
 	}
-	@keyframes drop-from-right {
-		from {
-			opacity: 0;
-			translate: 48px 0;
-		}
+	.snap .box,
+	.snap .arrow {
+		transition: none;
 	}
-	@keyframes drop-from-left {
-		from {
-			opacity: 0;
-			translate: -48px 0;
-		}
+	/* Every panel sits in the same grid cell; the others wait to one side and fade out */
+	.slot {
+		@apply pointer-events-none invisible col-start-1 row-start-1 opacity-0;
+		transform: translateX(calc(var(--side) * 48px));
+		transition:
+			opacity 200ms ease,
+			transform 200ms ease,
+			visibility 200ms;
+	}
+	.slot.current {
+		@apply pointer-events-auto visible opacity-100;
+		transform: none;
 	}
 	@media (prefers-reduced-motion: reduce) {
-		.drop {
-			animation: none;
+		.box-wrap,
+		.box,
+		.arrow,
+		.slot {
+			transition: none;
 		}
 	}
 

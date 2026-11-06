@@ -67,3 +67,8 @@ What hims + Apple add:
 - Components from `src/lib/ui`; `edge` utilities for borders and shadows; short semantic classes with
   Tailwind in `<style>` (AGENTS.md).
 - All text in `src/lib/store/strings.ts`.
+- **Nothing shifts when its text changes** (dictated 2026-11-07). A button or label that swaps text
+  ("Show more" and "Loading") keeps one size: stack both labels in one grid cell and hide the inactive
+  one. Prices and counts use `tabular-nums`. A control that appears on demand (a clear button) keeps
+  its space while hidden. Skeletons take the real content's size (`bone`). Height may grow on purpose
+  (the search results), but smoothly, never as a jump.
