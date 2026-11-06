@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { useQuery, useMutation } from 'convex-svelte';
 	import { api } from '$convex/_generated/api.js';
-	import { useCart } from '$lib/cart/index.js';
-	import { useSidebar } from '$lib/sidebar/sidebar.svelte.js';
-	import { useCheckout } from '$lib/checkout/checkout.svelte.js';
-	import { useAuth } from '$lib/svelte/client.svelte.js';
-	import { AddressStorage } from '$lib/cart/address-storage.js';
+	import { useCart } from '#lib/cart/index.js';
+	import { useSidebar } from '#lib/sidebar/sidebar.svelte.js';
+	import { useCheckout } from '#lib/checkout/checkout.svelte.js';
+	import { useAuth } from '#lib/svelte/client.svelte.js';
+	import { AddressStorage } from '#lib/cart/address-storage.js';
 	import type { Id } from '$convex/_generated/dataModel.js';
 
 	const auth = useAuth();

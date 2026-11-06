@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { useNavbar } from '$lib/navbar/navbar.svelte.js';
+	import { useNavbar } from '#lib/navbar/navbar.svelte.js';
 	import NavRow from './nav-row.svelte';
 	import SearchPanel from './search-panel.svelte';
 	import MegaMenu from './mega-menu.svelte';

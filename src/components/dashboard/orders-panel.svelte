@@ -6,8 +6,8 @@
 	import { Card, Button, Badge } from './ui/index.js';
 	import OrderDetail from './orders/order-detail.svelte';
 	import TrackingModal from './orders/tracking-modal.svelte';
-	import { fmtINR, ORDER_STATUSES, type OrderStatus } from '$lib/dashboard/dashboard.svelte.js';
-	import { downloadPackingSlips } from '$lib/pdf/index.js';
+	import { fmtINR, ORDER_STATUSES, type OrderStatus } from '#lib/dashboard/dashboard.svelte.js';
+	import { downloadPackingSlips } from '#lib/pdf/index.js';
 
 	const convex = useConvexClient();
 

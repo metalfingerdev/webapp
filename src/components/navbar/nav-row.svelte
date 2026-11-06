@@ -5,10 +5,10 @@
 	import { api } from '$convex/_generated/api.js';
 	import { ChevronDown, Search, User, Menu, ShoppingCart, LogIn } from '@lucide/svelte';
 
-	import { useSidebar } from '$lib/sidebar/sidebar.svelte.js';
-	import { useAuth } from '$lib/svelte/index.js';
-	import { useCart } from '$lib/cart/service.svelte.js';
-	import { useNavbar } from '$lib/navbar/navbar.svelte.js';
+	import { useSidebar } from '#lib/sidebar/sidebar.svelte.js';
+	import { useAuth } from '#lib/svelte/index.js';
+	import { useCart } from '#lib/cart/service.svelte.js';
+	import { useNavbar } from '#lib/navbar/navbar.svelte.js';
 
 	const nav = useNavbar();
 	const cart = useCart();
@@ -29,13 +29,8 @@
 </script>
 
 <menu class="row">
-	<li class="st brand">
-		<a class="link" href={resolve('/')}> Aggarwalkart </a>
-	</li>
-
-	<li class="st redirect">
-		<a class="link" href={resolve('/shop')}> Shop </a>
-	</li>
+	<li class="st brand"><a class="link" href={resolve('/')}>Aggarwalkart</a></li>
+	<li class="st redirect"><a class="link" href={resolve('shop')}>Shop</a></li>
 
 	{#each navItems as item, i (item.id)}
 		<li class="st redirect">
@@ -54,7 +49,7 @@
 
 	{#if isStaff}
 		<li class="st redirect">
-			<a class="link" id="dashboard" href={resolve('/dashboard')}>Dashboard</a>
+			<a class="link" id="dashboard" href={resolve('dashboard')}>Dashboard</a>
 		</li>
 	{/if}
 
@@ -95,9 +90,8 @@
 		<button
 			class="action"
 			onclick={() => (sidebar.isOpen ? sidebar.close() : sidebar.show('default'))}
+			><Menu size={16} /></button
 		>
-			<Menu size={16} />
-		</button>
 	</li>
 </menu>
 

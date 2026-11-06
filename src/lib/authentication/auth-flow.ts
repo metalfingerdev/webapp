@@ -1,4 +1,4 @@
-import { authClient } from '$lib/authentication/auth-client.js';
+import { authClient } from '#lib/authentication/auth-client.js';
 
 type Client = typeof authClient;
 

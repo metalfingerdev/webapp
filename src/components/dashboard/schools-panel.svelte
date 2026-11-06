@@ -4,7 +4,7 @@
 	import { Card, Button } from './ui/index.js';
 	import SchoolModal from './schools/school-modal.svelte';
 	import BundlePanel from './schools/bundle-panel.svelte';
-	import { useDashboard } from '$lib/dashboard/dashboard.svelte.js';
+	import { useDashboard } from '#lib/dashboard/dashboard.svelte.js';
 
 	const dash = useDashboard();
 

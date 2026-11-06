@@ -1,206 +1,498 @@
-import { createClient, type CreateAuth } from '@convex-dev/better-auth';
-import { convex } from '@convex-dev/better-auth/plugins';
-import { components } from './_generated/api.js';
-import { type DataModel } from './_generated/dataModel.js';
-import { action, query } from './_generated/server.js';
+import { type AuthFunctions, type GenericCtx, createClient } from '@convex-dev/better-auth';
+import { isRunMutationCtx, requireActionCtx } from '@convex-dev/better-auth/utils';
+import { components, internal } from './_generated/api';
+import type { DataModel, Id } from './_generated/dataModel';
+import authSchema from './betterAuth/schema';
+import authConfig from './auth.config';
+
 import { betterAuth, type BetterAuthOptions } from 'better-auth';
-import authConfig from './auth.config.js';
-import { emailOTP } from 'better-auth/plugins';
-import { Resend } from 'resend';
-import { ConvexError, v } from 'convex/values';
+import { APIError, createAuthMiddleware } from 'better-auth/api';
 
-const resend = new Resend(process.env.RESEND_API_KEY!);
+// Plugins
+import { convex } from '@convex-dev/better-auth/plugins';
+import {
+	admin,
+	emailOTP,
+	magicLink,
+	organization,
+	deviceAuthorization,
+	phoneNumber
+} from 'better-auth/plugins';
+import { apiKey } from '@better-auth/api-key';
 
-const siteUrl = process.env.SITE_URL!;
+// Emails
+import {
+	sendEmailVerification,
+	sendInviteMember,
+	sendMagicLink,
+	sendOTPVerification,
+	sendResetPassword,
+	sendChangeEmailVerification
+} from './email';
 
-// Sender for OTP / verification mail. Must be an address on a domain you've
-// verified in Resend — `onboarding@resend.dev` is Resend's sandbox and only
-// delivers to your own account email, so real users never get the code.
-// Set EMAIL_FROM per Convex deployment once your domain is verified.
-const emailFrom = process.env.EMAIL_FROM ?? 'onboarding@resend.dev';
+// Phone OTP
+import { sendOtp } from './otp/send';
+import { isValidIndianMobile } from './otp/phone';
+import {
+	OTP_ALLOWED_ATTEMPTS,
+	OTP_EXPIRES_IN_SECONDS,
+	OTP_LENGTH,
+	phoneSignUpEmail
+} from './otp/config';
 
-// The component client has methods needed for integrating Convex with Better Auth,
-// as well as helper methods for general use.
-export const authComponent = createClient<DataModel>(components.betterAuth);
+// Constants
+import { AUTH_CONSTANTS } from './auth.constants';
+import {
+	getBetterAuthBaseUrl,
+	getBetterAuthFallbackUrl,
+	getSecureCookies,
+	resolveRequestBaseUrl
+} from './url';
+import { getAdminUserIds, isAppAdminUser } from './model/admin/roles';
 
-export const createAuth: CreateAuth<DataModel> = (ctx) => {
-	const options: BetterAuthOptions = {
-		baseURL: siteUrl,
+/**
+ * Admin plugin endpoints the browser may call over HTTP. Impersonation has to run there, since it
+ * swaps the session cookies; the hook below refuses to impersonate admins. Every other admin
+ * action goes through the `admin/*` Convex functions, which add the checks Better Auth lacks:
+ * admins can't act on other admins or on `ADMIN_USER_IDS` admins, and session tokens stay on the
+ * server.
+ */
+const ADMIN_HTTP_ENDPOINTS = ['/admin/impersonate-user', '/admin/stop-impersonating'];
+
+// Typesafe way to pass Convex functions defined in this file
+const authFunctions: AuthFunctions = internal.auth;
+
+// Initialize the component
+export const authComponent = createClient<DataModel, typeof authSchema>(components.betterAuth, {
+	local: {
+		schema: authSchema
+	},
+	authFunctions,
+	triggers: {
+		user: {
+			onCreate: async (ctx, authUser) => {
+				if (AUTH_CONSTANTS.organizations) {
+					try {
+						await ctx.runMutation(internal.organizations.mutations._createOrganization, {
+							userId: authUser._id,
+							name: `Personal Organization`,
+							slug: (() => {
+								const userName: string = (authUser as { name?: string })?.name ?? '';
+								const sanitizedName: string = userName
+									.replace(/[^A-Za-z\s]/g, '') // remove non-alphabetical characters
+									.trim()
+									.replace(/\s+/g, '-')
+									.toLowerCase();
+								return sanitizedName
+									? `personal-organization-${sanitizedName}`
+									: 'personal-organization';
+							})(),
+							skipActiveOrganization: true
+						});
+					} catch (error) {
+						console.error('Error creating organization:', error);
+					}
+				}
+			},
+			onDelete: async (ctx, authUser) => {
+				if (authUser.imageId) {
+					await ctx.storage.delete(authUser.imageId);
+				}
+				if (AUTH_CONSTANTS.organizations) {
+					const logoIds = await ctx.runMutation(
+						components.betterAuth.organization.deleteUser,
+						authUser
+					);
+					for (const logoId of logoIds) {
+						await ctx.storage.delete(logoId as Id<'_storage'>);
+					}
+				}
+				// Even with apiKeys off: keys created before still verify once it's turned back on
+				await ctx.runMutation(components.betterAuth.user.deleteApiKeys, {
+					referenceId: authUser._id
+				});
+			}
+		},
+		session: {
+			// Better Auth refreshes sessions it finds in Convex mutations with the normal 7 day expiry. It
+			// skips that for an admin impersonation (1 hour) only when the browser sends its
+			// `dont_remember` cookie, which Convex's bearer token doesn't carry, so keep the original expiry
+			onUpdate: async (ctx, newSession, oldSession) => {
+				if (newSession.impersonatedBy && newSession.expiresAt > oldSession.expiresAt) {
+					await ctx.runMutation(components.betterAuth.adapter.updateOne, {
+						input: {
+							model: 'session',
+							where: [{ field: '_id', value: newSession._id }],
+							update: { expiresAt: oldSession.expiresAt }
+						}
+					});
+				}
+			},
+			onCreate: async (ctx, session) => {
+				if (!session.activeOrganizationId && AUTH_CONSTANTS.organizations) {
+					await ctx.runMutation(components.betterAuth.organization.setActiveOrganization, {
+						userId: session.userId,
+						sessionId: session._id
+					});
+				}
+			}
+		}
+	}
+});
+
+export const { onCreate, onUpdate, onDelete } = authComponent.triggersApi();
+
+export const createAuthOptions = (ctx: GenericCtx<DataModel>) => {
+	const betterAuthFallbackUrl = getBetterAuthFallbackUrl();
+	const deviceVerificationUri = betterAuthFallbackUrl
+		? new URL('/device', betterAuthFallbackUrl).toString()
+		: undefined;
+	// Configure your Better Auth instance here
+	return {
+		// All auth requests will be proxied through your sveltekit server
+		baseURL: getBetterAuthBaseUrl(),
+		advanced: { useSecureCookies: getSecureCookies() },
 		database: authComponent.adapter(ctx),
-		// Email/password sign-in is gated on a verified email: signUp no longer
-		// auto-creates a session, and signIn is rejected until the OTP flow
-		// (emailOTP plugin below) marks the address verified.
-		emailAndPassword: {
-			enabled: true,
-			requireEmailVerification: true
-		},
-		// Verifying the OTP also creates the session, so the OTP screen signs the
-		// user in directly — no separate password sign-in round trip afterward.
+
 		emailVerification: {
-			autoSignInAfterVerification: true
-		},
-		socialProviders: {
-			google: {
-				clientId: process.env.GOOGLE_CLIENT_ID as string,
-				clientSecret: process.env.GOOGLE_CLIENT_SECRET as string
+			autoSignInAfterVerification: true,
+			sendOnSignUp: AUTH_CONSTANTS.sendEmails ?? false,
+			// An unverified password sign-in gets a fresh link along with the 403
+			sendOnSignIn: AUTH_CONSTANTS.sendEmails ?? false,
+			sendVerificationEmail: async ({ user, url }) => {
+				await sendEmailVerification(requireActionCtx(ctx), {
+					to: user.email,
+					url
+				});
 			}
 		},
 
+		// Simple non-verified email/password to get started
+		emailAndPassword: {
+			enabled: AUTH_CONSTANTS.providers.password ?? false,
+			requireEmailVerification: AUTH_CONSTANTS.sendEmails ?? false,
+			sendResetPassword: async ({ user, url }) => {
+				await sendResetPassword(requireActionCtx(ctx), {
+					to: user.email,
+					url
+				});
+			}
+		},
+		socialProviders: {
+			github: {
+				enabled: AUTH_CONSTANTS.providers.github ?? false,
+				clientId: process.env.GITHUB_CLIENT_ID as string,
+				clientSecret: process.env.GITHUB_CLIENT_SECRET as string
+			},
+			google: {
+				enabled: AUTH_CONSTANTS.providers.google ?? false,
+				clientId: process.env.GOOGLE_CLIENT_ID as string,
+				clientSecret: process.env.GOOGLE_CLIENT_SECRET as string
+			},
+			facebook: {
+				enabled: AUTH_CONSTANTS.providers.facebook ?? false,
+				clientId: process.env.FACEBOOK_CLIENT_ID as string,
+				clientSecret: process.env.FACEBOOK_CLIENT_SECRET as string
+			},
+			apple: {
+				enabled: AUTH_CONSTANTS.providers.apple ?? false,
+				clientId: process.env.APPLE_CLIENT_ID as string,
+				clientSecret: process.env.APPLE_CLIENT_SECRET as string
+			},
+			atlassian: {
+				enabled: AUTH_CONSTANTS.providers.atlassian ?? false,
+				clientId: process.env.ATLASSIAN_CLIENT_ID as string,
+				clientSecret: process.env.ATLASSIAN_CLIENT_SECRET as string
+			},
+			discord: {
+				enabled: AUTH_CONSTANTS.providers.discord ?? false,
+				clientId: process.env.DISCORD_CLIENT_ID as string,
+				clientSecret: process.env.DISCORD_CLIENT_SECRET as string
+			},
+			figma: {
+				enabled: AUTH_CONSTANTS.providers.figma ?? false,
+				clientId: process.env.FIGMA_CLIENT_ID as string,
+				clientSecret: process.env.FIGMA_CLIENT_SECRET as string
+			},
+			line: {
+				enabled: AUTH_CONSTANTS.providers.line ?? false,
+				clientId: process.env.LINE_CLIENT_ID as string,
+				clientSecret: process.env.LINE_CLIENT_SECRET as string
+			},
+			huggingface: {
+				enabled: AUTH_CONSTANTS.providers.huggingface ?? false,
+				clientId: process.env.HUGGINGFACE_CLIENT_ID as string,
+				clientSecret: process.env.HUGGINGFACE_CLIENT_SECRET as string
+			},
+			kakao: {
+				enabled: AUTH_CONSTANTS.providers.kakao ?? false,
+				clientId: process.env.KAKAO_CLIENT_ID as string,
+				clientSecret: process.env.KAKAO_CLIENT_SECRET as string
+			},
+			kick: {
+				enabled: AUTH_CONSTANTS.providers.kick ?? false,
+				clientId: process.env.KICK_CLIENT_ID as string,
+				clientSecret: process.env.KICK_CLIENT_SECRET as string
+			},
+			paypal: {
+				enabled: AUTH_CONSTANTS.providers.paypal ?? false,
+				clientId: process.env.PAYPAL_CLIENT_ID as string,
+				clientSecret: process.env.PAYPAL_CLIENT_SECRET as string
+			},
+			salesforce: {
+				enabled: AUTH_CONSTANTS.providers.salesforce ?? false,
+				clientId: process.env.SALESFORCE_CLIENT_ID as string,
+				clientSecret: process.env.SALESFORCE_CLIENT_SECRET as string
+			},
+			slack: {
+				enabled: AUTH_CONSTANTS.providers.slack ?? false,
+				clientId: process.env.SLACK_CLIENT_ID as string,
+				clientSecret: process.env.SLACK_CLIENT_SECRET as string
+			},
+			notion: {
+				enabled: AUTH_CONSTANTS.providers.notion ?? false,
+				clientId: process.env.NOTION_CLIENT_ID as string,
+				clientSecret: process.env.NOTION_CLIENT_SECRET as string
+			},
+			naver: {
+				enabled: AUTH_CONSTANTS.providers.naver ?? false,
+				clientId: process.env.NAVER_CLIENT_ID as string,
+				clientSecret: process.env.NAVER_CLIENT_SECRET as string
+			},
+			tiktok: {
+				enabled: AUTH_CONSTANTS.providers.tiktok ?? false,
+				clientSecret: process.env.TIKTOK_CLIENT_SECRET as string,
+				clientKey: process.env.TIKTOK_CLIENT_KEY as string
+			},
+			twitch: {
+				enabled: AUTH_CONSTANTS.providers.twitch ?? false,
+				clientId: process.env.TWITCH_CLIENT_ID as string,
+				clientSecret: process.env.TWITCH_CLIENT_SECRET as string
+			},
+			twitter: {
+				enabled: AUTH_CONSTANTS.providers.x ?? false,
+				clientId: process.env.X_CLIENT_ID as string,
+				clientSecret: process.env.X_CLIENT_SECRET as string
+			},
+			dropbox: {
+				enabled: AUTH_CONSTANTS.providers.dropbox ?? false,
+				clientId: process.env.DROPBOX_CLIENT_ID as string,
+				clientSecret: process.env.DROPBOX_CLIENT_SECRET as string
+			},
+			linear: {
+				enabled: AUTH_CONSTANTS.providers.linear ?? false,
+				clientId: process.env.LINEAR_CLIENT_ID as string,
+				clientSecret: process.env.LINEAR_CLIENT_SECRET as string
+			},
+			gitlab: {
+				enabled: AUTH_CONSTANTS.providers.gitlab ?? false,
+				clientId: process.env.GITLAB_CLIENT_ID as string,
+				clientSecret: process.env.GITLAB_CLIENT_SECRET as string
+			},
+			reddit: {
+				enabled: AUTH_CONSTANTS.providers.reddit ?? false,
+				clientId: process.env.REDDIT_CLIENT_ID as string,
+				clientSecret: process.env.REDDIT_CLIENT_SECRET as string
+			},
+			roblox: {
+				enabled: AUTH_CONSTANTS.providers.roblox ?? false,
+				clientId: process.env.ROBLOX_CLIENT_ID as string,
+				clientSecret: process.env.ROBLOX_CLIENT_SECRET as string
+			},
+			spotify: {
+				enabled: AUTH_CONSTANTS.providers.spotify ?? false,
+				clientId: process.env.SPOTIFY_CLIENT_ID as string,
+				clientSecret: process.env.SPOTIFY_CLIENT_SECRET as string
+			},
+			vk: {
+				enabled: AUTH_CONSTANTS.providers.vk ?? false,
+				clientId: process.env.VK_CLIENT_ID as string,
+				clientSecret: process.env.VK_CLIENT_SECRET as string
+			},
+			zoom: {
+				enabled: AUTH_CONSTANTS.providers.zoom ?? false,
+				clientId: process.env.ZOOM_CLIENT_ID as string,
+				clientSecret: process.env.ZOOM_CLIENT_SECRET as string
+			}
+		},
+		session: {
+			// Queries can't write, so the session refresh Better Auth attempts there fails, and so does
+			// the session lookup. The Convex plugin skips the refresh in queries with an injected
+			// `disableRefresh` query parameter, but endpoints that validate their query strip it (the
+			// api-key plugin's list endpoint, which 401'd for admin impersonation sessions, as those
+			// always look due for a refresh)
+			disableSessionRefresh: !isRunMutationCtx(ctx)
+		},
+
+		account: {
+			accountLinking: {
+				allowDifferentEmails: true
+			}
+		},
+
+		user: {
+			additionalFields: {
+				imageId: {
+					type: 'string',
+					required: false
+				},
+				activeOrganizationId: {
+					type: 'string',
+					required: false
+				}
+			},
+			deleteUser: {
+				enabled: true
+			},
+			changeEmail: {
+				enabled: true,
+				sendChangeEmailConfirmation: async ({ user, newEmail, url }) => {
+					await sendChangeEmailVerification(requireActionCtx(ctx), {
+						to: user.email,
+						url,
+						newEmail,
+						userName: user.name
+					});
+				}
+			}
+		},
+
+		hooks: {
+			before: createAuthMiddleware(async (ctx) => {
+				// `ctx.request` is only set for HTTP requests, not for `auth.api.*` calls from Convex
+				if (
+					ctx.request &&
+					ctx.path.startsWith('/admin/') &&
+					!ADMIN_HTTP_ENDPOINTS.includes(ctx.path)
+				) {
+					throw new APIError('NOT_FOUND');
+				}
+				// Better Auth lets ADMIN_USER_IDS admins impersonate anyone, admins included
+				if (ctx.path === '/admin/impersonate-user') {
+					// Better Auth coerces any userId to a string later, ["<id>"] included, so check the exact
+					// value it will use
+					const userId = (ctx.body as { userId?: unknown } | undefined)?.userId;
+					if (typeof userId !== 'string') {
+						throw new APIError('BAD_REQUEST', { message: 'userId must be a string.' });
+					}
+					const target = await ctx.context.internalAdapter.findUserById(userId);
+					const role = (target as { role?: string | null } | null)?.role;
+					if (target && isAppAdminUser({ id: target.id, role })) {
+						throw new APIError('FORBIDDEN', { message: "You can't impersonate admins." });
+					}
+				}
+			})
+		},
+
 		plugins: [
-			// The Convex plugin is required for Convex compatibility
+			// The Convex plugin is required
 			convex({
 				authConfig,
 				jwksRotateOnTokenGenerationError: true
 			}),
-			emailOTP({
-				async sendVerificationOTP({ email, otp, type }) {
-					// Define a type that includes your custom 'sign-up' value
-					type AllowedTypes =
-						| 'sign-in'
-						| 'email-verification'
-						| 'forget-password'
-						| 'change-email'
-						| 'sign-up';
+			...(AUTH_CONSTANTS.providers.emailOTP
+				? [
+						emailOTP({
+							sendVerificationOTP: async ({ email, otp }) => {
+								await sendOTPVerification(requireActionCtx(ctx), {
+									to: email,
+									code: otp
+								});
+							}
+						})
+					]
+				: []),
+			...(AUTH_CONSTANTS.providers.phoneOTP
+				? [
+						// Better Auth generates, stores and checks the code; convex/otp only delivers it
+						phoneNumber({
+							otpLength: OTP_LENGTH,
+							expiresIn: OTP_EXPIRES_IN_SECONDS,
+							allowedAttempts: OTP_ALLOWED_ATTEMPTS,
+							phoneNumberValidator: isValidIndianMobile,
+							sendOTP: async ({ phoneNumber, code }) => {
+								await sendOtp(requireActionCtx(ctx), { phoneNumber, code });
+							},
+							signUpOnVerification: {
+								getTempEmail: phoneSignUpEmail,
+								getTempName: (phoneNumber) => phoneNumber
+							}
+						})
+					]
+				: []),
+			...(AUTH_CONSTANTS.providers.magicLink
+				? [
+						magicLink({
+							sendMagicLink: async ({ email, url }) => {
+								await sendMagicLink(requireActionCtx(ctx), {
+									to: email,
+									url
+								});
+							}
+						})
+					]
+				: []),
+			...(AUTH_CONSTANTS.organizations
+				? [
+						organization({
+							schema: {
+								organization: {
+									additionalFields: {
+										logoId: {
+											type: 'string',
+											required: false
+										}
+									}
+								}
+							},
+							sendInvitationEmail: async (data, request) => {
+								const invitationBaseUrl = resolveRequestBaseUrl(request);
+								if (!invitationBaseUrl) {
+									throw new Error(
+										'Unable to resolve an allowed invitation base URL from the current request.'
+									);
+								}
 
-					const flowType = type as AllowedTypes;
-
-					// Resend returns { error } instead of throwing — swallowing it
-					// here advances the UI to a dead OTP screen for mail that never
-					// sent. Throw so better-auth fails the request and the client
-					// surfaces the real reason (e.g. sandbox can only mail the
-					// account owner until a domain is verified).
-					const { error } = await resend.emails.send({
-						from: emailFrom,
-						to: email,
-						subject: flowType === 'sign-up' ? 'Welcome! Verify your account' : 'Your Sign-in Code',
-						html: `<p>Your code is: <strong>${otp}</strong></p>`
-					});
-
-					if (error) {
-						throw new Error(`Failed to send verification email: ${error.message ?? error.name}`);
-					}
-				}
-			})
+								await sendInviteMember(requireActionCtx(ctx), {
+									to: data.email,
+									url: `${invitationBaseUrl}/api/organization/accept-invitation/${data.id}`,
+									inviter: {
+										name: data.inviter.user.name,
+										email: data.inviter.user.email,
+										image: data.inviter.user.image ?? undefined
+									},
+									organization: {
+										name: data.organization.name,
+										logo: data.organization.logo ?? undefined
+									}
+								});
+							}
+						})
+					]
+				: []),
+			...(AUTH_CONSTANTS.apiKeys ? [apiKey()] : []),
+			...(AUTH_CONSTANTS.admin
+				? [
+						admin({
+							// The very first admin must be bootstrapped via the ADMIN_USER_IDS env var
+							// (comma-separated Better Auth user ids). Once one admin exists, they can
+							// promote others from the admin dashboard. See model/admin/roles.ts.
+							adminUserIds: getAdminUserIds()
+						})
+					]
+				: []),
+			...(AUTH_CONSTANTS.deviceAuthorization
+				? [
+						deviceAuthorization({
+							expiresIn: '7d', // Device code expiration time
+							verificationUri: deviceVerificationUri
+						})
+					]
+				: [])
 		]
-	};
-
-	return betterAuth(options);
+	} satisfies BetterAuthOptions;
 };
 
-// Example function for getting the current user
-// Feel free to edit, omit, etc.
-// In auth.ts
-export const getCurrentUser = query({
-	args: {},
-	handler: async (ctx) => {
-		const user = await authComponent.safeGetAuthUser(ctx);
-		if (!user) return null;
-
-		// Simple lookup by email, no ID joining issues
-		const roleDoc = await ctx.db
-			.query('userRoles')
-			.withIndex('by_email', (q) => q.eq('email', user.email))
-			.unique();
-
-		return {
-			...user,
-			role: roleDoc?.role ?? 'customer'
-		};
-	}
-});
-
-// Looks up whether an email already has an account and which sign-in methods
-// it uses. The signup form calls this so an existing email is routed to its
-// real method ("continue with Google") instead of silently no-op'ing — Better
-// Auth hides existence on signUp for anti-enumeration, so we surface it here
-// deliberately (the consumer-standard tradeoff). Reads the Better Auth
-// component's user/account tables via its adapter queries.
-export const accountForEmail = query({
-	args: { email: v.string() },
-	handler: async (ctx, { email }) => {
-		const normalized = email.trim().toLowerCase();
-
-		const user = (await ctx.runQuery(components.betterAuth.adapter.findOne, {
-			model: 'user',
-			where: [{ field: 'email', value: normalized }]
-		})) as { _id: string } | null;
-
-		if (!user) {
-			return { exists: false, hasGoogle: false, hasPassword: false };
-		}
-
-		// One findOne per provider (where clauses are AND-ed) avoids paginating
-		// findMany — a user only ever has a handful of linked accounts anyway.
-		const hasProvider = async (providerId: string) =>
-			(await ctx.runQuery(components.betterAuth.adapter.findOne, {
-				model: 'account',
-				where: [
-					{ field: 'userId', value: user._id },
-					{ field: 'providerId', value: providerId }
-				]
-			})) !== null;
-
-		return {
-			exists: true,
-			hasGoogle: await hasProvider('google'),
-			hasPassword: await hasProvider('credential')
-		};
-	}
-});
-
-// Returns the current (authenticated) user's linked sign-in methods, so the
-// profile page can show "Set a password" only to accounts that don't have one
-// (e.g. Google-only users). Session-scoped — not an enumeration endpoint.
-export const myAuthMethods = query({
-	args: {},
-	handler: async (ctx) => {
-		const user = await authComponent.safeGetAuthUser(ctx);
-		if (!user) return null;
-
-		const hasProvider = async (providerId: string) =>
-			(await ctx.runQuery(components.betterAuth.adapter.findOne, {
-				model: 'account',
-				where: [
-					{ field: 'userId', value: user._id },
-					{ field: 'providerId', value: providerId }
-				]
-			})) !== null;
-
-		return {
-			hasPassword: await hasProvider('credential'),
-			hasGoogle: await hasProvider('google')
-		};
-	}
-});
-
-// Adds a password to the *currently authenticated* account — the industry-
-// standard way to link email/password to an OAuth-only user (being logged in
-// satisfies "authenticate the existing account first"). Better Auth's
-// setPassword links a credential only when none exists yet, and this runs in an
-// action because password hashing needs randomness (disallowed in mutations).
-// NOTE: the `getPublicData` test query was removed — it was dead scaffolding and
-// needless public attack surface. Add a real query when there's data to serve.
-
-export const setMyPassword = action({
-	args: { newPassword: v.string() },
-	handler: async (ctx, { newPassword }) => {
-		const { auth, headers } = await authComponent.getAuth(createAuth, ctx);
-		// getAuth() types `auth` as the narrowed RegisterableAuth (no `.api`),
-		// but at runtime it's the full Better Auth instance. Cast to the one
-		// method we call.
-		const fullAuth = auth as unknown as {
-			api: {
-				setPassword: (opts: {
-					body: { newPassword: string };
-					headers: Headers;
-				}) => Promise<unknown>;
-			};
-		};
-		try {
-			await fullAuth.api.setPassword({ body: { newPassword }, headers });
-		} catch (e) {
-			throw new ConvexError(e instanceof Error ? e.message : 'Failed to set password.');
-		}
-		return { success: true };
-	}
-});
+export const createAuth = (ctx: GenericCtx<DataModel>) => {
+	return betterAuth(createAuthOptions(ctx));
+};

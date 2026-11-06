@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { useShopFilters, SORT_OPTIONS, type SortValue } from '$lib/shop/filters.svelte.js';
+	import { useShopFilters, SORT_OPTIONS, type SortValue } from '#lib/shop/filters.svelte.js';
 
 	const f = useShopFilters();
 

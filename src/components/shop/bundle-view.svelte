@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { useCart } from '$lib/cart/index.js';
+	import { useCart } from '#lib/cart/index.js';
 	import type { FunctionReturnType } from 'convex/server';
 	import { api } from '$convex/_generated/api.js';
 

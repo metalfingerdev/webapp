@@ -1,7 +1,7 @@
 // src/routes/(app)/+layout.server.ts
 
 import { api } from '$convex/_generated/api.js';
-import { createConvexHttpClient, getAuthState } from '$lib/sveltekit/index.js';
+import { createConvexHttpClient, getAuthState } from '#lib/sveltekit/index.js';
 import type { LayoutServerLoad } from './$types.js';
 
 export const load = (async ({ locals }) => {

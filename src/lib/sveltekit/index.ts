@@ -2,7 +2,7 @@ import { createCookieGetter } from 'better-auth/cookies';
 import type { BetterAuthOptions } from 'better-auth';
 import type { Cookies, RequestHandler } from '@sveltejs/kit';
 import { JWT_COOKIE_NAME } from '@convex-dev/better-auth/plugins';
-import { PUBLIC_CONVEX_SITE_URL, PUBLIC_CONVEX_URL } from '$env/static/public';
+import { PUBLIC_CONVEX_SITE_URL, PUBLIC_CONVEX_URL } from '$app/env/public';
 import { ConvexHttpClient, type ConvexClientOptions } from 'convex/browser';
 import type { CreateAuth, GenericCtx } from '@convex-dev/better-auth';
 import type { GenericDataModel } from 'convex/server';
@@ -78,6 +78,7 @@ export function getToken<DataModel extends GenericDataModel>(
 	createAuth: CreateAuth<DataModel>,
 	cookies: Cookies
 ): Promise<string | undefined>;
+
 export function getToken<DataModel extends GenericDataModel>(
 	createAuthOrCookies: CreateAuth<DataModel> | Cookies,
 	maybeCookies?: Cookies

@@ -1,6 +1,6 @@
 import { convexLoadPaginated } from 'convex-svelte/sveltekit';
 import { api } from '$convex/_generated/api.js';
-import { parseShopFilters } from '$lib/shop/query-params.js';
+import { parseShopFilters } from '#lib/shop/query-params.js';
 import type { PageLoad } from './$types.js';
 
 // SSR the catalog; hydrates into a live paginated subscription on the client

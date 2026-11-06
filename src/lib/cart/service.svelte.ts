@@ -3,11 +3,11 @@ import { setContext, getContext } from 'svelte';
 import { useMutation, useQuery } from 'convex-svelte';
 import { api } from '$convex/_generated/api.js';
 import type { Id } from '$convex/_generated/dataModel.js';
-import { useSidebar, type SidebarService } from '$lib/sidebar/sidebar.svelte.js';
-import { useCheckout, type CheckoutController } from '$lib/checkout/checkout.svelte.js';
+import { useSidebar, type SidebarService } from '#lib/sidebar/sidebar.svelte.js';
+import { useCheckout, type CheckoutController } from '#lib/checkout/checkout.svelte.js';
 import { CartState } from './state.svelte.js';
 import { processCheckout, type CheckoutDependencies } from './checkout.js';
-import type { PaymentProcessor } from '$lib/razorpay/payment-processor.js';
+import type { PaymentProcessor } from '#lib/razorpay/payment-processor.js';
 import type {
 	CartItem,
 	CheckoutResult,

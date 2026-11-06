@@ -2,7 +2,7 @@
 	import { resolve } from '$app/paths';
 	import { useQuery } from 'convex-svelte';
 	import { api } from '$convex/_generated/api.js';
-	import { useSidebar } from '$lib/sidebar/index.js';
+	import { useSidebar } from '#lib/sidebar/index.js';
 	import { ChevronRight } from '@lucide/svelte';
 
 	const sidebar = useSidebar();
@@ -29,12 +29,11 @@
 	<button onclick={() => sidebar.navigate('stationary')}
 		>Stationary <span><ChevronRight size={20} /></span></button
 	>
-	{#if isStaff}
-		<a onclick={sidebar.close} class="link" id="dashboard" href={resolve('/dashboard')}
-			>Dashboard
 
-			<span><ChevronRight size={20} /></span>
-		</a>
+	{#if isStaff}
+		<a onclick={sidebar.close} class="link" id="dashboard" href={resolve('dashboard')}
+			>Dashboard <span><ChevronRight size={20} /></span></a
+		>
 	{/if}
 </menu>
 

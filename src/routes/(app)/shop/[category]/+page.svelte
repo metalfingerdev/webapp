@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { useCart } from '$lib/cart/index.js';
+	import { useCart } from '#lib/cart/index.js';
 	import type { PageData } from './$types.js';
 
 	let { data }: { data: PageData } = $props();

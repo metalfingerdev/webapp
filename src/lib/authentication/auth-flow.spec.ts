@@ -3,7 +3,7 @@ import { describe, it, expect, vi } from 'vitest';
 // auth-flow imports `authClient` only for its *type*; the functions operate on
 // the `client` passed in. Stub the module so importing the flow under test
 // doesn't spin up the real better-auth client (no network, no window deps).
-vi.mock('$lib/authentication/auth-client.js', () => ({ authClient: {} }));
+vi.mock('#lib/authentication/auth-client.js', () => ({ authClient: {} }));
 
 import {
 	signInWithEmail,

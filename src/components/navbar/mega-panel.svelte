@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import { useNavbar } from '$lib/navbar/navbar.svelte.js';
+	import { useNavbar } from '#lib/navbar/navbar.svelte.js';
 	import MegaItem from './mega-item.svelte';
 
 	type MenuItem = { title: string; href: string; description: string };

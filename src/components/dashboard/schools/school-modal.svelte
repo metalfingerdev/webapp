@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Id } from '$convex/_generated/dataModel.js';
 	import { Modal, Field, Button } from '../ui/index.js';
-	import { useDashboard, type School } from '$lib/dashboard/dashboard.svelte.js';
+	import { useDashboard, type School } from '#lib/dashboard/dashboard.svelte.js';
 
 	const dash = useDashboard();
 

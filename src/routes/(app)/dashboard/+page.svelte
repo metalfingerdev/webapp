@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Component } from 'svelte';
-	import { initDashboard, type Tab } from '$lib/dashboard/dashboard.svelte.js';
+	import { initDashboard, type Tab } from '#lib/dashboard/dashboard.svelte.js';
 	import DashboardShell from '$components/dashboard/dashboard-shell.svelte';
 	import StatCards from '$components/dashboard/stat-cards.svelte';
 	import ProductsPanel from '$components/dashboard/products-panel.svelte';

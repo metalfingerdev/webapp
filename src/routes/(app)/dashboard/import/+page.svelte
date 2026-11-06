@@ -9,7 +9,7 @@
 		type Category,
 		type ParsedRow,
 		type ImportResult
-	} from '$lib/products/index.js';
+	} from '#lib/products/index.js';
 
 	const bulkUpsert = useMutation(api.dashboard.bulkUpsertProducts);
 

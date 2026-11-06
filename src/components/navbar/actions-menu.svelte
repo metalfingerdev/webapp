@@ -1,10 +1,10 @@
 <script lang="ts">
 	// src/components/sidebar/sidebar.svelte
-	import { useSidebar } from '$lib/sidebar/sidebar.svelte.js';
-	import { useAuth } from '$lib/svelte/index.js';
+	import { useSidebar } from '#lib/sidebar/sidebar.svelte.js';
+	import { useAuth } from '#lib/svelte/index.js';
 
 	import { Menu, ShoppingCart, LogIn } from '@lucide/svelte';
-	import { useCart } from '$lib/cart/service.svelte.js';
+	import { useCart } from '#lib/cart/service.svelte.js';
 
 	const cart = useCart();
 	const auth = useAuth();

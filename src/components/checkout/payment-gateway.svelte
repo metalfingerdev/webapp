@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { paymentUIState, closeGateway } from '$lib/razorpay/gateway.svelte.js';
+	import { paymentUIState, closeGateway } from '#lib/razorpay/gateway.svelte.js';
 
 	let selectedMethod = $state('upi');
 	let isPaying = $state(false);

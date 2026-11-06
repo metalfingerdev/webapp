@@ -45,7 +45,7 @@ Browser ──> SvelteKit (Vercel, SSR + client)
 - **SSR + hydration:** server `load` functions fetch from Convex via the HTTP
   client; the client then takes over with live subscriptions. The shop grid uses
   `convexLoadPaginated`, so it SSRs and stays a live paginated subscription.
-- **Auth:** `$lib/svelte` and `$lib/sveltekit` bridge SvelteKit and Convex Better
+- **Auth:** `#lib/svelte` and `$lib/sveltekit` bridge SvelteKit and Convex Better
   Auth (token cookie, SSR auth state, and the `/api/auth` proxy). These are
   load-bearing — the app depends on them.
 

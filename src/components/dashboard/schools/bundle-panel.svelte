@@ -3,7 +3,7 @@
 	import { useQuery } from 'convex-svelte';
 	import { api } from '$convex/_generated/api.js';
 	import { Button } from '../ui/index.js';
-	import { useDashboard, fmtINR } from '$lib/dashboard/dashboard.svelte.js';
+	import { useDashboard, fmtINR } from '#lib/dashboard/dashboard.svelte.js';
 
 	let { schoolId, schoolName }: { schoolId: Id<'schools'>; schoolName: string } = $props();
 

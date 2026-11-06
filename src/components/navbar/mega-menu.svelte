@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { useNavbar } from '$lib/navbar/navbar.svelte.js';
+	import { useNavbar } from '#lib/navbar/navbar.svelte.js';
 	import MegaPanel from './mega-panel.svelte';
 
 	const nav = useNavbar();

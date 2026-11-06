@@ -4,7 +4,7 @@ import { query, mutation } from './_generated/server.js';
 import type { DatabaseReader } from './_generated/server.js';
 import type { Doc } from './_generated/dataModel.js';
 import { v } from 'convex/values';
-import { requireElevated } from './dashboard.js';
+import { requireAppAdmin } from './model/admin/index.js';
 import { slugify } from './slugs.js';
 
 async function buildBundleDoc(db: DatabaseReader, bundle: Doc<'bundles'>) {
@@ -54,7 +54,7 @@ export const setBundleItem = mutation({
 		quantity: v.number()
 	},
 	handler: async (ctx, { schoolId, grade, productId, quantity }) => {
-		await requireElevated(ctx);
+		await requireAppAdmin(ctx);
 		if (!Number.isInteger(quantity) || quantity < 1) {
 			throw new Error('Quantity must be a whole number ≥ 1.');
 		}
@@ -82,7 +82,7 @@ export const setBundleItem = mutation({
 export const removeBundleItem = mutation({
 	args: { itemId: v.id('bundleItems') },
 	handler: async (ctx, { itemId }) => {
-		await requireElevated(ctx);
+		await requireAppAdmin(ctx);
 		const item = await ctx.db.get(itemId);
 		if (!item) return;
 		await ctx.db.delete(itemId);
@@ -98,7 +98,7 @@ export const removeBundleItem = mutation({
 export const deleteBundle = mutation({
 	args: { bundleId: v.id('bundles') },
 	handler: async (ctx, { bundleId }) => {
-		await requireElevated(ctx);
+		await requireAppAdmin(ctx);
 		const items = await ctx.db
 			.query('bundleItems')
 			.withIndex('by_bundle', (q) => q.eq('bundleId', bundleId))
@@ -111,7 +111,7 @@ export const deleteBundle = mutation({
 export const listBundleItems = query({
 	args: { schoolId: v.id('schools'), grade: v.string() },
 	handler: async (ctx, { schoolId, grade }) => {
-		await requireElevated(ctx);
+		await requireAppAdmin(ctx);
 		const bundle = await ctx.db
 			.query('bundles')
 			.withIndex('by_school_grade', (q) => q.eq('schoolId', schoolId).eq('grade', grade))

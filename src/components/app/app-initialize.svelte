@@ -3,12 +3,12 @@
 	import { page } from '$app/state';
 	import { useQuery, useAction } from 'convex-svelte';
 	import { api } from '$convex/_generated/api.js';
-	import { useAuth } from '$lib/svelte/index.js';
-	import { MockPaymentProcessor } from '$lib/razorpay/mock-payment-processor.js';
-	import { initSidebar } from '$lib/sidebar/sidebar.svelte.js';
-	import { initCheckout } from '$lib/checkout/checkout.svelte.js';
-	import { initCart } from '$lib/cart/index.js';
-	import { initNavbar } from '$lib/navbar/navbar.svelte.js';
+	import { useAuth } from '#lib/svelte/index.js';
+	import { MockPaymentProcessor } from '#lib/razorpay/mock-payment-processor.js';
+	import { initSidebar } from '#lib/sidebar/sidebar.svelte.js';
+	import { initCheckout } from '#lib/checkout/checkout.svelte.js';
+	import { initCart } from '#lib/cart/index.js';
+	import { initNavbar } from '#lib/navbar/navbar.svelte.js';
 
 	import Sidebar from '$components/sidebar/sidebar.svelte';
 	import { CheckoutDialog } from '$components/checkout/index.js';

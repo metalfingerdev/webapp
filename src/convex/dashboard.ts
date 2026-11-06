@@ -2,7 +2,7 @@ import { mutation, query } from './_generated/server.js';
 import { v } from 'convex/values';
 import type { GenericQueryCtx, GenericMutationCtx } from 'convex/server';
 import type { DataModel, Doc, Id } from './_generated/dataModel.js';
-import { authComponent } from './auth.js';
+import { requireAppAdmin } from './model/admin/index.js';
 import { components } from './_generated/api.js';
 import { assembleOrderDocument } from './lib/orderDocument.js';
 import { ORDER_STATUS, TRACKING_STATUS, TAX_CATEGORY } from './schema.js';
@@ -11,34 +11,6 @@ import { slugify, reserveUniqueSlug } from './slugs.js';
 import { paginationOptsValidator } from 'convex/server';
 
 type Ctx = GenericQueryCtx<DataModel> | GenericMutationCtx<DataModel>;
-
-// ─── Role guard ────────────────────────────────────────────────────────────────
-
-export async function requireElevated(ctx: Ctx) {
-	const user = await authComponent.safeGetAuthUser(ctx);
-	if (!user) throw new Error('Unauthenticated');
-	const roleDoc = await ctx.db
-		.query('userRoles')
-		.withIndex('by_email', (q) => q.eq('email', user.email))
-		.unique();
-	if (roleDoc?.role !== 'admin' && roleDoc?.role !== 'developer') {
-		throw new Error('Unauthorized');
-	}
-	return user;
-}
-
-export async function requireAdmin(ctx: Ctx) {
-	const user = await authComponent.safeGetAuthUser(ctx);
-	if (!user) throw new Error('Unauthenticated');
-	const roleDoc = await ctx.db
-		.query('userRoles')
-		.withIndex('by_email', (q) => q.eq('email', user.email))
-		.unique();
-	if (roleDoc?.role !== 'admin') {
-		throw new Error('Unauthorized: admin only');
-	}
-	return user;
-}
 
 // ─── Shared validators ─────────────────────────────────────────────────────────
 
@@ -88,7 +60,7 @@ async function uniqueSchoolSlug(
 export const listSchools = query({
 	args: {},
 	handler: async (ctx) => {
-		await requireElevated(ctx);
+		await requireAppAdmin(ctx);
 		return ctx.db.query('schools').collect();
 	}
 });
@@ -96,7 +68,7 @@ export const listSchools = query({
 export const getSchool = query({
 	args: { id: v.id('schools') },
 	handler: async (ctx, { id }) => {
-		await requireElevated(ctx);
+		await requireAppAdmin(ctx);
 		return ctx.db.get(id);
 	}
 });
@@ -108,7 +80,7 @@ export const createSchool = mutation({
 		slug: v.optional(v.string())
 	},
 	handler: async (ctx, { name, code, slug }) => {
-		await requireElevated(ctx);
+		await requireAppAdmin(ctx);
 		const finalSlug = await uniqueSchoolSlug(ctx, slug || name);
 		return ctx.db.insert('schools', { name, code, slug: finalSlug });
 	}
@@ -122,7 +94,7 @@ export const updateSchool = mutation({
 		slug: v.optional(v.string())
 	},
 	handler: async (ctx, { id, name, code, slug }) => {
-		await requireElevated(ctx);
+		await requireAppAdmin(ctx);
 		const current = await ctx.db.get(id);
 		// Use the provided slug, else keep the existing one, else backfill from name.
 		const finalSlug = slug
@@ -135,7 +107,7 @@ export const updateSchool = mutation({
 export const removeSchool = mutation({
 	args: { id: v.id('schools') },
 	handler: async (ctx, { id }) => {
-		await requireAdmin(ctx);
+		await requireAppAdmin(ctx);
 		// Guard: reject if any products or bundles still reference this school.
 		const linkedBundle = await ctx.db
 			.query('bundles')
@@ -153,7 +125,7 @@ export const listProducts = query({
 		category: v.optional(v.union(v.literal('book'), v.literal('clothes'), v.literal('stationary')))
 	},
 	handler: async (ctx, { category }) => {
-		await requireElevated(ctx);
+		await requireAppAdmin(ctx);
 		if (category) {
 			return ctx.db
 				.query('products')
@@ -167,7 +139,7 @@ export const listProducts = query({
 export const getProduct = query({
 	args: { id: v.id('products') },
 	handler: async (ctx, { id }) => {
-		await requireElevated(ctx);
+		await requireAppAdmin(ctx);
 		return ctx.db.get(id);
 	}
 });
@@ -183,7 +155,7 @@ export const createProduct = mutation({
 		details: detailsV
 	},
 	handler: async (ctx, args) => {
-		await requireElevated(ctx);
+		await requireAppAdmin(ctx);
 		const slug = await dbUniqueSlug(ctx, slugify(args.name));
 		return ctx.db.insert('products', { ...args, slug, searchText: buildSearchText(args) });
 	}
@@ -200,7 +172,7 @@ export const updateProduct = mutation({
 		details: detailsV
 	},
 	handler: async (ctx, { id, ...patch }) => {
-		await requireElevated(ctx);
+		await requireAppAdmin(ctx);
 		await ctx.db.patch(id, { ...patch, searchText: buildSearchText(patch) });
 	}
 });
@@ -208,7 +180,7 @@ export const updateProduct = mutation({
 export const removeProduct = mutation({
 	args: { id: v.id('products') },
 	handler: async (ctx, { id }) => {
-		await requireAdmin(ctx);
+		await requireAppAdmin(ctx);
 		await ctx.db.delete(id);
 	}
 });
@@ -264,7 +236,7 @@ export const bulkUpsertProducts = mutation({
 		)
 	},
 	handler: async (ctx, { products }) => {
-		await requireElevated(ctx);
+		await requireAppAdmin(ctx);
 
 		// Load the catalog once and match in memory — a few thousand rows is well
 		// within a single mutation, and it avoids N index lookups.
@@ -346,7 +318,7 @@ export const bulkUpsertProducts = mutation({
 export const backfillSlugs = mutation({
 	args: {},
 	handler: async (ctx) => {
-		await requireElevated(ctx);
+		await requireAppAdmin(ctx);
 		const all = await ctx.db.query('products').collect();
 		const used = new Set(all.map((p) => p.slug).filter((s): s is string => !!s));
 		let filled = 0;
@@ -367,7 +339,7 @@ export const adjustStock = mutation({
 		delta: v.number() // positive = restock, negative = manual deduction
 	},
 	handler: async (ctx, { id, delta }) => {
-		await requireElevated(ctx);
+		await requireAppAdmin(ctx);
 		const product = await ctx.db.get(id);
 		if (!product) throw new Error('Product not found.');
 		const newStock = product.stock + delta;
@@ -377,7 +349,7 @@ export const adjustStock = mutation({
 });
 
 // Bundle functions live in bundles.ts (admin + public) — they share the
-// requireElevated guard exported above.
+// requireAppAdmin guard.
 
 // ─── Orders ────────────────────────────────────────────────────────────────────
 
@@ -389,7 +361,7 @@ export const listOrders = query({
 		paginationOpts: paginationOptsValidator
 	},
 	handler: async (ctx, { status, paginationOpts }) => {
-		await requireElevated(ctx);
+		await requireAppAdmin(ctx);
 
 		// orders has no status index, so we branch:
 		// - filtered: walk by_status index (add this to schema — see below)
@@ -427,7 +399,7 @@ export const listOrders = query({
 export const getOrder = query({
 	args: { id: v.id('orders') },
 	handler: async (ctx, { id }) => {
-		await requireElevated(ctx);
+		await requireAppAdmin(ctx);
 		const order = await ctx.db.get(id);
 		if (!order) throw new Error('Order not found.');
 		const address = await ctx.db.get(order.address);
@@ -457,7 +429,7 @@ export const getOrder = query({
 export const getOrderDocument = query({
 	args: { orderId: v.id('orders') },
 	handler: async (ctx, { orderId }) => {
-		await requireElevated(ctx);
+		await requireAppAdmin(ctx);
 		const order = await ctx.db.get(orderId);
 		if (!order) throw new Error('Order not found.');
 
@@ -488,7 +460,7 @@ export const updateOrderStatus = mutation({
 		trackingId: v.optional(v.string())
 	},
 	handler: async (ctx, { id, status, trackingId }) => {
-		await requireElevated(ctx);
+		await requireAppAdmin(ctx);
 		const patch: Record<string, unknown> = { status };
 		if (trackingId) patch.trackingId = trackingId;
 		await ctx.db.patch(id, patch);
@@ -498,7 +470,7 @@ export const updateOrderStatus = mutation({
 export const cancelOrder = mutation({
 	args: { id: v.id('orders') },
 	handler: async (ctx, { id }) => {
-		await requireElevated(ctx);
+		await requireAppAdmin(ctx);
 		const order = await ctx.db.get(id);
 		if (!order) throw new Error('Order not found.');
 		if (order.status === 'delivered' || order.status === 'shipped') {
@@ -513,7 +485,7 @@ export const cancelOrder = mutation({
 export const listTrackingEvents = query({
 	args: { orderId: v.id('orders') },
 	handler: async (ctx, { orderId }) => {
-		await requireElevated(ctx);
+		await requireAppAdmin(ctx);
 		return ctx.db
 			.query('tracking')
 			.withIndex('by_orderId', (q) => q.eq('orderId', orderId))
@@ -532,7 +504,7 @@ export const pushTrackingEvent = mutation({
 		message: v.optional(v.string())
 	},
 	handler: async (ctx, { orderId, status, carrier, location, message }) => {
-		await requireElevated(ctx);
+		await requireAppAdmin(ctx);
 		await ctx.db.insert('tracking', {
 			orderId,
 			status,
@@ -567,54 +539,13 @@ export const pushTrackingEvent = mutation({
 	}
 });
 
-// ─── Users / Roles ─────────────────────────────────────────────────────────────
-
-export const listUsers = query({
-	args: {},
-	handler: async (ctx) => {
-		await requireAdmin(ctx);
-		return ctx.db.query('userRoles').collect();
-	}
-});
-
-export const setUserRole = mutation({
-	args: {
-		email: v.string(),
-		role: v.union(v.literal('admin'), v.literal('developer'), v.literal('customer'))
-	},
-	handler: async (ctx, { email, role }) => {
-		await requireAdmin(ctx);
-		const existing = await ctx.db
-			.query('userRoles')
-			.withIndex('by_email', (q) => q.eq('email', email))
-			.unique();
-		if (existing) {
-			await ctx.db.patch(existing._id, { role });
-		} else {
-			await ctx.db.insert('userRoles', { email, role });
-		}
-	}
-});
-
-export const removeUserRole = mutation({
-	args: { email: v.string() },
-	handler: async (ctx, { email }) => {
-		await requireAdmin(ctx);
-		const doc = await ctx.db
-			.query('userRoles')
-			.withIndex('by_email', (q) => q.eq('email', email))
-			.unique();
-		if (doc) await ctx.db.delete(doc._id);
-	}
-});
-
 // ─── Dashboard stats ───────────────────────────────────────────────────────────
 
 // Single query the dashboard hero panel can call to get all top-level numbers.
 export const getDashboardStats = query({
 	args: {},
 	handler: async (ctx) => {
-		await requireElevated(ctx);
+		await requireAppAdmin(ctx);
 
 		const [orders, products, schools] = await Promise.all([
 			ctx.db.query('orders').collect(),

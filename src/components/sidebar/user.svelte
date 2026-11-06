@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { useQuery, usePaginatedQuery, useMutation } from 'convex-svelte';
 	import { api } from '$convex/_generated/api.js';
-	import { authClient } from '$lib/authentication/auth-client.js';
-	import { useSidebar } from '$lib/sidebar/sidebar.svelte.js';
+	import { authClient } from '#lib/authentication/auth-client.js';
+	import { useSidebar } from '#lib/sidebar/sidebar.svelte.js';
 	import type { Id } from '$convex/_generated/dataModel.js';
 	import { resolve } from '$app/paths';
-	import { signOut } from '$lib/authentication/auth-flow.js';
+	import { signOut } from '#lib/authentication/auth-flow.js';
 
 	let expandedOrderId = $state<Id<'orders'> | null>(null);
 	let error = $state<string | null>(null);
@@ -52,7 +52,7 @@
 
 <div class="profile-container">
 	<header>
-		<button class="primary w-full" onclick={() => sidebar.exit(resolve('/user'))}
+		<button class="primary w-full" onclick={() => sidebar.exit(resolve('user'))}
 			>Edit your profile</button
 		>
 	</header>
@@ -60,9 +60,10 @@
 	<section>
 		<div class="section-header">
 			<h3>Saved Addresses</h3>
-			<button class="secondary text-xs" onclick={() => (isAddingAddress = !isAddingAddress)}>
-				{isAddingAddress ? 'Cancel' : 'Add New Address'}
-			</button>
+
+			<button class="secondary text-xs" onclick={() => (isAddingAddress = !isAddingAddress)}
+				>{isAddingAddress ? 'Cancel' : 'Add New Address'}</button
+			>
 		</div>
 
 		{#if isAddingAddress}

@@ -8,7 +8,7 @@
 		fmtINR,
 		PRODUCT_FILTERS,
 		type ProductFilter
-	} from '$lib/dashboard/dashboard.svelte.js';
+	} from '#lib/dashboard/dashboard.svelte.js';
 
 	const dash = useDashboard();
 

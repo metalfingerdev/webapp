@@ -1,16 +1,16 @@
 <script lang="ts">
-	import { useSidebar } from '$lib/sidebar/index.js';
-	import { authClient } from '$lib/authentication/auth-client.js';
+	import { useSidebar } from '#lib/sidebar/index.js';
+	import { authClient } from '#lib/authentication/auth-client.js';
 	import {
 		signInWithEmail,
 		signUpWithEmail,
 		verifyOtpAndSignIn,
 		signOut,
 		signInWithGoogle
-	} from '$lib/authentication/auth-flow.js';
+	} from '#lib/authentication/auth-flow.js';
 	import { api } from '$convex/_generated/api.js';
 	import { useQuery, useConvexClient } from 'convex-svelte';
-	import { useAuth } from '$lib/svelte/index.js';
+	import { useAuth } from '#lib/svelte/index.js';
 
 	let { data } = $props();
 

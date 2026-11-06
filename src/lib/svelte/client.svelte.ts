@@ -1,9 +1,9 @@
 import { getContext, setContext, onMount } from 'svelte';
 
 import { setupConvex, setupAuth, setConvexClientContext, _authContextKey } from 'convex-svelte';
-import { PUBLIC_CONVEX_URL } from '$env/static/public';
-import { beforeNavigate } from '$app/navigation';
 
+import { PUBLIC_CONVEX_URL } from '$app/env/public';
+import { beforeNavigate } from '$app/navigation';
 import type { ConvexClient, ConvexClientOptions } from 'convex/browser';
 import isNetworkError from 'is-network-error';
 import type { BetterAuthClientOptions, BetterAuthClientPlugin } from 'better-auth';
@@ -21,6 +21,7 @@ type PluginsWithCrossDomain = (
 	| ConvexClientBetterAuth
 	| BetterAuthClientPlugin
 )[];
+
 type PluginsWithoutCrossDomain = (ConvexClientBetterAuth | BetterAuthClientPlugin)[];
 type AuthClientWithPlugins<Plugins extends PluginsWithCrossDomain | PluginsWithoutCrossDomain> =
 	ReturnType<
@@ -124,7 +125,7 @@ type CreateSvelteAuthClientExternalArgs = CreateSvelteAuthClientBaseArgs & {
  * In a standard web app, you typically call:
  *
  * ```ts
- * import { authClient } from '$lib/authentication/auth-client.js';
+ * import { authClient } from '#lib/authentication/auth-client.js';
  *
  * createSvelteAuthClient({
  *   authClient,
@@ -253,7 +254,9 @@ function createSvelteAuthClientBrowser({
 	// when the session is not yet established, giving the atom time to settle.
 	let navigationPendingTimer: ReturnType<typeof setTimeout> | null = null;
 
-	beforeNavigate(({ willUnload }) => {
+	beforeNavigate(({ willUnload, shallow, type }) => {
+		if (shallow && type === 'goto') return;
+
 		if (!willUnload && !sessionData) {
 			sessionPending = true;
 			if (navigationPendingTimer) clearTimeout(navigationPendingTimer);

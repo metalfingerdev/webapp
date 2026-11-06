@@ -3,7 +3,7 @@
 // Building blocks shared by the invoice and packing-slip definitions: the
 // letterhead, the dark-header item table styling, and the address block.
 import type { Content, CustomTableLayout, Style } from 'pdfmake';
-import faviconSvg from '$lib/assets/favicon.svg?raw';
+import faviconSvg from '#lib/assets/favicon.svg?raw';
 import { SELLER } from './seller.js';
 import type { OrderDocument } from '$convex/lib/orderDocument.js';
 

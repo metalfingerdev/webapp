@@ -3,8 +3,8 @@
 	import { api } from '$convex/_generated/api.js';
 	import { page } from '$app/state';
 	import type { Id } from '$convex/_generated/dataModel.js';
-	import { downloadInvoice, printInvoice } from '$lib/pdf/index.js';
-	import { inr, formatDate } from '$lib/pdf/format.js';
+	import { downloadInvoice, printInvoice } from '#lib/pdf/index.js';
+	import { inr, formatDate } from '#lib/pdf/format.js';
 
 	const orderId = page.params.order as Id<'orders'>;
 	const invoice = useQuery(api.orders.getOrderInvoice, { orderId });

@@ -1,10 +1,17 @@
 import { defineSchema, defineTable } from 'convex/server';
 import { v, type Infer } from 'convex/values';
 
-export const CUSTOMER_ROLE = v.union(
-	v.literal('admin'),
-	v.literal('developer'),
-	v.literal('customer')
+export const otpChannelId = v.union(
+	v.literal('textbee'),
+	v.literal('whatsapp'),
+	v.literal('fast2sms'),
+	v.literal('console')
+);
+
+export const otpDeliveryStatus = v.union(
+	v.literal('sent'), // the provider accepted it (not proof of delivery)
+	v.literal('failed'),
+	v.literal('rate_limited')
 );
 
 export const ORDER_STATUS = v.union(
@@ -69,6 +76,15 @@ export const PRODUCT_DETAILS = v.union(
 );
 
 export default defineSchema({
+	// See convex/otp/deliveries.ts
+	otpDeliveries: defineTable({
+		phoneNumber: v.string(), // E.164
+		channel: v.optional(otpChannelId), // unset when rate limited before any channel was tried
+		status: otpDeliveryStatus,
+		providerMessageId: v.optional(v.string()),
+		error: v.optional(v.string())
+	}).index('by_phoneNumber', ['phoneNumber']),
+
 	products: defineTable({
 		name: v.string(),
 		weight: v.number(),
@@ -96,11 +112,6 @@ export default defineSchema({
 			searchField: 'searchText',
 			filterFields: ['category']
 		}),
-
-	userRoles: defineTable({
-		email: v.string(),
-		role: CUSTOMER_ROLE
-	}).index('by_email', ['email']),
 
 	cartItems: defineTable({
 		userId: v.string(),

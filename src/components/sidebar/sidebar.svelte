@@ -1,14 +1,14 @@
 <script lang="ts">
 	// src/components/sidebar/sidebar.svelte
-	import { useSidebar } from '$lib/sidebar/sidebar.svelte.js';
+	import { useSidebar } from '#lib/sidebar/sidebar.svelte.js';
 	import { Menu, Cart, Auth, User, Category, School } from '$components/sidebar/index.js';
 	import { X, ChevronLeft, Search, User as UserIcon, LogIn, ShoppingCart } from '@lucide/svelte';
 	import { resolve } from '$app/paths';
 	import { fly } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
-	import { useAuth } from '$lib/svelte/index.js';
-	import { useCart } from '$lib/cart/service.svelte.js';
-	import { useNavbar } from '$lib/navbar/navbar.svelte.js';
+	import { useAuth } from '#lib/svelte/index.js';
+	import { useCart } from '#lib/cart/service.svelte.js';
+	import { useNavbar } from '#lib/navbar/navbar.svelte.js';
 
 	// Shared timing so the header button and the  animate as one. 500ms is
 	// deliberately slow for now so the motion is easy to judge.

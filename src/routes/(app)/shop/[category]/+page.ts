@@ -2,7 +2,7 @@ import { convexLoadPaginated } from 'convex-svelte/sveltekit';
 import { api } from '$convex/_generated/api.js';
 import { error } from '@sveltejs/kit';
 import { PRODUCT_CATEGORIES, type ProductCategory } from '$convex/schema.js';
-import { parseShopFilters } from '$lib/shop/query-params.js';
+import { parseShopFilters } from '#lib/shop/query-params.js';
 import type { PageLoad } from './$types.js';
 
 export const load = (async ({ params, url }) => {

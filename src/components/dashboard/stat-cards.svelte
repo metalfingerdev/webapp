@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Card } from './ui/index.js';
-	import { useDashboard, fmtINR } from '$lib/dashboard/dashboard.svelte.js';
+	import { useDashboard, fmtINR } from '#lib/dashboard/dashboard.svelte.js';
 
 	const dash = useDashboard();
 

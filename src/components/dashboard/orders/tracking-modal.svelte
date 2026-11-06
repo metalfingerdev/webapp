@@ -5,7 +5,7 @@
 		useDashboard,
 		TRACKING_STATUSES,
 		type TrackingStatus
-	} from '$lib/dashboard/dashboard.svelte.js';
+	} from '#lib/dashboard/dashboard.svelte.js';
 
 	const dash = useDashboard();
 

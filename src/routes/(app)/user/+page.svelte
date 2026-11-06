@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { api } from '$convex/_generated/api.js';
-	import { authClient } from '$lib/authentication/auth-client.js';
+	import { authClient } from '#lib/authentication/auth-client.js';
 	import { useQuery, useMutation, usePaginatedQuery, useAction } from 'convex-svelte';
 	import { ConvexError } from 'convex/values';
 	import type { Id } from '$convex/_generated/dataModel.js';

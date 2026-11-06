@@ -208,7 +208,7 @@ export const getProductsThatAre = query({
 
 // NOTE: the old public, auth-less `deleteProduct` was removed — it let anyone
 // delete any product by id. Admin deletion lives in dashboard.ts `removeProduct`
-// (guarded by requireAdmin), which is what the dashboard already calls.
+// (guarded by requireAppAdmin), which is what the dashboard already calls.
 
 export const validateCartStock = mutation({
 	args: {

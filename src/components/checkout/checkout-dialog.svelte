@@ -1,9 +1,9 @@
 <script lang="ts">
 	// src/components/checkout/checkout-dialog.svelte
-	import { useCheckout } from '$lib/checkout/checkout.svelte.js';
-	import { useCart } from '$lib/cart/index.js';
-	import { useSidebar } from '$lib/sidebar/sidebar.svelte.js';
-	import { paymentUIState } from '$lib/razorpay/gateway.svelte.js';
+	import { useCheckout } from '#lib/checkout/checkout.svelte.js';
+	import { useCart } from '#lib/cart/index.js';
+	import { useSidebar } from '#lib/sidebar/sidebar.svelte.js';
+	import { paymentUIState } from '#lib/razorpay/gateway.svelte.js';
 	import AddressStep from './address-step.svelte';
 	import PaymentGateway from './payment-gateway.svelte';
 

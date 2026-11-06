@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Snippet, Component } from 'svelte';
 	import { Package, School, ShoppingBag, ArrowUpRight, type LucideProps } from '@lucide/svelte';
-	import type { Tab } from '$lib/dashboard/dashboard.svelte.js';
+	import type { Tab } from '#lib/dashboard/dashboard.svelte.js';
 
 	type Icon = Component<LucideProps>;
 

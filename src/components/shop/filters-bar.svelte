@@ -2,7 +2,7 @@
 	import { ArrowDownUp, SlidersHorizontal, Check } from '@lucide/svelte';
 	import { slide } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
-	import { useShopFilters, SORT_OPTIONS } from '$lib/shop/filters.svelte.js';
+	import { useShopFilters, SORT_OPTIONS } from '#lib/shop/filters.svelte.js';
 
 	const f = useShopFilters();
 

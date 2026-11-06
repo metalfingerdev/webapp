@@ -4,13 +4,13 @@
 	import { useConvexClient } from 'convex-svelte';
 	import { api } from '$convex/_generated/api.js';
 	import { Button } from '../ui/index.js';
-	import { downloadInvoice, downloadPackingSlip } from '$lib/pdf/index.js';
+	import { downloadInvoice, downloadPackingSlip } from '#lib/pdf/index.js';
 	import {
 		useDashboard,
 		fmtINR,
 		ORDER_STATUSES,
 		type OrderStatus
-	} from '$lib/dashboard/dashboard.svelte.js';
+	} from '#lib/dashboard/dashboard.svelte.js';
 
 	type OrderItem = {
 		_id: string;

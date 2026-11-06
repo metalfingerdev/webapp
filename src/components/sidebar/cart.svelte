@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { useSidebar } from '$lib/sidebar/index.js';
-	import { useCheckout } from '$lib/checkout/checkout.svelte.js';
-	import { useCart } from '$lib/cart/index.js';
+	import { useSidebar } from '#lib/sidebar/index.js';
+	import { useCheckout } from '#lib/checkout/checkout.svelte.js';
+	import { useCart } from '#lib/cart/index.js';
 
 	const sidebar = useSidebar();
 	const checkout = useCheckout();

@@ -2,7 +2,7 @@
 	import { ArrowRight } from '@lucide/svelte';
 	import { useQuery } from 'convex-svelte';
 	import { api } from '$convex/_generated/api.js';
-	import { useSidebar } from '$lib/sidebar/index.js';
+	import { useSidebar } from '#lib/sidebar/index.js';
 
 	const sidebar = useSidebar();
 
