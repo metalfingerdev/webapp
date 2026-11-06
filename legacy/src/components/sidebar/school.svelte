@@ -53,10 +53,10 @@
 	}
 
 	.hero {
-		@apply relative grid gap-1 squircle-4xl bg-gradient-to-br from-neutral-800 to-neutral-600 p-4 pb-14 text-white;
+		@apply relative grid gap-1 squircle-4xl bg-linear-to-br from-neutral-800 to-neutral-600 p-4 pb-14 text-white;
 
 		.hero-heading {
-			@apply max-w-[14rem] text-lg leading-tight font-semibold;
+			@apply max-w-56 text-lg leading-tight font-semibold;
 		}
 		.hero-cta {
 			@apply text-sm text-white/80;

@@ -245,6 +245,16 @@ which starts with `references/design.md`.
   - Tests: `store/catalog.test.ts` (hidden things stay hidden, stock is never exposed).
   - Ported from `legacy/` and deleted there: navbar, sidebar (except `cart.svelte` for step 4 and
     `school.svelte` for step 3), `lib/shop/*`, the old home and shop pages, `productSearch.ts`.
+- **Navbar rebuilt in the old style, with hims and Apple polish** (2026-11-07, branch `step-2b-navbar`,
+  dictated: "old navbar and hims and Apple combine"). From `lg` up: the old floating rounded bar with
+  Schools and each top-level category as triggers; each opens a full-width panel on tap, click or
+  Enter (never hover), with a large "View all" link and the sections, and the panel arrives from the side
+  you moved from. Search is an inline panel with live results and Browse and Popular columns. On a
+  phone: compact bar, menu button opening the sheet. Admins get a Dashboard link. The Schools panel
+  lists schools without links until step 3 (decided 2026-11-07). The panels are built from the
+  categories and schools data, not hardcoded. Differences from the old bar: no hover-open (phones),
+  no measured sliding viewport (a simple panel instead, lighter), rounded-3xl card rather than a
+  squircle on the outer bar. The old code stays in `legacy/`. Cart icon waits for step 4.
 - **Not in yet**: no cart, checkout or orders, no `/admin/settings` (the settings row holds placeholders),
   and no school or set pages.
 
