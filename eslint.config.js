@@ -34,6 +34,8 @@ export default [
 	{
 		// Build outputs and generated code — never lint these.
 		ignores: [
+			// The old store, outside the build until step 10 deletes it.
+			'legacy/**',
 			// Copied from the sveltekit-convex-auth-template; linted by its rules, not ours.
 			'src/lib/auth/**',
 			'src/lib/users/**',
@@ -44,7 +46,9 @@ export default [
 			'src/lib/index.ts',
 			'src/convex/betterAuth/**',
 			'src/convex/otp/**',
-			'src/convex/model/**',
+			'src/convex/model/admin/**',
+			'src/convex/model/emails/**',
+			'src/convex/model/organizations/**',
 			'src/convex/users/**',
 			'src/convex/admin/**',
 			'src/convex/organizations/**',

@@ -17,6 +17,9 @@ dist
 
 _generated
 
+# The old store, read and ported step by step, deleted in step 10
+/legacy/
+
 # npm pack output
 *.tgz
 
@@ -31,7 +34,9 @@ _generated
 /src/lib/index.ts
 /src/convex/betterAuth
 /src/convex/otp
-/src/convex/model
+/src/convex/model/admin
+/src/convex/model/emails
+/src/convex/model/organizations
 /src/convex/users
 /src/convex/admin
 /src/convex/organizations

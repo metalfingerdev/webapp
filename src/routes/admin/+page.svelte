@@ -78,7 +78,7 @@
 			<h1 class="text-lg font-extrabold">Access denied</h1>
 			<p class="text-text-muted mt-1 text-sm">You don't have permission to view this page.</p>
 		</div>
-		<Button href={resolve('/(app)/(home)')}>Back to home</Button>
+		<Button href={resolve('/')}>Back to home</Button>
 	</div>
 {:else}
 	<div class="mx-auto w-full max-w-5xl p-4 sm:p-6">
