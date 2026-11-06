@@ -111,6 +111,9 @@ Each entry has a date and the reason. When the user decides something new, add i
   **house-colour T-shirt** (so a variant can be size + house), and **shoes** are sold. Class bands
   (placeholder, researched as typical: shorts up to Class 5, trousers from Class 6): pre-primary
   (Mont-01 to Mont-03), primary (Class 1 to 5), senior (Class 6 to 12). Real bands per school TODO (dictate).
+- **Staging deploy order** (2026-11-06). Vercel was set up before step 2, so the client can see
+  progress early; `docs/08-environments-and-deployment.md` is the checklist. Console OTP on staging is
+  accepted only while the user is the sole tester.
 - **Client questions go through the user** (2026-11-06). Ask the user when a step needs an answer;
   they get it from the client. Don't batch questions far ahead of the step that needs them.
 
@@ -204,6 +207,14 @@ with `references/design.md`.
   admin); `store/access.test.ts` covers stock refusals, logging and never-below-zero. convex-test
   needs the module glob at the Convex root: `modules.testutils.ts`.
 - **UI**: a bare home page and `src/lib/store/ShopHeader.svelte` (stand-ins until step 2).
+- **Staging is live** (2026-11-06): a Vercel project (Hobby, SvelteKit) deploys `main`, with
+  `PUBLIC_APP_ENV=staging`. Its backend is this repo's Convex **Production** slot. Convex env vars set
+  there: the Better Auth secret and host and URL, `OTP_CHANNELS=console` with `OTP_ALLOW_CONSOLE=true`
+  (sign-in codes appear only in that deployment's logs; remove both before the real launch), and
+  `ADMIN_USER_IDS` (the owner). Not set yet: Resend (`RESEND_API_KEY`, `EMAIL_SEND_FROM`) and Google
+  sign-in, so only phone sign-in works. Staging has no demo data until the seed is run with `--prod`,
+  which needs the user's say-so in that session. Deployment names and ids are in the dashboards, not
+  here (public repo).
 - **Not in yet**: no public catalogue queries, no `/admin/settings` (the settings row holds
   placeholders), no cart, checkout or orders.
 
