@@ -59,6 +59,19 @@ asks again, and the reason tells it how to handle the cases you didn't mention.
   - makes up a fee, a tax rate or a set's contents instead of asking
   - `git push --force`, or commits straight to `main`
 
+## The git hooks
+
+`pnpm install` turns on two checks that run on every commit (`.githooks/`):
+
+- **commit-msg** refuses a Claude/Anthropic attribution line, so Claude never shows up as a contributor.
+- **pre-commit** refuses a commit on `main`, a staged `.env` file, and lines that look like an Indian
+  mobile number, a GSTIN, a Razorpay or Resend key, or a private key.
+
+If it stops a commit, read the message: usually something must move to `/admin/settings` or an env var.
+For a false positive (say a made-up test number), add the comment `allow-identifier` on that line. Skip
+the checks entirely only when you're sure: `git commit --no-verify`. A fresh clone needs `pnpm install`
+once for the hooks to be on (check with `git config core.hooksPath`, which should print `.githooks`).
+
 ## Secrets and client details
 
 - The repo is **public**. Keys (Razorpay, Resend, Better Auth secret) go in Convex env vars. Type them
@@ -69,14 +82,15 @@ asks again, and the reason tells it how to handle the cases you didn't mention.
 
 ## One-time setup checklist
 
-- [ ] GitHub: push `main`, then turn on branch protection for `main` (require a PR and green CI).
+- [x] GitHub: branch protection on `main` (PRs only).
 - [ ] Convex: `npx convex dev` once to create your dev deployment, then the env vars in
       `docs/02-getting-started.md` (`BETTER_AUTH_SECRET`, `SITE_URL`, OTP console channel, `ADMIN_USER_IDS`).
 - [ ] Vercel: a staging project linked to the repo (`docs/08-environments-and-deployment.md`).
 - [ ] Razorpay: the **client's** account, test keys first (needed at step 6).
-- [ ] Ask the client early for what steps 2, 3 and 5 need (see the store profile roadmap): book lists
-      per school and class, shipping fees, COD, a WooCommerce product export.
-- [ ] Decide with the client who owns the production accounts (Convex, Vercel, Razorpay, Resend, domain).
+- [ ] Each step's client questions: Claude asks you when a step needs them (`/next-step` lists them);
+      you get the answers from the client.
+- [x] Accounts: you own them all for now. This repo is **staging**; the live store launches later from
+      a separate repo, and who owns production is decided then (step 10 writes the launch checklist).
 
 ## Where things are written down
 

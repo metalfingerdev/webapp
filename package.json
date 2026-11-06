@@ -1,5 +1,5 @@
 {
-	"name": "aggarwalkart",
+	"name": "webapp",
 	"author": "metalfingerdev",
 	"version": "0.8.0",
 	"license": "MIT",
@@ -7,7 +7,7 @@
 	"type": "module",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/aggarwalkart/webapp.git"
+		"url": "git+https://github.com/metalfingerdev/webapp.git"
 	},
 	"scripts": {
 		"cleanse": "pnpm format && pnpm lint && pnpm check && pnpm test && pnpm build",
@@ -16,7 +16,7 @@
 		"dev": "concurrently --kill-others --prefix-colors \"red,yellow\" --names \"svelte,convex\" \"pnpm dev:frontend\" \"pnpm dev:backend\"",
 		"build": "vite build",
 		"preview": "vite preview",
-		"prepare": "svelte-kit sync || echo ''",
+		"prepare": "svelte-kit sync || echo ''; git config core.hooksPath .githooks 2>/dev/null || true",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"format": "prettier --write .",

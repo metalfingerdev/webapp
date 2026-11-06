@@ -42,16 +42,16 @@ email, Razorpay for payments, pdfmake for invoices, pnpm. Hosted on Vercel.
 
 ## Commands
 
-| Command                          | What it does                                                                     |
-| -------------------------------- | -------------------------------------------------------------------------------- |
-| `pnpm install`                   | install (pnpm only; version pinned in `package.json`)                            |
-| `pnpm dev`                       | SvelteKit (http://localhost:5173) and `convex dev` together                      |
-| `npx convex dev`                 | sync `src/convex` to the dev deployment and regenerate `_generated/`             |
-| `pnpm check`                     | type-check Svelte + TS (must be 0 errors)                                        |
-| `npx tsc -p src/convex --noEmit` | type-check the Convex functions                                                  |
-| `pnpm test`                      | Vitest: `src/convex/**/*.test.ts` on `edge-runtime`, `src/**/*.spec.ts` on jsdom |
-| `pnpm lint`                      | Prettier + ESLint                                                                |
-| `pnpm build`                     | production build                                                                 |
+| Command                          | What it does                                                                                       |
+| -------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `pnpm install`                   | install (pnpm only; version pinned in `package.json`); also turns on the git hooks in `.githooks/` |
+| `pnpm dev`                       | SvelteKit (http://localhost:5173) and `convex dev` together                                        |
+| `npx convex dev`                 | sync `src/convex` to the dev deployment and regenerate `_generated/`                               |
+| `pnpm check`                     | type-check Svelte + TS (must be 0 errors)                                                          |
+| `npx tsc -p src/convex --noEmit` | type-check the Convex functions                                                                    |
+| `pnpm test`                      | Vitest: `src/convex/**/*.test.ts` on `edge-runtime`, `src/**/*.spec.ts` on jsdom                   |
+| `pnpm lint`                      | Prettier + ESLint                                                                                  |
+| `pnpm build`                     | production build                                                                                   |
 
 Tests and the build need `PUBLIC_CONVEX_URL` and `PUBLIC_CONVEX_SITE_URL` (any value; `.env.local` has
 real ones). CI (`.github/workflows/ci.yml`) runs check, Convex type-check, tests and build on every PR.
@@ -76,6 +76,7 @@ src/lib/                 UI: store/ (from step 1), ui/ + primitives/ (shared), a
 src/routes/              pages; (auth)/ sign-in, account/, admin/, api/auth proxy
 legacy/                  the old store, from step 1 until step 10: read it, port from it, delete it
 docs/                    developer docs, start at docs/README.md
+.githooks/               commit checks: no AI attribution, no secrets or identifiers, not on main
 .agents/skills/          skills; .claude/skills/ links to them
 ```
 
@@ -119,7 +120,8 @@ Before step 1 the old store is still inside `src/` (`src/components`, `src/route
 - **The repo is public.** Never commit secrets, the shop's phone, email, GSTIN, UPI id or street
   address, or any real customer's name, phone, address or order, not in code, tests, seeds, docs or
   screenshots. Business details are typed into `/admin/settings`; secrets go in Convex or Vercel env
-  vars (`npx convex env set NAME value`).
+  vars (`npx convex env set NAME value`). The pre-commit hook (`.githooks/`) catches the common cases;
+  it is a safety net, not permission. Never bypass it with `--no-verify` unless the user says so.
 - **Don't invent business values** (fees, GST, set contents, policies). Use a named placeholder
   constant, mark it `TODO (dictate)` in the store profile, and tell the user.
 - **Don't assert tax or legal rules** in code or copy. GST, invoice wording and policies are confirmed
@@ -142,16 +144,21 @@ Before step 1 the old store is still inside `src/` (`src/components`, `src/route
 
 ## Environments and deploys
 
-| Env        | Where                                                                                  | Backend                                           |
-| ---------- | -------------------------------------------------------------------------------------- | ------------------------------------------------- |
-| Local      | http://localhost:5173                                                                  | your Convex **dev** deployment (`npx convex dev`) |
-| Staging    | the Vercel site built from `main`                                                      | not set up yet                                    |
-| Production | aggarwalkart.in, **after step 10**; today the domain still serves the WooCommerce site | not set up yet; owned by the client               |
+| Env        | Where                                                                                                                            | Backend                                           | Owner             |
+| ---------- | -------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- | ----------------- |
+| Local      | http://localhost:5173                                                                                                            | your Convex **dev** deployment (`npx convex dev`) | the developer     |
+| Staging    | the Vercel site built from `main` of **this repo**                                                                               | this repo's Convex project (production slot)      | the user          |
+| Production | aggarwalkart.in, after step 10, from a **separate repo** made for the launch; today the domain still serves the WooCommerce site | a new Convex project                              | decided at launch |
+
+**This repo is staging only.** It is where the store is built and shown to the client; the store that
+goes live on aggarwalkart.in is launched from a separate repo. The user owns every account for now
+(GitHub, Convex, Vercel, Razorpay test, Resend).
 
 Don't hard-code a Vercel project, Convex deployment or domain, so moving to production is a checklist,
 not a rewrite (`docs/08-environments-and-deployment.md`).
 
-Workflow: branch → draft PR → CI green → the user reviews and merges → `main` deploys staging
+Workflow: branch → draft PR → CI green → the user reviews and merges (`main` is protected on GitHub:
+PRs only) → `main` deploys staging
 (`vercel.json`).
 
 ## Skills

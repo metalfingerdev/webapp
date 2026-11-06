@@ -76,7 +76,15 @@ Each entry has a date and the reason. When the user decides something new, add i
 - **Tests**: few, and only ones that fail when behaviour breaks: security refusals, money and stock
   correctness, real invariants. Why: the user pays for every test run and every token.
 - **Function first, visual design last.** Why: the screens will change once the client sees them working.
-- **Workflow**: one branch and one draft PR per step; the user reviews and merges.
+- **Workflow**: one branch and one draft PR per step; the user reviews and merges. `main` is protected
+  on GitHub (PRs only), and the git hooks refuse commits on `main`.
+- **This repo is staging** (2026-11-06). The store is built and shown to the client here; the live
+  store on aggarwalkart.in launches later from a separate repo. Why: the user wants a clean repo for the
+  real launch. So: never hard-code this repo's name, Vercel project or Convex deployment.
+- **Accounts** (2026-11-06): the user owns every account for now (GitHub, Convex, Vercel, Razorpay
+  test, Resend). Who owns production is settled at launch.
+- **Client questions go through the user** (2026-11-06). Ask the user when a step needs an answer;
+  they get it from the client. Don't batch questions far ahead of the step that needs them.
 
 ## Roadmap
 
@@ -124,11 +132,13 @@ list it in the report.
    name and address, invoice prefix.
 9. **Product On Demand.** Form, `enquiries`, email to the store, admin inbox. _Needs_: what the store
    promises after an enquiry, which address receives it.
-10. **Policies, SEO and launch.** Policy pages (text from the live site, checked by the client),
-    sitemap, 301s from WooCommerce URLs, production Convex and Vercel projects, Resend domain for
-    aggarwalkart.in, DLT for SMS OTP, data migration if wanted, DNS cutover on an agreed date with a
-    rollback plan. Delete `legacy/` and the `old-store` notes. _Needs_: domain and DNS access, who owns
-    the production accounts, the go-live date, the policy texts, the WooCommerce data export.
+10. **Policies, SEO and launch readiness.** Policy pages (text from the live site, checked by the
+    client), sitemap, 301 map from the WooCommerce URLs, and `docs/launch.md`: the checklist for
+    launching from the separate production repo (new Convex and Vercel projects, env vars, Razorpay live
+    keys and webhook, Resend domain for aggarwalkart.in, DLT for SMS OTP, data migration if wanted, DNS
+    cutover with a rollback plan). Delete `legacy/` and the `old-store` notes. _Needs_: the policy texts,
+    the go-live date, who owns the production accounts, domain and DNS access, the WooCommerce data
+    export.
 
 ## Status (what exists)
 
