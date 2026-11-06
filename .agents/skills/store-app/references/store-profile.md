@@ -12,6 +12,12 @@ in your report, and ask when it affects behaviour.
 
 - **Business**: Aggarwal Books And Stationery Mart, sold online as **Aggarwal Kart**, in Faridabad (NCR),
   Haryana. It has a physical shop and a live website at aggarwalkart.in, which this project replaces.
+- **What the shop is** (dictated 2026-11-06): a school **books and uniforms** store, plus stationery and
+  other books. The focus is parents buying a child's whole school year at once (book set and uniform)
+  as bundles, for schools the client has tied up with. Broad catalogue shape: **school → books or
+  uniforms → grade (class), gender, size**, and on the other side ordinary stationery. This is the usual
+  Indian "authorised school vendor" model: the school names a shop, parents pick school and class, buy
+  the set, and uniforms are chosen by gender and size.
 - **Catalogue today**: Text Books, NCERT Books, Sample Papers, Entrance Exam Books, Language Books, and a
   "Product On Demand" section. Schools get a "Buy Books Set" page each.
 - **Schools** (6): Ryan International School, Vidya Mandir Public School, Manaskriti School, AVN Senior
@@ -33,25 +39,27 @@ in your report, and ask when it affects behaviour.
 
 ## To dictate
 
-| Item                                                               | Value                                                         | Used for                                 |
-| ------------------------------------------------------------------ | ------------------------------------------------------------- | ---------------------------------------- |
-| Courier and how AWBs are entered (manual or API)                   | **TODO (dictate)**                                            | `shipments`, shipping screen             |
-| Shipping fee, free-shipping threshold, zones                       | **TODO (dictate)**                                            | `priceCart`                              |
-| Store pickup, or local delivery in Faridabad?                      | **TODO (dictate)**                                            | checkout options                         |
-| Online payment only, or cash on delivery too?                      | **TODO (dictate)**                                            | checkout, order states                   |
-| What each set contains, per school and class                       | **TODO (dictate)**                                            | `setItems`                               |
-| What may be unticked from a set (workbooks, notebooks, stationery) | **TODO (dictate)**                                            | set page                                 |
-| Optional extras: covering, labelling                               | **TODO (dictate)**                                            | set page                                 |
-| Current academic session and when the next opens                   | **TODO (dictate)**                                            | `schoolSets.session`                     |
-| Cancellation and return windows                                    | **TODO (dictate)**                                            | order rules (from the live policy pages) |
-| GST: registered, GSTIN, composition scheme?                        | **TODO (dictate)**, confirm with the CA                       | invoice tax columns                      |
-| Invoice prefix (3 letters or fewer)                                | **TODO (dictate)**                                            | invoice numbers                          |
-| Legal name and address for invoices                                | **TODO (dictate)**                                            | invoice header                           |
-| Store phone, WhatsApp, email                                       | **TODO (dictate)**, entered in the admin                      | help text, footer                        |
-| Brand colours and logo                                             | **TODO (dictate)**                                            | `src/themes/palette.css`                 |
-| Languages in the UI                                                | English, Hindi-ready (all text in `src/lib/store/strings.ts`) | `strings.ts`                             |
-| Carry over WooCommerce customers, orders, products?                | **TODO (dictate)**                                            | migration script                         |
-| Who works the admin; is a role narrower than admin needed?         | **TODO (dictate)**                                            | `roles-and-access.md`                    |
+| Item                                                               | Value                                                                                     | Used for                                 |
+| ------------------------------------------------------------------ | ----------------------------------------------------------------------------------------- | ---------------------------------------- |
+| Courier and how AWBs are entered (manual or API)                   | **TODO (dictate)**                                                                        | `shipments`, shipping screen             |
+| Shipping fee, free-shipping threshold, zones                       | **TODO (dictate)**; placeholder flat ₹79, free from ₹999, one zone                        | `priceCart`                              |
+| Store pickup, or local delivery in Faridabad?                      | **TODO (dictate)**; placeholder: courier delivery only                                    | checkout options                         |
+| Online payment only, or cash on delivery too?                      | **TODO (dictate)**; placeholder: online only, no COD                                      | checkout, order states                   |
+| Product export from WooCommerce, real category list                | not yet (2026-11-06); broad shape is known (see above)                                    | step 2                                   |
+| What each set contains, per school and class                       | not yet (2026-11-06)                                                                      | `setItems`                               |
+| Uniform items, sizes and size chart per school                     | shape dictated 2026-11-06 (see Decisions); real items, sizes and chart **TODO (dictate)** | uniform products, set page               |
+| What may be unticked from a set (workbooks, notebooks, stationery) | **TODO (dictate)**                                                                        | set page                                 |
+| Optional extras: covering, labelling                               | **none** (dictated 2026-11-06)                                                            | set page                                 |
+| Current academic session and when the next opens                   | **TODO (dictate)**; placeholder 2026-27                                                   | `schoolSets.session`                     |
+| Cancellation and return windows                                    | **TODO (dictate)**; placeholder: cancel until packed, return 7 days                       | order rules (from the live policy pages) |
+| GST: registered, GSTIN, composition scheme?                        | **TODO (dictate)**, confirm with the CA                                                   | invoice tax columns                      |
+| Invoice prefix (3 letters or fewer)                                | **TODO (dictate)**                                                                        | invoice numbers                          |
+| Legal name and address for invoices                                | **TODO (dictate)**                                                                        | invoice header                           |
+| Store phone, WhatsApp, email                                       | **TODO (dictate)**, entered in the admin                                                  | help text, footer                        |
+| Brand colours and logo                                             | **TODO (dictate)**                                                                        | `src/themes/palette.css`                 |
+| Languages in the UI                                                | English, Hindi-ready (all text in `src/lib/store/strings.ts`)                             | `strings.ts`                             |
+| Carry over WooCommerce customers, orders, products?                | **TODO (dictate)**                                                                        | migration script                         |
+| Who works the admin; is a role narrower than admin needed?         | **TODO (dictate)**                                                                        | `roles-and-access.md`                    |
 
 When the user dictates values, update this table first, then the code constants and the seed.
 
@@ -83,6 +91,19 @@ Each entry has a date and the reason. When the user decides something new, add i
   real launch. So: never hard-code this repo's name, Vercel project or Convex deployment.
 - **Accounts** (2026-11-06): the user owns every account for now (GitHub, Convex, Vercel, Razorpay
   test, Resend). Who owns production is settled at launch.
+- **Books and uniforms, simple delivery** (2026-11-06, dictated). The store sells school book sets
+  and school uniforms (by class, gender and size) plus stationery and general books. No covering or
+  labelling: a simple store with courier delivery. Placeholder business values ("typical") are fine
+  until the client answers; each is a named constant marked TODO (dictate).
+- **Uniform shape** (2026-11-06, dictated, typical Indian private school). Each school has two
+  uniforms: **regular** and **sports**, plus a few accessories (belt, socks and similar). A uniform is a
+  top and a bottom: boys shirt and trousers (shorts in primary), girls shirt and skirt. Uniforms differ
+  by class band. **Price changes with size.** Why: so a product has one variant per size, each with its
+  own price and stock, and uniform sets exist per school, gender, class band and type.
+  Added the same day: there is a **winter** uniform (sweater or blazer), the sports uniform has a
+  **house-colour T-shirt** (so a variant can be size + house), and **shoes** are sold. Class bands
+  (placeholder, researched as typical: shorts up to Class 5, trousers from Class 6): pre-primary
+  (Mont-01 to Mont-03), primary (Class 1 to 5), senior (Class 6 to 12). Real bands per school TODO (dictate).
 - **Client questions go through the user** (2026-11-06). Ask the user when a step needs an answer;
   they get it from the client. Don't batch questions far ahead of the step that needs them.
 
