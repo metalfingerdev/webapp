@@ -151,7 +151,7 @@ until its screens follow `design.md`; the step's PR names any deliberate departu
    - _Done when_: checks pass, `npx convex run store/seed:run` fills dev, refusal tests pass, the app
      starts with no old store code inside `src/`.
    - _Needs_: nothing blocking. Send the client the questions for steps 2 to 5 now.
-2. **Catalogue.** Categories, product pages, search (title, author, ISBN), URL filters; ports
+2. **Catalogue** (**built**, 2026-11-07). Categories, product pages, search (title, author, ISBN), URL filters; ports
    `legacy/src/lib/shop/filters.svelte.ts` and the search text builder. Also the app shell, navigation bar,
    home page and footer from `design.md`: the live site's sections (schools grid, three promises,
    contact, footer links) in the old UI's style. The nav has a tap-to-open mega menu (schools, books,
@@ -194,8 +194,8 @@ until its screens follow `design.md`; the step's PR names any deliberate departu
 
 ## Status (what exists)
 
-Steps 0 and 1 are built (2026-11-06, branch `step-1-base`). **Next: step 2 (catalogue)**, which starts
-with `references/design.md`.
+Steps 0, 1 and 2 are built (step 2: 2026-11-07, branch `step-2-catalogue`). **Next: step 3 (school sets)**,
+which starts with `references/design.md`.
 
 - **Old store**: in `legacy/` (not built, linted or type-checked); tag `old-store` runs it.
 - **Tables**: all of `data-model.md`. Every product has one or more `productVariants` holding price and
@@ -228,8 +228,25 @@ with `references/design.md`.
   is never replaced, and an email another user already has is left alone. Google is a trusted provider
   (a Google sign-in with an existing user's email joins that user). Known gap: an account with only
   Google still gets a password prompt in the email step; it should offer Google or an email code.
-- **Not in yet**: no public catalogue queries, no `/admin/settings` (the settings row holds
-  placeholders), no cart, checkout or orders.
+- **Step 2, catalogue** (built on the seed data; the client's real categories and WooCommerce CSV are
+  still not in). Public queries in `store/catalog.ts`: `listCategories`, `listSchools`, `listProducts`
+  (paginated, newest first), `getProduct`, `search`, `getContact`. They return only the shapes in
+  `model/store/publicProjection.ts` (no stock number, no purchase price; hidden products, variants and
+  categories never appear). Routes (all public): `/`, `/shop`, `/shop/[category]` (a parent category
+  includes its children), `/shop/[category]/[slug]`, `/shop?q=` search, `/policies/[slug]` (a "being
+  prepared" stub for the eight policies; the texts are step 10). Shell: floating nav bar, a
+  slide-out menu (categories and schools; it is the mega menu, one panel on every screen size) and a
+  search sheet, all opening on tap, plus the footer. Routes live in the `(shop)` group, so `resolve`
+  takes `'/(shop)'`, `'/(shop)/shop'` and so on.
+  - Filters (class, price, in stock) are a plain GET form and apply to the page that was read, so a page
+    can come back short; "Show more" continues. Price sorting and a subject filter are not in: they need
+    price and stock on the product (the model keeps them on variants). Revisit with the real catalogue.
+  - Schools are shown but not linked until step 3. No cart, Product On Demand, Contact or About links yet.
+  - Tests: `store/catalog.test.ts` (hidden things stay hidden, stock is never exposed).
+  - Ported from `legacy/` and deleted there: navbar, sidebar (except `cart.svelte` for step 4 and
+    `school.svelte` for step 3), `lib/shop/*`, the old home and shop pages, `productSearch.ts`.
+- **Not in yet**: no cart, checkout or orders, no `/admin/settings` (the settings row holds placeholders),
+  and no school or set pages.
 
 When a step lands, mark it **built** in the roadmap with the date, write what was built here in a few
 lines (routes, main functions, anything surprising), and move "Next" on.

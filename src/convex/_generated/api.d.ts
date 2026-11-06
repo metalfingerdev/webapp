@@ -17,6 +17,7 @@ import type * as http from "../http.js";
 import type * as migrations from "../migrations.js";
 import type * as model_admin_index from "../model/admin/index.js";
 import type * as model_admin_roles from "../model/admin/roles.js";
+import type * as model_auth_linkedEmail from "../model/auth/linkedEmail.js";
 import type * as model_emails_rateLimits from "../model/emails/rateLimits.js";
 import type * as model_emails_templates_baseEmail from "../model/emails/templates/baseEmail.js";
 import type * as model_emails_templates_emailTemplates from "../model/emails/templates/emailTemplates.js";
@@ -25,6 +26,7 @@ import type * as model_organizations_index from "../model/organizations/index.js
 import type * as model_store_access from "../model/store/access.js";
 import type * as model_store_catalog from "../model/store/catalog.js";
 import type * as model_store_classes from "../model/store/classes.js";
+import type * as model_store_publicProjection from "../model/store/publicProjection.js";
 import type * as model_store_stock from "../model/store/stock.js";
 import type * as model_store_storeProfile from "../model/store/storeProfile.js";
 import type * as organizations_invitations_queries from "../organizations/invitations/queries.js";
@@ -46,6 +48,7 @@ import type * as otp_types from "../otp/types.js";
 import type * as storage from "../storage.js";
 import type * as store_access from "../store/access.js";
 import type * as store_admin_stock from "../store/admin/stock.js";
+import type * as store_catalog from "../store/catalog.js";
 import type * as store_seed from "../store/seed.js";
 import type * as store_validators from "../store/validators.js";
 import type * as url from "../url.js";
@@ -69,6 +72,7 @@ declare const fullApi: ApiFromModules<{
   migrations: typeof migrations;
   "model/admin/index": typeof model_admin_index;
   "model/admin/roles": typeof model_admin_roles;
+  "model/auth/linkedEmail": typeof model_auth_linkedEmail;
   "model/emails/rateLimits": typeof model_emails_rateLimits;
   "model/emails/templates/baseEmail": typeof model_emails_templates_baseEmail;
   "model/emails/templates/emailTemplates": typeof model_emails_templates_emailTemplates;
@@ -77,6 +81,7 @@ declare const fullApi: ApiFromModules<{
   "model/store/access": typeof model_store_access;
   "model/store/catalog": typeof model_store_catalog;
   "model/store/classes": typeof model_store_classes;
+  "model/store/publicProjection": typeof model_store_publicProjection;
   "model/store/stock": typeof model_store_stock;
   "model/store/storeProfile": typeof model_store_storeProfile;
   "organizations/invitations/queries": typeof organizations_invitations_queries;
@@ -98,6 +103,7 @@ declare const fullApi: ApiFromModules<{
   storage: typeof storage;
   "store/access": typeof store_access;
   "store/admin/stock": typeof store_admin_stock;
+  "store/catalog": typeof store_catalog;
   "store/seed": typeof store_seed;
   "store/validators": typeof store_validators;
   url: typeof url;

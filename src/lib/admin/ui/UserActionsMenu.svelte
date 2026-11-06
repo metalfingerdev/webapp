@@ -66,7 +66,7 @@
 		// Refresh the Convex JWT cookie the server renders with, then reload so every query
 		// runs as the impersonated user
 		await authClient.getSession();
-		window.location.assign(resolve('/'));
+		window.location.assign(resolve('/(shop)'));
 	}
 </script>
 

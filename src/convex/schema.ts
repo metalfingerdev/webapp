@@ -86,6 +86,7 @@ export default defineSchema({
 	})
 		.index('by_slug', ['slug'])
 		.index('by_categoryId_and_isActive', ['categoryId', 'isActive'])
+		.index('by_isActive', ['isActive'])
 		.index('by_schoolId_and_kind', ['schoolId', 'kind'])
 		.index('by_isbn', ['isbn'])
 		.searchIndex('search_text', {

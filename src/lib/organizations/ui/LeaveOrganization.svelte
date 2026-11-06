@@ -121,7 +121,7 @@
 
 			toast.success('Successfully left the organization.');
 			// Navigate to home page after leaving
-			goto(resolve('/'));
+			goto(resolve('/(shop)'));
 		} catch (err) {
 			if (err instanceof ConvexError) {
 				toast.error(err.data);
