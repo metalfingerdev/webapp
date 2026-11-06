@@ -70,3 +70,11 @@ tests**: each must be able to fail when the behaviour it guards breaks.
   is meant for signed-out visitors. A private page opened by client-side navigation also calls
   `useRequireSignIn()` (`src/lib/auth/requireSignIn.svelte.ts`). Route checks are UX; the Convex
   function check is security.
+
+## Skills
+
+Skills live in `.agents/skills/<name>/`; `.claude/skills/<name>` is a symlink to the same folder.
+
+| Skill       | Use it for                                                                                                                                                                                                                                   |
+| ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `store-app` | rebuilding the Aggarwal Kart shop step by step: catalogue, school sets, cart, checkout, Razorpay, orders, shipping, admin, GST invoices, Product On Demand. Read `references/store-profile.md` first (decisions and `TODO (dictate)` values) |
