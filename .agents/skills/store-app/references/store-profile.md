@@ -277,6 +277,10 @@ which starts with `references/design.md`.
     title, author or category and price, the typed words highlighted, and "See all results". Before
     typing: recent searches (this device only, `localStorage`) and quick links. 200 ms pause before
     searching, skeleton rows while loading, arrow keys move through results, Escape closes.
+    Fixed 2026-11-07 after the user saw it stagger and push the page: one height animation drives the
+    open, the close and every results change (recent searches are read before the first frame), and the
+    header keeps the collapsed bar's height while the bar floats over the page, so growing never moves
+    the content below.
   - The old code stays in `legacy/`. Cart icon waits for step 4.
 - **Not in yet**: no cart, checkout or orders, no `/admin/settings` (the settings row holds placeholders),
   and no school or set pages.

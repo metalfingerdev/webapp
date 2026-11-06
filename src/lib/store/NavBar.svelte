@@ -251,15 +251,18 @@
 
 	/* The old floating bar, softer: a rounded card with a light shadow and no hard edge. The panels
 	   position against the header, which is the same width as the bar. */
+	/* The header keeps the collapsed bar's height (top gap + row + padding + border); the bar floats in
+	   it, so when the search grows the bar it covers the page instead of pushing it down */
 	.bar-wrap {
 		@apply sticky top-0 z-30 mx-auto max-w-6xl px-3 pt-3;
+		height: calc(0.75rem + 2.75rem + 0.75rem + 2px);
 		container-type: inline-size;
 	}
 	.bar {
-		@apply relative rounded-3xl border border-border-muted bg-foreground p-1.5 shadow-lg;
+		@apply absolute inset-x-3 top-3 rounded-3xl border border-border-muted bg-foreground p-1.5 shadow-lg;
 	}
 	.row {
-		@apply flex min-h-11 items-center gap-0.5;
+		@apply flex h-11 items-center gap-0.5;
 	}
 	.brand {
 		@apply mr-2 flex-1 text-lg font-extrabold text-primary lg:flex-none;

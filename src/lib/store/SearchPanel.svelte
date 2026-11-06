@@ -60,15 +60,16 @@
 
 	// Recent searches stay on this device only. Storage can be missing or blocked: then there are none.
 	const RECENT_KEY = 'aggarwalkart:recent-searches';
-	let recent = $state<string[]>([]);
-	$effect(() => {
+	// Read before the first frame (the panel only exists in the browser), so nothing pops in later
+	const loadRecent = (): string[] => {
 		try {
 			const saved = JSON.parse(localStorage.getItem(RECENT_KEY) ?? '[]');
-			recent = Array.isArray(saved) ? saved.filter((s) => typeof s === 'string').slice(0, 5) : [];
+			return Array.isArray(saved) ? saved.filter((s) => typeof s === 'string').slice(0, 5) : [];
 		} catch {
-			recent = [];
+			return [];
 		}
-	});
+	};
+	let recent = $state<string[]>(loadRecent());
 	const saveRecent = (list: string[]) => {
 		recent = list;
 		try {
@@ -108,7 +109,8 @@
 		else items[at - 1].focus();
 	};
 
-	// The results area follows its content's height, so the bar grows and shrinks instead of jumping
+	// One motion for everything: the panel's height follows its content, from 0 when it opens, and on
+	// every change of the results after. The content is complete on the first frame, so it never staggers.
 	let content = $state<HTMLElement>();
 	let height = $state(0);
 	$effect(() => {
@@ -120,7 +122,8 @@
 
 	$effect(() => field?.focus({ preventScroll: true }));
 
-	const grow = (node: Element) =>
+	// Closing collapses the same way
+	const shrink = (node: Element) =>
 		slide(node, {
 			duration: matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 240,
 			easing: cubicOut
@@ -129,145 +132,155 @@
 
 <svelte:window {onkeydown} />
 
-<div class="search-panel" id="search-panel" role="search" bind:this={panel} transition:grow>
-	<form class="field" onsubmit={submit}>
-		<SearchIcon class="size-5 shrink-0" aria-hidden="true" />
-		<input
-			bind:this={field}
-			bind:value={text}
-			type="search"
-			enterkeyhint="search"
-			autocomplete="off"
-			aria-label={strings.search.label}
-			placeholder={strings.search.placeholder}
-		/>
-		<!-- Always there, hidden while empty, so the field never changes size as you type -->
-		<button
-			class="clear"
-			class:invisible={!text}
-			type="button"
-			aria-label={strings.search.clear}
-			onclick={clear}
-		>
-			<XIcon class="size-4" aria-hidden="true" />
-		</button>
-	</form>
+<div
+	class="search-panel"
+	id="search-panel"
+	role="search"
+	bind:this={panel}
+	style="height: {height}px"
+	out:shrink
+>
+	<div class="inner" bind:this={content}>
+		<form class="field" onsubmit={submit}>
+			<SearchIcon class="size-5 shrink-0" aria-hidden="true" />
+			<input
+				bind:this={field}
+				bind:value={text}
+				type="search"
+				enterkeyhint="search"
+				autocomplete="off"
+				aria-label={strings.search.label}
+				placeholder={strings.search.placeholder}
+			/>
+			<!-- Always there, hidden while empty, so the field never changes size as you type -->
+			<button
+				class="clear"
+				class:invisible={!text}
+				type="button"
+				aria-label={strings.search.clear}
+				onclick={clear}
+			>
+				<XIcon class="size-4" aria-hidden="true" />
+			</button>
+		</form>
 
-	<div class="results" style="height: {height}px">
-		<div bind:this={content} aria-live="polite">
-			{#if !searching}
-				{#if recent.length}
-					<div class="heading">
-						<h2>{strings.search.recent}</h2>
-						<button class="text-button" type="button" onclick={() => saveRecent([])}>
-							{strings.search.clearRecent}
-						</button>
-					</div>
+		<div class="results">
+			<div aria-live="polite">
+				{#if !searching}
+					{#if recent.length}
+						<div class="heading">
+							<h2>{strings.search.recent}</h2>
+							<button class="text-button" type="button" onclick={() => saveRecent([])}>
+								{strings.search.clearRecent}
+							</button>
+						</div>
+						<ul class="list">
+							{#each recent as past (past)}
+								<li>
+									<a
+										class="row"
+										data-item
+										href={`${resolve('/(shop)/shop')}?q=${encodeURIComponent(past)}`}
+									>
+										<ClockIcon class="size-4 text-text-muted" aria-hidden="true" />
+										{past}
+									</a>
+								</li>
+							{/each}
+						</ul>
+					{/if}
+					<div class="heading"><h2>{strings.search.quickLinks}</h2></div>
 					<ul class="list">
-						{#each recent as past (past)}
+						{#each categories as category (category.slug)}
 							<li>
 								<a
 									class="row"
 									data-item
-									href={`${resolve('/(shop)/shop')}?q=${encodeURIComponent(past)}`}
-								>
-									<ClockIcon class="size-4 text-text-muted" aria-hidden="true" />
-									{past}
-								</a>
-							</li>
-						{/each}
-					</ul>
-				{/if}
-				<div class="heading"><h2>{strings.search.quickLinks}</h2></div>
-				<ul class="list">
-					{#each categories as category (category.slug)}
-						<li>
-							<a
-								class="row"
-								data-item
-								href={resolve('/(shop)/shop/[category]', { category: category.slug })}
-							>
-								<ArrowRightIcon class="size-4 text-text-muted" aria-hidden="true" />
-								{category.name}
-							</a>
-						</li>
-					{/each}
-				</ul>
-			{:else}
-				{#if categoryHits.length}
-					<ul class="list">
-						{#each categoryHits as category (category.slug)}
-							<li>
-								<a
-									class="row"
-									data-item
-									onclick={remember}
 									href={resolve('/(shop)/shop/[category]', { category: category.slug })}
 								>
-									<LayoutGridIcon class="size-4 text-text-muted" aria-hidden="true" />
-									<span>
-										{#each parts(category.name) as { part, match }, i (i)}{#if match}<mark
-													>{part}</mark
-												>{:else}{part}{/if}{/each}
-									</span>
+									<ArrowRightIcon class="size-4 text-text-muted" aria-hidden="true" />
+									{category.name}
 								</a>
 							</li>
 						{/each}
 					</ul>
-				{/if}
-
-				{#if loading}
-					<ul class="list" aria-hidden="true">
-						{#each [0, 1, 2] as n (n)}
-							<li class="hit">
-								<span class="cover bone"></span>
-								<span class="hit-text"><span class="bone">{strings.search.loadingTitle}</span></span
-								>
-							</li>
-						{/each}
-					</ul>
-				{:else if (hits.data?.length ?? 0) === 0 && categoryHits.length === 0}
-					<p class="quiet">{strings.search.noMatches(typed)}</p>
 				{:else}
-					<ul class="list">
-						{#each hits.data ?? [] as hit (hit.id)}
-							<li>
-								<a
-									class="hit"
-									data-item
-									onclick={remember}
-									href={resolve('/(shop)/shop/[category]/[slug]', {
-										category: hit.categorySlug,
-										slug: hit.slug
-									})}
-								>
-									<span class="cover">
-										{#if hit.imageUrl}
-											<img src={hit.imageUrl} alt="" width="36" height="48" loading="lazy" />
-										{:else}
-											<BookOpenIcon class="size-4 text-text-muted" aria-hidden="true" />
-										{/if}
-									</span>
-									<span class="hit-text">
-										<span class="hit-title">
-											{#each parts(hit.title) as { part, match }, i (i)}{#if match}<mark
+					{#if categoryHits.length}
+						<ul class="list">
+							{#each categoryHits as category (category.slug)}
+								<li>
+									<a
+										class="row"
+										data-item
+										onclick={remember}
+										href={resolve('/(shop)/shop/[category]', { category: category.slug })}
+									>
+										<LayoutGridIcon class="size-4 text-text-muted" aria-hidden="true" />
+										<span>
+											{#each parts(category.name) as { part, match }, i (i)}{#if match}<mark
 														>{part}</mark
 													>{:else}{part}{/if}{/each}
 										</span>
-										<span class="quiet">{hit.author ?? categoryName.get(hit.categorySlug)}</span>
-									</span>
-									<span class="hit-price">{formatPrice(hit.price)}</span>
-								</a>
-							</li>
-						{/each}
-					</ul>
-				{/if}
+									</a>
+								</li>
+							{/each}
+						</ul>
+					{/if}
 
-				<a class="row strong" data-item onclick={remember} href={allResults}>
-					{strings.search.seeAllFor(typed)}
-					<ArrowRightIcon class="size-4" aria-hidden="true" />
-				</a>
-			{/if}
+					{#if loading}
+						<ul class="list" aria-hidden="true">
+							{#each [0, 1, 2] as n (n)}
+								<li class="hit">
+									<span class="cover bone"></span>
+									<span class="hit-text"
+										><span class="bone">{strings.search.loadingTitle}</span></span
+									>
+								</li>
+							{/each}
+						</ul>
+					{:else if (hits.data?.length ?? 0) === 0 && categoryHits.length === 0}
+						<p class="quiet">{strings.search.noMatches(typed)}</p>
+					{:else}
+						<ul class="list">
+							{#each hits.data ?? [] as hit (hit.id)}
+								<li>
+									<a
+										class="hit"
+										data-item
+										onclick={remember}
+										href={resolve('/(shop)/shop/[category]/[slug]', {
+											category: hit.categorySlug,
+											slug: hit.slug
+										})}
+									>
+										<span class="cover">
+											{#if hit.imageUrl}
+												<img src={hit.imageUrl} alt="" width="36" height="48" loading="lazy" />
+											{:else}
+												<BookOpenIcon class="size-4 text-text-muted" aria-hidden="true" />
+											{/if}
+										</span>
+										<span class="hit-text">
+											<span class="hit-title">
+												{#each parts(hit.title) as { part, match }, i (i)}{#if match}<mark
+															>{part}</mark
+														>{:else}{part}{/if}{/each}
+											</span>
+											<span class="quiet">{hit.author ?? categoryName.get(hit.categorySlug)}</span>
+										</span>
+										<span class="hit-price">{formatPrice(hit.price)}</span>
+									</a>
+								</li>
+							{/each}
+						</ul>
+					{/if}
+
+					<a class="row strong" data-item onclick={remember} href={allResults}>
+						{strings.search.seeAllFor(typed)}
+						<ArrowRightIcon class="size-4" aria-hidden="true" />
+					</a>
+				{/if}
+			</div>
 		</div>
 	</div>
 </div>
@@ -275,9 +288,14 @@
 <style lang="postcss">
 	@reference 'src/app.css';
 
-	/* w-0 min-w-full: as wide as the bar, never wider */
+	/* w-0 min-w-full: as wide as the bar, never wider. Its height is set from .inner, so the padding
+	   lives on .inner too. */
 	.search-panel {
-		@apply flex w-0 min-w-full flex-col px-1 pb-2 md:px-3;
+		@apply w-0 min-w-full overflow-hidden;
+		transition: height 240ms cubic-bezier(0.16, 1, 0.3, 1);
+	}
+	.inner {
+		@apply flex flex-col px-1 pb-2 md:px-3;
 	}
 	.field {
 		@apply flex items-center gap-3 border-b border-border-muted px-2 text-text-muted;
@@ -293,8 +311,7 @@
 		@apply grid size-9 shrink-0 place-items-center rounded-full bg-midground text-text;
 	}
 	.results {
-		@apply max-h-[min(70dvh,36rem)] overflow-y-auto overscroll-contain;
-		transition: height 200ms cubic-bezier(0.16, 1, 0.3, 1);
+		@apply max-h-[min(65dvh,34rem)] overflow-y-auto overscroll-contain;
 	}
 	.results > div {
 		@apply flex flex-col gap-1 pt-2;
@@ -346,7 +363,7 @@
 		@apply px-2 py-3;
 	}
 	@media (prefers-reduced-motion: reduce) {
-		.results {
+		.search-panel {
 			transition: none;
 		}
 	}
