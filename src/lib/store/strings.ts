@@ -10,7 +10,11 @@ export const strings = {
 		schools: 'Schools',
 		allProducts: 'All products',
 		account: 'My account',
-		schoolsSoon: 'Book sets and uniforms by school are coming soon.'
+		schoolsSoon: 'Book sets and uniforms by school are coming soon.',
+		dashboard: 'Dashboard',
+		viewAll: (name: string) => `View all ${name}`,
+		browse: 'Browse',
+		popular: 'Popular'
 	},
 	search: {
 		title: 'Search',
