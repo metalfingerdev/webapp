@@ -34,13 +34,13 @@ orders, PDFs, dashboard, stock import) is this repo's own. See `README.md`, `doc
 
 ## Commands
 
-| Command | What it does |
-| --- | --- |
-| `pnpm dev` | SvelteKit and `convex dev` together |
-| `pnpm check` | type-check Svelte + TS (must be 0 errors) |
-| `npx tsc -p src/convex --noEmit` | type-check the Convex functions |
-| `pnpm test` | Vitest: `src/convex/**/*.test.ts` on `edge-runtime`, `src/**/*.spec.ts` on jsdom |
-| `pnpm lint` | Prettier + ESLint |
+| Command                          | What it does                                                                     |
+| -------------------------------- | -------------------------------------------------------------------------------- |
+| `pnpm dev`                       | SvelteKit and `convex dev` together                                              |
+| `pnpm check`                     | type-check Svelte + TS (must be 0 errors)                                        |
+| `npx tsc -p src/convex --noEmit` | type-check the Convex functions                                                  |
+| `pnpm test`                      | Vitest: `src/convex/**/*.test.ts` on `edge-runtime`, `src/**/*.spec.ts` on jsdom |
+| `pnpm lint`                      | Prettier + ESLint                                                                |
 
 Tests need `PUBLIC_CONVEX_URL` and `PUBLIC_CONVEX_SITE_URL` set (any value; `.env.local` has them).
 Convex ignores file names with more than one dot, so `foo.test.ts` is never deployed. **Only real

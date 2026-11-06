@@ -55,3 +55,8 @@ _generated
 /src/env.ts
 /src/hooks.server.ts
 /src/themes
+/docs/0*.md
+/docs/README.md
+/jsrepo.config.ts
+/.github
+/CLAUDE.md
