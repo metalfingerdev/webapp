@@ -1,5 +1,5 @@
 // src/lib/razorpay/convex-payment-processor.ts
-import type { Id } from '$convex/_generated/dataModel.js';
+import type { Id } from '#convex/_generated/dataModel.js';
 import type { PaymentProcessor, PaymentReceipt } from './payment-processor.js';
 
 // Type alias representing the signature of the generated Convex action

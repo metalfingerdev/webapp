@@ -12,21 +12,22 @@
 	@reference 'src/app.css';
 
 	.badge {
-		@apply inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium capitalize;
+		--fill: var(--color-foreground);
+		@apply inline-flex items-center rounded-full bg-foreground px-2 py-0.5 text-xs font-bold text-text capitalize edge-flat;
 	}
 	.badge[data-tone='neutral'] {
-		@apply bg-neutral-100 text-neutral-700;
+		@apply bg-midground;
 	}
 	.badge[data-tone='green'] {
-		@apply bg-green-100 text-green-700;
+		@apply border-success bg-success-tint;
 	}
 	.badge[data-tone='blue'] {
-		@apply bg-blue-100 text-blue-700;
+		@apply border-info bg-primary-tint;
 	}
 	.badge[data-tone='amber'] {
-		@apply bg-amber-100 text-amber-700;
+		@apply border-warning bg-secondary-tint;
 	}
 	.badge[data-tone='red'] {
-		@apply bg-red-100 text-red-700;
+		@apply border-danger bg-danger-tint;
 	}
 </style>

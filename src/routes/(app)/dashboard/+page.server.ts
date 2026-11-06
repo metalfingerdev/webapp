@@ -1,6 +1,6 @@
 import { redirect } from '@sveltejs/kit';
 import { createConvexHttpClient } from '@mmailaender/convex-better-auth-svelte/sveltekit';
-import { api } from '$convex/_generated/api.js';
+import { api } from '#convex/_generated/api.js';
 import type { PageServerLoad } from './$types.js';
 
 // UX only: every dashboard function checks `requireAppAdmin` itself

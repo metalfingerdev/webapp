@@ -1,5 +1,5 @@
 import { createConvexHttpClient } from '@mmailaender/convex-better-auth-svelte/sveltekit';
-import { api } from '$convex/_generated/api.js';
+import { api } from '#convex/_generated/api.js';
 import type { RequestHandler } from './$types.js';
 
 // Lists every product URL (plus the listing pages) so search engines can

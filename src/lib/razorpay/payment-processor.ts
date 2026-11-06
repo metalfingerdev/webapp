@@ -1,5 +1,5 @@
 // src/lib/razorpay/payment-processor.ts
-import type { Id } from '$convex/_generated/dataModel.js';
+import type { Id } from '#convex/_generated/dataModel.js';
 
 export interface PaymentReceipt {
 	id: string;

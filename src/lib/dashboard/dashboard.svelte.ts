@@ -5,8 +5,8 @@
 // small and don't prop-drill. Mirrors the navbar / sidebar / cart services.
 import { setContext, getContext } from 'svelte';
 import { useQuery, useMutation } from 'convex-svelte';
-import { api } from '$convex/_generated/api.js';
-import type { Doc } from '$convex/_generated/dataModel.js';
+import { api } from '#convex/_generated/api.js';
+import type { Doc } from '#convex/_generated/dataModel.js';
 
 export type Category = 'book' | 'clothes' | 'stationary';
 export type ProductFilter = 'all' | Category;

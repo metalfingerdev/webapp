@@ -19,3 +19,39 @@ _generated
 
 # npm pack output
 *.tgz
+
+# Files copied from the sveltekit-convex-auth-template: kept as they are there so they stay
+# diffable against it. Formatted and linted by the template's rules, not ours.
+/src/lib/auth
+/src/lib/users
+/src/lib/admin
+/src/lib/organizations
+/src/lib/primitives
+/src/lib/ui
+/src/lib/index.ts
+/src/convex/betterAuth
+/src/convex/otp
+/src/convex/model
+/src/convex/users
+/src/convex/admin
+/src/convex/organizations
+/src/convex/auth.ts
+/src/convex/auth.config.ts
+/src/convex/auth.constants.ts
+/src/convex/auth.constants.types.ts
+/src/convex/email.ts
+/src/convex/deviceAuthorization.ts
+/src/convex/migrations.ts
+/src/convex/polyfills.ts
+/src/convex/storage.ts
+/src/convex/url.ts
+/src/convex/http.ts
+/src/convex/convex.config.ts
+/src/routes/(auth)
+/src/routes/account
+/src/routes/admin
+/src/routes/api
+/src/routes/+layout.server.ts
+/src/env.ts
+/src/hooks.server.ts
+/src/themes

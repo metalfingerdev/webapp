@@ -1,6 +1,6 @@
 // src/lib/pdf/packing-slip.ts
 import type { Content, TableCell } from 'pdfmake';
-import type { OrderDocument } from '$convex/lib/orderDocument.js';
+import type { OrderDocument } from '#convex/lib/orderDocument.js';
 import { formatDate } from './format.js';
 import {
 	addressLines,

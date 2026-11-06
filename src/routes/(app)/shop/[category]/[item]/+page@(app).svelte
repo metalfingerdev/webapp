@@ -1,6 +1,6 @@
 <script lang="ts">
-	import ProductView from '$components/shop/product-view.svelte';
-	import BundleView from '$components/shop/bundle-view.svelte';
+	import ProductView from '#components/shop/product-view.svelte';
+	import BundleView from '#components/shop/bundle-view.svelte';
 	import type { PageData } from './$types.js';
 
 	let { data }: { data: PageData } = $props();

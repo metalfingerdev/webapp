@@ -1,7 +1,7 @@
 <script lang="ts">
-	import type { Id } from '$convex/_generated/dataModel.js';
+	import type { Id } from '#convex/_generated/dataModel.js';
 	import { useQuery } from 'convex-svelte';
-	import { api } from '$convex/_generated/api.js';
+	import { api } from '#convex/_generated/api.js';
 	import { Button } from '../ui/index.js';
 	import { useDashboard, fmtINR } from '#lib/dashboard/dashboard.svelte.js';
 

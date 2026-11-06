@@ -1,6 +1,6 @@
 // src/lib/checkout/checkout.svelte.ts
 import { setContext, getContext } from 'svelte';
-import type { Id } from '$convex/_generated/dataModel.js';
+import type { Id } from '#convex/_generated/dataModel.js';
 
 export type CheckoutStep = 'form' | 'success';
 

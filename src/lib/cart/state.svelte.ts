@@ -1,5 +1,5 @@
 // src/lib/cart/state.svelte.ts
-import type { Id } from '$convex/_generated/dataModel.js';
+import type { Id } from '#convex/_generated/dataModel.js';
 import type { CartItem, AuthService, DbCartState, CartStateMutations } from './types.js';
 import { CartStorage } from './storage.js';
 

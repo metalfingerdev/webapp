@@ -1,5 +1,5 @@
 // src/lib/razorpay/mock-payment-processor.ts
-import type { Id } from '$convex/_generated/dataModel.js';
+import type { Id } from '#convex/_generated/dataModel.js';
 import type { PaymentProcessor, PaymentReceipt } from './payment-processor.js';
 import { requestUserPayment, openGatewayLoading, closeGateway } from './gateway.svelte.js';
 

@@ -2,7 +2,7 @@
 //
 // Public API for document generation. Components should use these helpers rather
 // than touching pdfmake directly.
-import type { OrderDocument } from '$convex/lib/orderDocument.js';
+import type { OrderDocument } from '#convex/lib/orderDocument.js';
 import { buildInvoiceDef } from './invoice.js';
 import { buildPackingSlipDef, buildPackingSlipsDef } from './packing-slip.js';
 import { downloadPdf, printPdf, openPdf } from './pdf-core.js';

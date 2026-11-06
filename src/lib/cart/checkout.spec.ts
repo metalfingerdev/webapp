@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { processCheckout, type CheckoutDependencies } from './checkout.js';
 import type { CartItem } from './types.js';
-import type { Id } from '$convex/_generated/dataModel.js';
+import type { Id } from '#convex/_generated/dataModel.js';
 import type { PaymentReceipt } from '#lib/razorpay/payment-processor.js';
 
 // ---------------------------------------------------------------------------

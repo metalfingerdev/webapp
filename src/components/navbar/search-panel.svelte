@@ -3,7 +3,7 @@
 	import { slide } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
 	import { useQuery } from 'convex-svelte';
-	import { api } from '$convex/_generated/api.js';
+	import { api } from '#convex/_generated/api.js';
 	import { useNavbar } from '#lib/navbar/navbar.svelte.js';
 
 	const nav = useNavbar();

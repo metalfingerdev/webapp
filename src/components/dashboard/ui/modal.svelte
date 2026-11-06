@@ -56,7 +56,8 @@
 	@reference 'src/app.css';
 
 	.modal {
-		@apply m-auto w-[calc(100%-2rem)] max-w-lg rounded-xl border border-neutral-200 bg-white p-0 shadow-xl;
+		--fill: var(--color-foreground);
+		@apply m-auto w-[calc(100%-2rem)] max-w-lg rounded-xl bg-foreground p-0 text-text edge;
 
 		&::backdrop {
 			@apply bg-black/40;
@@ -64,14 +65,14 @@
 	}
 
 	.head {
-		@apply flex items-center justify-between border-b border-neutral-100 px-5 py-4;
+		@apply flex items-center justify-between border-b-2 border-border-muted px-5 py-4;
 
 		h2 {
-			@apply text-base font-semibold text-neutral-900;
+			@apply text-base font-extrabold;
 		}
 
 		.x {
-			@apply cursor-pointer rounded-md p-1 text-neutral-500 hover:bg-neutral-100;
+			@apply cursor-pointer rounded-md p-1 text-text-muted hover:bg-midground;
 		}
 	}
 
@@ -80,6 +81,6 @@
 	}
 
 	.foot {
-		@apply flex justify-end gap-2 border-t border-neutral-100 px-5 py-4;
+		@apply flex justify-end gap-2 border-t-2 border-border-muted px-5 py-4;
 	}
 </style>

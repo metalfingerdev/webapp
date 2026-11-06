@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { useQuery } from 'convex-svelte';
-	import { api } from '$convex/_generated/api.js';
+	import { api } from '#convex/_generated/api.js';
 	import { page } from '$app/state';
-	import type { Id } from '$convex/_generated/dataModel.js';
+	import type { Id } from '#convex/_generated/dataModel.js';
 	import { downloadInvoice, printInvoice } from '#lib/pdf/index.js';
 	import { inr, formatDate } from '#lib/pdf/format.js';
 

@@ -1,5 +1,5 @@
 // src/lib/cart/address-storage.ts
-import type { Doc } from '$convex/_generated/dataModel.js';
+import type { Doc } from '#convex/_generated/dataModel.js';
 
 export type AddressInput = Omit<Doc<'addresses'>, '_id' | '_creationTime' | 'userId'>;
 

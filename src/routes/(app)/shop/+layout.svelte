@@ -2,8 +2,8 @@
 	// Filters are split into two purpose-built components — a desktop sidebar and a
 	// mobile bottom bar — sharing state via the filters context (initialised here).
 	import { initShopFilters } from '#lib/shop/filters.svelte.js';
-	import FiltersSidebar from '$components/shop/filters-sidebar.svelte';
-	import FiltersBar from '$components/shop/filters-bar.svelte';
+	import FiltersSidebar from '#components/shop/filters-sidebar.svelte';
+	import FiltersBar from '#components/shop/filters-bar.svelte';
 
 	let { children } = $props();
 

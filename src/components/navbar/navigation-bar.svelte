@@ -34,7 +34,7 @@
 		@apply fixed inset-x-0 top-0 z-40 flex justify-center bg-none;
 
 		section {
-			@apply m-1 flex flex-col squircle-4xl bg-background-light p-1 shadow;
+			@apply m-1 flex flex-col squircle-4xl bg-foreground p-1 shadow;
 
 			@apply max-lg:w-full;
 		}

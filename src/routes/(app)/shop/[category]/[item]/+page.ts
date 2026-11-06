@@ -1,7 +1,7 @@
 import { convexLoad } from 'convex-svelte/sveltekit';
-import { api } from '$convex/_generated/api.js';
+import { api } from '#convex/_generated/api.js';
 import { error, redirect } from '@sveltejs/kit';
-import { PRODUCT_CATEGORIES, type ProductCategory } from '$convex/schema.js';
+import { PRODUCT_CATEGORIES, type ProductCategory } from '#convex/schema.js';
 import type { PageLoad } from './$types.js';
 
 // One polymorphic route. The first segment is either a product category or a

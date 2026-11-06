@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Id } from '$convex/_generated/dataModel.js';
+	import type { Id } from '#convex/_generated/dataModel.js';
 	import { Modal, Field, Button } from '../ui/index.js';
 	import { useDashboard, type Category, type Product } from '#lib/dashboard/dashboard.svelte.js';
 

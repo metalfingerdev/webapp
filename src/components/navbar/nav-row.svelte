@@ -123,7 +123,7 @@
 				@apply inline-flex cursor-pointer items-center squircle-4xl px-4 py-2 transition;
 
 				&:hover {
-					@apply bg-background;
+					@apply bg-midground;
 				}
 			}
 
@@ -144,7 +144,7 @@
 
 				&:hover,
 				&.active {
-					@apply bg-background;
+					@apply bg-midground;
 
 					.caret {
 						transform: rotate(180deg);

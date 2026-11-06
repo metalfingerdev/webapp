@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { useQuery, usePaginatedQuery, useMutation } from 'convex-svelte';
-	import { api } from '$convex/_generated/api.js';
+	import { api } from '#convex/_generated/api.js';
 	import { authClient } from '#lib/auth/api/auth-client.js';
 	import { useSidebar } from '#lib/sidebar/sidebar.svelte.js';
-	import type { Id } from '$convex/_generated/dataModel.js';
+	import type { Id } from '#convex/_generated/dataModel.js';
 	import { resolve } from '$app/paths';
 
 	let expandedOrderId = $state<Id<'orders'> | null>(null);

@@ -5,7 +5,7 @@
 import type { Content, CustomTableLayout, Style } from 'pdfmake';
 import faviconSvg from '#lib/assets/favicon.svg?raw';
 import { SELLER } from './seller.js';
-import type { OrderDocument } from '$convex/lib/orderDocument.js';
+import type { OrderDocument } from '#convex/lib/orderDocument.js';
 
 // pdfmake's main entry re-exports most interface types but not
 // TDocumentDefinitions; derive it from createPdf's signature so we stay on the

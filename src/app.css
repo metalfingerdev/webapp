@@ -2,7 +2,7 @@
 @import 'tw-animate-css';
 @import '@klinking/squircle/tailwind/utils.css';
 
-@import 'themes/palette.css';
+@import './themes/palette.css';
 
 @plugin '@tailwindcss/forms';
 
@@ -21,7 +21,14 @@
 
 @layer base {
 	html {
-		font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans', sans-serif;
+		font-family:
+			ui-sans-serif,
+			system-ui,
+			-apple-system,
+			'Segoe UI',
+			Roboto,
+			'Noto Sans',
+			sans-serif;
 	}
 	/* The forms plugin paints focus rings blue; ours are the primary colour */
 	:where(input, select, textarea):focus {
@@ -64,7 +71,7 @@
 /* Buttons and button-like links and triggers (the Button component is the same look) */
 @utility button {
 	--fill: var(--color-foreground);
-	@apply edge-flat inline-flex min-h-9 items-center justify-center gap-2 rounded-lg bg-foreground px-4 text-sm font-bold text-text transition-[translate] duration-100 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50;
+	@apply inline-flex min-h-9 items-center justify-center gap-2 rounded-lg bg-foreground px-4 text-sm font-bold text-text transition-[translate] duration-100 edge-flat active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50;
 }
 @utility button-sm {
 	@apply min-h-7 px-2.5 text-[0.8125rem];
@@ -136,7 +143,7 @@
 	@apply text-sm font-bold;
 }
 @utility control {
-	@apply edge-flat min-h-9 w-full rounded-lg bg-foreground px-3 py-1.5 text-sm text-text placeholder:text-text-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:bg-background disabled:text-text-muted;
+	@apply min-h-9 w-full rounded-lg bg-foreground px-3 py-1.5 text-sm text-text edge-flat placeholder:text-text-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:bg-background disabled:text-text-muted;
 	--fill: var(--color-foreground);
 }
 

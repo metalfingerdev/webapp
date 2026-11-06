@@ -1,6 +1,6 @@
 // src/lib/pdf/invoice.ts
 import type { Content, TableCell } from 'pdfmake';
-import type { OrderDocument } from '$convex/lib/orderDocument.js';
+import type { OrderDocument } from '#convex/lib/orderDocument.js';
 import { inr, formatDate } from './format.js';
 import {
 	addressLines,

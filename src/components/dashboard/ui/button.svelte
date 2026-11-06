@@ -27,8 +27,9 @@
 	@reference 'src/app.css';
 
 	.btn {
-		@apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors;
-		@apply focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:outline-none;
+		--fill: var(--color-foreground);
+		@apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-foreground text-sm font-bold whitespace-nowrap text-text transition-colors edge-flat;
+		@apply focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary;
 		@apply disabled:pointer-events-none disabled:opacity-50;
 	}
 
@@ -43,15 +44,17 @@
 	}
 
 	.btn[data-variant='default'] {
-		@apply bg-neutral-900 text-white hover:bg-neutral-800;
+		--fill: var(--color-primary);
+		@apply bg-primary text-foreground;
 	}
 	.btn[data-variant='outline'] {
-		@apply border border-neutral-200 bg-white text-neutral-900 hover:bg-neutral-100;
+		@apply hover:bg-midground;
 	}
 	.btn[data-variant='ghost'] {
-		@apply text-neutral-700 hover:bg-neutral-100;
+		@apply border-transparent bg-transparent hover:bg-background;
 	}
 	.btn[data-variant='destructive'] {
-		@apply bg-red-600 text-white hover:bg-red-700;
+		--fill: var(--color-danger);
+		@apply bg-danger text-foreground;
 	}
 </style>

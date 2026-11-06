@@ -1,8 +1,8 @@
 // src/lib/cart/service.svelte.ts
 import { setContext, getContext } from 'svelte';
 import { useMutation, useQuery } from 'convex-svelte';
-import { api } from '$convex/_generated/api.js';
-import type { Id } from '$convex/_generated/dataModel.js';
+import { api } from '#convex/_generated/api.js';
+import type { Id } from '#convex/_generated/dataModel.js';
 import { useSidebar, type SidebarService } from '#lib/sidebar/sidebar.svelte.js';
 import { useCheckout, type CheckoutController } from '#lib/checkout/checkout.svelte.js';
 import { CartState } from './state.svelte.js';

@@ -27,17 +27,18 @@
 		@apply grid gap-1.5;
 
 		.lbl {
-			@apply text-sm font-medium text-neutral-700;
+			@apply text-sm font-bold;
 		}
 
 		.hint {
-			@apply text-xs text-neutral-500;
+			@apply text-xs text-text-muted;
 		}
 
 		/* Style whatever control is slotted in (input / select). */
 		:global(input),
 		:global(select) {
-			@apply h-9 w-full rounded-md border-neutral-300 text-sm focus:border-neutral-900 focus:ring-0;
+			--fill: var(--color-foreground);
+			@apply h-9 w-full rounded-lg bg-foreground text-sm edge-flat focus:border-primary focus:ring-0;
 		}
 	}
 </style>

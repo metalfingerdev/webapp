@@ -1,8 +1,8 @@
 <script lang="ts">
-	import type { Id } from '$convex/_generated/dataModel.js';
+	import type { Id } from '#convex/_generated/dataModel.js';
 	import { untrack } from 'svelte';
 	import { useConvexClient } from 'convex-svelte';
-	import { api } from '$convex/_generated/api.js';
+	import { api } from '#convex/_generated/api.js';
 	import { Button } from '../ui/index.js';
 	import { downloadInvoice, downloadPackingSlip } from '#lib/pdf/index.js';
 	import {

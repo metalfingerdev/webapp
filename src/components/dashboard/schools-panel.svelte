@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Id } from '$convex/_generated/dataModel.js';
+	import type { Id } from '#convex/_generated/dataModel.js';
 	import { Plus } from '@lucide/svelte';
 	import { Card, Button } from './ui/index.js';
 	import SchoolModal from './schools/school-modal.svelte';

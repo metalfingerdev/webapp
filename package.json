@@ -110,7 +110,8 @@
 	"imports": {
 		"#lib": "./src/lib/index.js",
 		"#lib/*": "./src/lib/*",
-		"#convex/*": "./src/convex/*"
+		"#convex/*": "./src/convex/*",
+		"#components/*": "./src/components/*"
 	},
 	"packageManager": "pnpm@12.9.0"
 }

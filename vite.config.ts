@@ -16,13 +16,7 @@ export default defineConfig({
 
 			// Vercel in Mumbai (bom1), the closest region for most Indian users. Runtime is pinned so
 			// builds don't depend on the local Node version. See https://svelte.dev/docs/kit/adapter-vercel
-			adapter: adapter({ runtime: 'nodejs22.x', regions: ['bom1'] }),
-
-			alias: {
-				$convex: './src/convex',
-				$components: './src/components',
-				$types: './src/types'
-			}
+			adapter: adapter({ runtime: 'nodejs22.x', regions: ['bom1'] })
 		})
 	]
 });

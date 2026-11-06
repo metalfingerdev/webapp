@@ -18,6 +18,7 @@
 	@reference 'src/app.css';
 
 	.card {
-		@apply rounded-xl border border-neutral-200 bg-white;
+		--fill: var(--color-foreground);
+		@apply rounded-xl bg-foreground edge-flat;
 	}
 </style>

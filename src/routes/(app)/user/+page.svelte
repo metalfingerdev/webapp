@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { api } from '$convex/_generated/api.js';
+	import { api } from '#convex/_generated/api.js';
 	import { resolve } from '$app/paths';
 	import { useRequireSignIn } from '#lib/auth/requireSignIn.svelte.js';
 	import { useQuery, useMutation, usePaginatedQuery } from 'convex-svelte';
-	import type { Id } from '$convex/_generated/dataModel.js';
+	import type { Id } from '#convex/_generated/dataModel.js';
 
 	let expandedOrderId = $state<Id<'orders'> | null>(null);
 	let newCity = $state('');

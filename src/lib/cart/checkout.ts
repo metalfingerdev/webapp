@@ -1,5 +1,5 @@
 // src/lib/cart/checkout.ts
-import type { Id } from '$convex/_generated/dataModel.js';
+import type { Id } from '#convex/_generated/dataModel.js';
 import type { CartItem } from './types.js';
 import type { PaymentProcessor } from '#lib/razorpay/payment-processor.js';
 

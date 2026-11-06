@@ -1,5 +1,5 @@
 // src/lib/cart/types.ts
-import type { Id } from '$convex/_generated/dataModel.js';
+import type { Id } from '#convex/_generated/dataModel.js';
 
 // The DB cart is owned by the authenticated session: the server derives the
 // userId from the auth token, so these mutations no longer take (or trust) one.

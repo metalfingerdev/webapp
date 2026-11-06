@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { useCart } from '#lib/cart/index.js';
 	import type { FunctionReturnType } from 'convex/server';
-	import { api } from '$convex/_generated/api.js';
+	import { api } from '#convex/_generated/api.js';
 
 	type Result = {
 		data: FunctionReturnType<typeof api.bundle.getBundleBySchoolAndGrade> | undefined;

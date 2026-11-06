@@ -1,7 +1,7 @@
 <script lang="ts">
-	import type { Id } from '$convex/_generated/dataModel.js';
+	import type { Id } from '#convex/_generated/dataModel.js';
 	import { usePaginatedQuery, useConvexClient } from 'convex-svelte';
-	import { api } from '$convex/_generated/api.js';
+	import { api } from '#convex/_generated/api.js';
 	import { Download } from '@lucide/svelte';
 	import { Card, Button, Badge } from './ui/index.js';
 	import OrderDetail from './orders/order-detail.svelte';

@@ -203,7 +203,7 @@
 		--slide: 120px;
 
 		@apply pointer-events-none absolute top-full left-0 z-10 mt-2 -translate-y-2 opacity-0;
-		@apply bg-background transition-[opacity,translate] duration-250 ease-[cubic-bezier(0.16,1,0.3,1)];
+		@apply bg-midground transition-[opacity,translate] duration-250 ease-[cubic-bezier(0.16,1,0.3,1)];
 
 		&.is-open {
 			@apply pointer-events-auto translate-y-0 opacity-100 transition;
@@ -217,14 +217,14 @@
 		}
 
 		.indicator {
-			@apply absolute -top-1 z-11 h-2 w-2 border-t border-l bg-background;
+			@apply absolute -top-1 z-11 h-2 w-2 border-t border-l bg-midground;
 			transition:
 				opacity 200ms ease,
 				transform var(--morph);
 		}
 
 		.viewport {
-			@apply absolute h-(--height) w-(--width) origin-top overflow-hidden rounded-4xl border bg-background shadow-lg;
+			@apply absolute h-(--height) w-(--width) origin-top overflow-hidden rounded-4xl border bg-midground shadow-lg;
 			transition:
 				width var(--morph),
 				height var(--morph),

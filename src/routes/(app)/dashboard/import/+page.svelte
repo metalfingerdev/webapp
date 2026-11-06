@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { useMutation } from 'convex-svelte';
-	import { api } from '$convex/_generated/api.js';
+	import { api } from '#convex/_generated/api.js';
 	import {
 		makeDetails,
 		validate,

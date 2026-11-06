@@ -2,7 +2,7 @@
 	// src/components/app/app-initialize.svelte
 	import { page } from '$app/state';
 	import { useQuery, useAction } from 'convex-svelte';
-	import { api } from '$convex/_generated/api.js';
+	import { api } from '#convex/_generated/api.js';
 	import { useAuth } from '@mmailaender/convex-better-auth-svelte/svelte';
 	import { MockPaymentProcessor } from '#lib/razorpay/mock-payment-processor.js';
 	import { initSidebar } from '#lib/sidebar/sidebar.svelte.js';
@@ -10,9 +10,9 @@
 	import { initCart } from '#lib/cart/index.js';
 	import { initNavbar } from '#lib/navbar/navbar.svelte.js';
 
-	import Sidebar from '$components/sidebar/sidebar.svelte';
-	import { CheckoutDialog } from '$components/checkout/index.js';
-	import NavigationBar from '$components/navbar/navigation-bar.svelte';
+	import Sidebar from '#components/sidebar/sidebar.svelte';
+	import { CheckoutDialog } from '#components/checkout/index.js';
+	import NavigationBar from '#components/navbar/navigation-bar.svelte';
 
 	initSidebar();
 	// Hoisted here (was inside NavigationBar) so the Sidebar — a sibling — can
