@@ -312,7 +312,7 @@
 		@apply pointer-events-auto visible translate-y-0 opacity-100;
 	}
 	.box {
-		@apply relative grid w-[34rem] max-w-full rounded-3xl border border-border-muted bg-foreground shadow-lg;
+		@apply relative grid w-136 max-w-full rounded-3xl border border-border-muted bg-foreground shadow-lg;
 		/* centred under the trigger, never past the bar's edges (100cqw is the bar's width) */
 		transform: translateX(clamp(0px, calc(var(--centre) - 17rem), calc(100cqw - 34rem)));
 		transition: transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
