@@ -1,5 +1,23 @@
 import { defineSchema, defineTable } from 'convex/server';
-import { v, type Infer } from 'convex/values';
+import { v } from 'convex/values';
+import {
+	addressSnapshot,
+	cartLine,
+	enquiryStatus,
+	gatewayPaymentStatus,
+	gender,
+	gstRate,
+	orderStatus,
+	paymentStatus,
+	phone,
+	productKind,
+	refund,
+	session,
+	setType,
+	stockReason,
+	uniformPart,
+	uniformType
+} from './store/validators.js';
 
 export const otpChannelId = v.union(
 	v.literal('textbee'),
@@ -14,67 +32,6 @@ export const otpDeliveryStatus = v.union(
 	v.literal('rate_limited')
 );
 
-export const ORDER_STATUS = v.union(
-	v.literal('pending'),
-	v.literal('confirmed'),
-	v.literal('processing'),
-	v.literal('shipped'),
-	v.literal('delivered'),
-	v.literal('cancelled')
-);
-
-export const TRACKING_STATUS = v.union(
-	v.literal('order_placed'),
-	v.literal('processing'),
-	v.literal('dispatched'),
-	v.literal('in_transit'),
-	v.literal('out_for_delivery'),
-	v.literal('delivered')
-);
-
-export const TAX_CATEGORY = v.union(
-	v.literal('Exempt'),
-	v.literal('GST 0%'),
-	v.literal('GST 5%'),
-	v.literal('GST 12 to 5%'),
-	v.literal('GST 12 to 0%'),
-	v.literal('GST 12 to 18%'),
-	v.literal('GST 18%'),
-	v.literal('None')
-);
-
-export const PRODUCT_CATEGORY = v.union(
-	v.literal('book'),
-	v.literal('clothes'),
-	v.literal('stationary')
-);
-
-export type ProductCategory = Infer<typeof PRODUCT_CATEGORY>;
-
-// Runtime list of the categories, derived from the validator above so it can
-// never drift from the schema. Reused by the shop loaders + the param matcher.
-export const PRODUCT_CATEGORIES = PRODUCT_CATEGORY.members.map((m) => m.value);
-
-export const PRODUCT_DETAILS = v.union(
-	v.object({
-		type: v.literal('book'),
-		author: v.string(),
-		school: v.optional(v.id('schools')),
-		subject: v.string()
-	}),
-	v.object({
-		type: v.literal('clothes'),
-		gender: v.string(),
-		school: v.optional(v.id('schools')),
-		size: v.string(),
-		variant: v.union(v.literal('sports'), v.literal('white'))
-	}),
-	v.object({
-		type: v.literal('stationary'),
-		itemType: v.string()
-	})
-);
-
 export default defineSchema({
 	// See convex/otp/deliveries.ts
 	otpDeliveries: defineTable({
@@ -85,109 +42,226 @@ export default defineSchema({
 		error: v.optional(v.string())
 	}).index('by_phoneNumber', ['phoneNumber']),
 
-	products: defineTable({
+	// ---------------------------------------------------------------------------------------------
+	// Store. See .agents/skills/store-app/references/data-model.md. Money is integer paise, GST
+	// rates are basis points, times are ms since epoch, owners are Better Auth user ids.
+	// ---------------------------------------------------------------------------------------------
+
+	categories: defineTable({
 		name: v.string(),
-		weight: v.number(),
-		imageUrl: v.optional(v.string()),
-		category: PRODUCT_CATEGORY,
-		details: PRODUCT_DETAILS,
-		maxRetailPrice: v.optional(v.number()),
-		purchasePrice: v.optional(v.number()),
-		salePrice: v.number(),
-		hsnCode: v.optional(v.string()),
-		taxCategory: v.optional(TAX_CATEGORY),
-		stock: v.number(),
-		unit: v.optional(v.string()),
-		barcode: v.optional(v.string()),
-		slug: v.optional(v.string()),
-		searchText: v.string()
+		slug: v.string(),
+		parentId: v.optional(v.id('categories')),
+		sortOrder: v.number(),
+		isActive: v.boolean()
 	})
-		.index('by_category', ['category'])
-		.index('by_category_price', ['category', 'salePrice'])
-		.index('by_salePrice', ['salePrice'])
-		.index('by_barcode', ['barcode'])
-		.index('by_hsn', ['hsnCode'])
 		.index('by_slug', ['slug'])
-		.searchIndex('search_name', {
+		.index('by_parentId_and_sortOrder', ['parentId', 'sortOrder']),
+
+	// What is sold. Price and stock live on `productVariants`, never here.
+	products: defineTable({
+		title: v.string(),
+		slug: v.string(), // stable once set: product URLs depend on it
+		categoryId: v.id('categories'),
+		kind: productKind,
+		// books
+		author: v.optional(v.string()),
+		publisher: v.optional(v.string()),
+		isbn: v.optional(v.string()),
+		edition: v.optional(v.string()),
+		subject: v.optional(v.string()),
+		// a book's class, or the class range a uniform item is worn in (CLASS_ORDER in model/store/classes.ts)
+		classFrom: v.optional(v.number()),
+		classTo: v.optional(v.number()),
+		// uniforms
+		schoolId: v.optional(v.id('schools')),
+		gender: v.optional(gender),
+		uniformType: v.optional(uniformType),
+		part: v.optional(uniformPart),
+		// tax, copied into orderItems when ordered
+		hsn: v.string(),
+		gstRate,
+		imageId: v.optional(v.id('_storage')),
+		isActive: v.boolean(),
+		searchText: v.string() // derived from title, author, ISBN: rebuild on every write
+	})
+		.index('by_slug', ['slug'])
+		.index('by_categoryId_and_isActive', ['categoryId', 'isActive'])
+		.index('by_schoolId_and_kind', ['schoolId', 'kind'])
+		.index('by_isbn', ['isbn'])
+		.searchIndex('search_text', {
 			searchField: 'searchText',
-			filterFields: ['category']
+			filterFields: ['categoryId', 'kind', 'isActive']
 		}),
 
-	cartItems: defineTable({
-		userId: v.string(),
+	// One row per sellable unit: a size (and house colour) of a uniform item, or the single
+	// default of a book. Stock is written only by adjustStock (model/store/stock.ts).
+	productVariants: defineTable({
 		productId: v.id('products'),
-		quantity: v.number(),
-		addedAt: v.number(),
-		savedForLater: v.optional(v.boolean())
+		label: v.string(), // "Default", "28", "28 · Red house"
+		size: v.optional(v.string()),
+		house: v.optional(v.string()),
+		sku: v.optional(v.string()),
+		mrp: v.number(),
+		price: v.number(), // GST-inclusive selling price
+		stock: v.number(),
+		lowStockAt: v.number(),
+		sortOrder: v.number(),
+		isActive: v.boolean()
 	})
-		.index('by_userId', ['userId'])
-		.index('by_userId_product', ['userId', 'productId']),
+		.index('by_productId_and_sortOrder', ['productId', 'sortOrder'])
+		.index('by_sku', ['sku']),
 
 	schools: defineTable({
 		name: v.string(),
-		code: v.optional(v.string()),
-		// URL slug for the [school] segment (e.g. "dps-rkpuram").
-		slug: v.optional(v.string())
-	}).index('by_slug', ['slug']),
+		slug: v.string(),
+		isActive: v.boolean(),
+		sortOrder: v.number()
+	})
+		.index('by_slug', ['slug'])
+		.index('by_sortOrder', ['sortOrder']),
 
-	bundles: defineTable({
+	// A list of products, not a priced product: its price is the sum of its lines at checkout.
+	// Book sets are per class; uniform sets per gender, uniform type and class range.
+	schoolSets: defineTable({
 		schoolId: v.id('schools'),
-		grade: v.string()
+		type: setType,
+		label: v.string(), // "Class 1", "Boys regular, Class 1 to 5"
+		classFrom: v.number(),
+		classTo: v.number(),
+		gender: v.optional(gender),
+		uniformType: v.optional(uniformType),
+		session, // "2026-27": next year's list never edits last year's orders
+		sortOrder: v.number(),
+		isActive: v.boolean()
 	})
-		.index('by_school', ['schoolId'])
-		.index('by_school_grade', ['schoolId', 'grade']),
+		.index('by_schoolId_and_session_and_sortOrder', ['schoolId', 'session', 'sortOrder'])
+		.index('by_schoolId_and_label_and_session', ['schoolId', 'label', 'session']),
 
-	bundleItems: defineTable({
-		bundleId: v.id('bundles'),
+	setItems: defineTable({
+		setId: v.id('schoolSets'),
 		productId: v.id('products'),
-		quantity: v.number()
+		// A book line names its variant; a uniform line leaves it out and the parent picks a size.
+		variantId: v.optional(v.id('productVariants')),
+		quantity: v.number(),
+		isOptional: v.boolean(),
+		sortOrder: v.number()
 	})
-		.index('by_bundle', ['bundleId'])
-		.index('by_bundle_product', ['bundleId', 'productId'])
-		.index('by_product', ['productId']),
+		.index('by_setId_and_sortOrder', ['setId', 'sortOrder'])
+		.index('by_productId', ['productId']),
+
+	carts: defineTable({
+		userId: v.string(),
+		lines: v.array(cartLine), // capped by MAX_CART_LINES
+		updatedAt: v.number()
+	}).index('by_userId', ['userId']),
+
+	addresses: defineTable({
+		userId: v.string(),
+		...addressSnapshot.fields,
+		isDefault: v.boolean()
+	}).index('by_userId', ['userId']),
 
 	orders: defineTable({
 		userId: v.string(),
-		status: ORDER_STATUS,
-		totalPrice: v.number(),
-		createdAt: v.number(),
-		paymentId: v.optional(v.string()),
-		address: v.id('addresses'),
-		shipping: v.number(),
-		trackingId: v.optional(v.string())
+		number: v.string(), // readable and unique
+		status: orderStatus,
+		paymentStatus,
+		address: addressSnapshot, // a copy, so editing the address book never changes an order
+		subtotal: v.number(),
+		shippingFee: v.number(),
+		total: v.number(),
+		placedAt: v.number(),
+		paidAt: v.optional(v.number()),
+		packedAt: v.optional(v.number()),
+		shippedAt: v.optional(v.number()),
+		deliveredAt: v.optional(v.number()),
+		cancelledAt: v.optional(v.number()),
+		refund: v.optional(refund)
 	})
-		.index('by_userId', ['userId'])
-		.index('by_status', ['status']),
+		.index('by_userId_and_placedAt', ['userId', 'placedAt'])
+		.index('by_status_and_placedAt', ['status', 'placedAt'])
+		.index('by_number', ['number']),
 
-	addresses: defineTable({
-		label: v.optional(v.string()),
-		street: v.string(),
-		city: v.string(),
-		state: v.string(),
-		pincode: v.string(),
-		userId: v.string()
-	}).index('by_userId', ['userId']),
-
-	tracking: defineTable({
-		orderId: v.id('orders'),
-		status: TRACKING_STATUS,
-		carrier: v.optional(v.string()),
-		location: v.optional(v.string()),
-		message: v.optional(v.string()),
-		timestamp: v.number()
-	}).index('by_orderId', ['orderId']),
-
-	settings: defineTable({
-		key: v.string(),
-		value: v.number()
-	}).index('by_key', ['key']),
-
-	purchases: defineTable({
+	// Snapshots: editing a product later must not rewrite old orders or invoices.
+	orderItems: defineTable({
 		orderId: v.id('orders'),
 		productId: v.id('products'),
+		variantId: v.id('productVariants'),
+		title: v.string(),
+		variantLabel: v.optional(v.string()),
+		isbn: v.optional(v.string()),
+		hsn: v.string(),
+		gstRate,
+		unitPrice: v.number(),
 		quantity: v.number(),
-		priceAtPurchase: v.number()
+		fromSetId: v.optional(v.id('schoolSets'))
+	}).index('by_orderId', ['orderId']),
+
+	stockAdjustments: defineTable({
+		variantId: v.id('productVariants'),
+		productId: v.id('products'),
+		delta: v.number(),
+		stockAfter: v.number(),
+		reason: stockReason,
+		orderId: v.optional(v.id('orders')),
+		by: v.string(), // the admin's user id, or "system"
+		at: v.number()
+	}).index('by_variantId_and_at', ['variantId', 'at']),
+
+	shipments: defineTable({
+		orderId: v.id('orders'),
+		courier: v.string(),
+		awb: v.string(),
+		trackingUrl: v.optional(v.string()),
+		shippedAt: v.number(),
+		deliveredAt: v.optional(v.number())
 	})
 		.index('by_orderId', ['orderId'])
-		.index('by_productId', ['productId'])
+		.index('by_awb', ['awb']),
+
+	payments: defineTable({
+		orderId: v.id('orders'),
+		gatewayOrderId: v.string(),
+		gatewayPaymentId: v.optional(v.string()),
+		amount: v.number(),
+		status: gatewayPaymentStatus,
+		refund: v.optional(refund),
+		createdAt: v.number()
+	})
+		.index('by_orderId', ['orderId'])
+		.index('by_gatewayOrderId', ['gatewayOrderId']),
+
+	enquiries: defineTable({
+		name: v.string(),
+		email: v.string(),
+		phone,
+		bookName: v.optional(v.string()),
+		author: v.optional(v.string()),
+		classLevel: v.optional(v.string()),
+		status: enquiryStatus,
+		note: v.optional(v.string()),
+		createdAt: v.number()
+	}).index('by_status_and_createdAt', ['status', 'createdAt']),
+
+	// A single row. Business details are typed into /admin/settings, never committed (public repo).
+	storeSettings: defineTable({
+		businessName: v.string(),
+		legalName: v.optional(v.string()),
+		phone: v.optional(v.string()),
+		whatsapp: v.optional(v.string()),
+		email: v.optional(v.string()),
+		address: v.optional(v.string()),
+		gstin: v.optional(v.string()),
+		shippingFee: v.number(),
+		freeShippingFrom: v.number(),
+		returnWindowDays: v.number(),
+		invoicePrefix: v.optional(v.string()),
+		currentSession: session,
+		placedOrdersOpen: v.boolean()
+	}),
+
+	invoiceCounters: defineTable({
+		financialYear: v.string(), // "2026-27", April to March
+		next: v.number()
+	}).index('by_financialYear', ['financialYear'])
 });
