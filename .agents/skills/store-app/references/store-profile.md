@@ -243,8 +243,11 @@ which starts with `references/design.md`.
     price and stock on the product (the model keeps them on variants). Revisit with the real catalogue.
   - Schools are shown but not linked until step 3. No cart, Product On Demand, Contact or About links yet.
   - Tests: `store/catalog.test.ts` (hidden things stay hidden, stock is never exposed).
-  - Ported from `legacy/` and deleted there: navbar, sidebar (except `cart.svelte` for step 4 and
-    `school.svelte` for step 3), `lib/shop/*`, the old home and shop pages, `productSearch.ts`.
+  - **Restored to `legacy/` (2026-11-07):** the step 2 shell is simpler than the old UI (a hamburger and
+    a sheet, not the floating bar with inline Schools, Books, Uniforms, Stationery triggers and sliding
+    mega panels). The user asked for the old code back, so the old navbar, sidebar, shop filters and home
+    and shop pages are in `legacy/` again. Read them before rebuilding the nav. Delete them only when the
+    new nav matches the old one.
 - **Not in yet**: no cart, checkout or orders, no `/admin/settings` (the settings row holds placeholders),
   and no school or set pages.
 
