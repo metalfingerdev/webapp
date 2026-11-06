@@ -116,7 +116,7 @@
 		@apply text-sm text-text-muted;
 	}
 	.price {
-		@apply flex flex-wrap items-baseline gap-2;
+		@apply flex flex-wrap items-baseline gap-2 tabular-nums;
 	}
 	.amount {
 		@apply text-3xl;
@@ -125,7 +125,7 @@
 		@apply mt-2 text-lg font-extrabold;
 	}
 	.variants li {
-		@apply flex min-h-11 items-center justify-between gap-3 border-b-2 border-border-muted;
+		@apply flex min-h-11 items-center justify-between gap-3 border-b-2 border-border-muted tabular-nums;
 	}
 	.details {
 		@apply flex flex-col gap-1;

@@ -68,7 +68,7 @@
 		@apply line-clamp-1 text-xs text-text-muted;
 	}
 	.price {
-		@apply flex flex-wrap items-baseline gap-x-1.5;
+		@apply flex flex-wrap items-baseline gap-x-1.5 tabular-nums;
 	}
 	.from,
 	.mrp {

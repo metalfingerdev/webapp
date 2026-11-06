@@ -98,6 +98,9 @@ Each entry has a date and the reason. When the user decides something new, add i
   navbar before the new one matched it, and it had to be restored. How: a step that replaces old code
   leaves the `legacy/` file as it is. Before a commit, check `git diff --diff-filter=D --stat` shows no
   deleted file under `legacy/`.
+- **Nothing shifts when its text changes** (2026-11-07, dictated). Why: a parent on a cheap phone
+  taps where a button was; a label that changes width moves the target and looks cheap. How:
+  `references/design.md` → "Rules that still win".
 - **Workflow**: one branch and one draft PR per step; the user reviews and merges. `main` is protected
   on GitHub (PRs only), and the git hooks refuse commits on `main`.
 - **This repo is staging** (2026-11-06). The store is built and shown to the client here; the live
@@ -250,18 +253,23 @@ which starts with `references/design.md`.
     price and stock on the product (the model keeps them on variants). Revisit with the real catalogue.
   - Schools are shown but not linked until step 3. No cart, Product On Demand, Contact or About links yet.
   - Tests: `store/catalog.test.ts` (hidden things stay hidden, stock is never exposed).
-  - Ported from `legacy/` and deleted there: navbar, sidebar (except `cart.svelte` for step 4 and
-    `school.svelte` for step 3), `lib/shop/*`, the old home and shop pages, `productSearch.ts`.
+  - Ported from `legacy/`: navbar, sidebar, `lib/shop/*`, the old home and shop pages,
+    `productSearch.ts`. Step 2 deleted them and they were restored the same day; they stay for good.
 - **Navbar rebuilt in the old style, with hims and Apple polish** (2026-11-07, branch `step-2b-navbar`,
-  dictated: "old navbar and hims and Apple combine"). From `lg` up: the old floating rounded bar with
-  Schools and each top-level category as triggers; each opens a full-width panel on tap, click or
-  Enter (never hover), with a large "View all" link and the sections, and the panel arrives from the side
-  you moved from. Search is an inline panel with live results and Browse and Popular columns. On a
-  phone: compact bar, menu button opening the sheet. Admins get a Dashboard link. The Schools panel
-  lists schools without links until step 3 (decided 2026-11-07). The panels are built from the
-  categories and schools data, not hardcoded. Differences from the old bar: no hover-open (phones),
-  no measured sliding viewport (a simple panel instead, lighter), rounded-3xl card rather than a
-  squircle on the outer bar. The old code stays in `legacy/`. Cart icon waits for step 4.
+  dictated: "old navbar and hims and Apple combine", "don't overcomplicate", "phone and desktop are
+  separate UI so hover is back"). Desktop (`lg` up): the floating rounded bar with Schools and each
+  top-level category as triggers. They open on hover (mouse, short delay) and on click, tap or Enter.
+  All panels sit stacked in one box (as tall as the tallest, so it never resizes); only its position
+  glides to sit under the active trigger, with a small arrow. Admins get a Dashboard link. Phone: a
+  compact bar whose menu button opens the sheet. The Schools panel lists schools without links until
+  step 3.
+  - **Search** (dictated: "the navbar grows in height to hold the input and its results", made better
+    than the old one, not copied). The search icon opens the field inside the bar, which slides taller,
+    then grows and shrinks smoothly with the results. Results: matching categories, products with cover,
+    title, author or category and price, the typed words highlighted, and "See all results". Before
+    typing: recent searches (this device only, `localStorage`) and quick links. 200 ms pause before
+    searching, skeleton rows while loading, arrow keys move through results, Escape closes.
+  - The old code stays in `legacy/`. Cart icon waits for step 4.
 - **Not in yet**: no cart, checkout or orders, no `/admin/settings` (the settings row holds placeholders),
   and no school or set pages.
 

@@ -123,8 +123,12 @@
 	</ul>
 	{#if !isDone}
 		<div class="more">
-			<Button onclick={showMore} disabled={loading}>
-				{loading ? strings.shop.loading : strings.shop.showMore}
+			<Button onclick={showMore} disabled={loading} aria-busy={loading}>
+				<!-- Both labels share one cell, so the button never changes width -->
+				<span class="swap">
+					<span class:gone={loading}>{strings.shop.showMore}</span>
+					<span class:gone={!loading}>{strings.shop.loading}</span>
+				</span>
 			</Button>
 		</div>
 	{/if}
@@ -156,5 +160,14 @@
 	}
 	.more {
 		@apply mt-6 flex justify-center;
+	}
+	.swap {
+		@apply grid;
+	}
+	.swap > span {
+		@apply col-start-1 row-start-1;
+	}
+	.gone {
+		@apply invisible;
 	}
 </style>
