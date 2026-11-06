@@ -101,6 +101,13 @@ Each entry has a date and the reason. When the user decides something new, add i
 - **Nothing shifts when its text changes** (2026-11-07, dictated). Why: a parent on a cheap phone
   taps where a button was; a label that changes width moves the target and looks cheap. How:
   `references/design.md` → "Rules that still win".
+- **Phone and desktop are separate UIs; hover is back on desktop** (2026-11-07, dictated). Why: the
+  user wants the old desktop feel (hover opens the mega menu) and phones get their own UI, so hover
+  never blocks a phone. How: a mouse may open a panel on hover from `lg` up, but every panel also opens
+  by click, tap and keyboard (`references/design.md`).
+- **Don't overcomplicate; better, not copied** (2026-11-07, dictated). Port the old UI's idea, not its
+  code: the old sliding box measured every panel, the new one stacks the panels and moves one box; the
+  search keeps the old "the bar grows to hold the field and results" idea, improved.
 - **Workflow**: one branch and one draft PR per step; the user reviews and merges. `main` is protected
   on GitHub (PRs only), and the git hooks refuse commits on `main`.
 - **This repo is staging** (2026-11-06). The store is built and shown to the client here; the live
@@ -255,7 +262,8 @@ which starts with `references/design.md`.
   - Tests: `store/catalog.test.ts` (hidden things stay hidden, stock is never exposed).
   - Ported from `legacy/`: navbar, sidebar, `lib/shop/*`, the old home and shop pages,
     `productSearch.ts`. Step 2 deleted them and they were restored the same day; they stay for good.
-- **Navbar rebuilt in the old style, with hims and Apple polish** (2026-11-07, branch `step-2b-navbar`,
+- **Navbar rebuilt in the old style, with hims and Apple polish** (2026-11-07, PR #9 merged, then PR #10 on
+  branch `step-2c-navbar-search`,
   dictated: "old navbar and hims and Apple combine", "don't overcomplicate", "phone and desktop are
   separate UI so hover is back"). Desktop (`lg` up): the floating rounded bar with Schools and each
   top-level category as triggers. They open on hover (mouse, short delay) and on click, tap or Enter.

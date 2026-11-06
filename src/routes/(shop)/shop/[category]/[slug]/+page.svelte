@@ -36,7 +36,7 @@
 	/>
 </svelte:head>
 
-<nav class="crumbs" aria-label="Breadcrumb">
+<nav class="crumbs" aria-label={strings.product.breadcrumb}>
 	<a href={resolve('/(shop)/shop/[category]', { category: product.categorySlug })}
 		>{product.categoryName}</a
 	>

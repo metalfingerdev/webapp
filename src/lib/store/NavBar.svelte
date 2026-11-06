@@ -116,7 +116,7 @@
 	onpointerenter={() => clearTimeout(closeTimer)}
 	onpointerleave={leave}
 >
-	<nav class="bar" aria-label="Main">
+	<nav class="bar" aria-label={strings.nav.label}>
 		<menu class="row">
 			<li class="brand"><a href={resolve('/(shop)')}>{strings.brand}</a></li>
 
