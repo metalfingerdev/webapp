@@ -12,20 +12,61 @@ Convex agent skills for common tasks can be installed by running
 
 <!-- convex-ai-end -->
 
-## Project-specific Convex conventions
+# Project notes
 
-After reading `src/convex/_generated/ai/guidelines.md`, also read
-**`src/convex/CONVENTIONS.md`** — it documents where this repo deviates from
-the generic guidelines. The highest-impact differences:
+Aggarwal Kart: a school books, uniforms and stationery store on SvelteKit 3 + Convex + Better Auth.
+The auth stack (phone OTP, Google, email with Resend, admin pages) comes from the
+`sveltekit-convex-auth-template`; the store (catalogue, schools and bundles, cart, Razorpay checkout,
+orders, PDFs, dashboard, stock import) is this repo's own. See `README.md`, `docs/README.md` and
+`docs/overview.md`.
 
-- **Auth is `@convex-dev/better-auth`**, not raw JWT. Get the user with
-  `authComponent.safeGetAuthUser(ctx)` from `./auth.js` — `ctx.auth.getUserIdentity()`
-  is not used here.
-- **There is no `users` table.** Store owners as `userId: v.string()` holding
-  `user._id`; never use `v.id('users')` / `Id<'users'>`.
-- **Roles** live in the `userRoles` table (by email); guard admin/dashboard
-  functions with `requireElevated` / `requireAdmin` from `src/convex/dashboard.ts`.
-- Functions live in **`src/convex/`** and relative imports use **`.js`**
-  extensions (`./_generated/server.js`).
-- **Money is integer paise; GST rates are basis points.** Use `loadSettings` /
-  `calculateOrder` (`src/convex/lib/`), not ad-hoc math.
+- Read `src/convex/_generated/ai/guidelines.md` and `src/convex/CONVENTIONS.md` before touching Convex code.
+- Check with `pnpm check` and `npx tsc -p src/convex --noEmit`; both must pass.
+- Never accept a `userId` argument for authorization; derive the user on the server.
+- Store staff are the template's app admins (Better Auth `role`, or `ADMIN_USER_IDS`). Guard every
+  dashboard function with `requireAppAdmin` (`src/convex/model/admin/index.ts`). There is no `users`
+  or `userRoles` table: owners are stored as `userId: v.string()` holding `user._id`.
+- **Money is integer paise; GST rates are basis points.** Use `loadSettings` / `calculateOrder`
+  (`src/convex/lib/`), not ad-hoc math.
+- Convex functions live in `src/convex/` and use `.js` import extensions for webapp's own files.
+- Secrets live in Convex env vars, never in the repo.
+- Deploys: merging to `main` deploys through Vercel (`vercel.json`); CI runs on every PR.
+
+## Commands
+
+| Command | What it does |
+| --- | --- |
+| `pnpm dev` | SvelteKit and `convex dev` together |
+| `pnpm check` | type-check Svelte + TS (must be 0 errors) |
+| `npx tsc -p src/convex --noEmit` | type-check the Convex functions |
+| `pnpm test` | Vitest: `src/convex/**/*.test.ts` on `edge-runtime`, `src/**/*.spec.ts` on jsdom |
+| `pnpm lint` | Prettier + ESLint |
+
+Tests need `PUBLIC_CONVEX_URL` and `PUBLIC_CONVEX_SITE_URL` set (any value; `.env.local` has them).
+Convex ignores file names with more than one dot, so `foo.test.ts` is never deployed. **Only real
+tests**: each must be able to fail when the behaviour it guards breaks.
+
+## Conventions
+
+- **Formatting:** webapp's own files use tabs and single quotes (`.prettierrc`); files copied from the template keep the template's style and are
+  listed in `.prettierignore` / `eslint.config.js`. Keep a file's existing style and never reformat
+  files you aren't changing.
+- **The UI uses our own palette and Bits UI.** Colours come from `src/themes/palette.css` only:
+  layers `background` (darkest) < `midground` < `foreground` (lightest), plus `text`, `text-muted`,
+  `primary`, `secondary`, `on-secondary`, `danger`, `warning`, `success`, `info`, `border`. Never
+  reorder the layers. Light only: there is no dark mode. Build screens from `src/lib/ui` and the
+  Bits wrappers in `src/lib/primitives/ui`. Borders and hard shadows are never black: use the
+  `edge`, `edge-flat` and `edge-press` utilities in `src/app.css` and set `--fill` to the element's
+  own background.
+- **Use `src/lib/ui` components first**; the dashboard screens use the small kit in
+  `src/components/dashboard/ui`, styled with the same palette. For elements that can't be one
+  (triggers, links, native controls) `src/app.css` has our own utilities: `button`, `tone-*`,
+  `tag`, `panel`, `control`, `field-label`, `data-table`, `bone`. Colours are the palette names only (`bg-foreground`, `text-text-muted`,
+  `border-border-muted`, `bg-danger-tint`, ...).
+- **No long Tailwind class lists inline.** Give the element a short semantic class and put the
+  Tailwind in the component's style block: `<style lang="postcss">`, `@reference 'src/app.css';`,
+  then rules with `@apply`. One or two layout utilities in markup are fine.
+- **Routes are private by default.** Add a route to `isPublic` in `src/hooks.server.ts` only if it
+  is meant for signed-out visitors. A private page opened by client-side navigation also calls
+  `useRequireSignIn()` (`src/lib/auth/requireSignIn.svelte.ts`). Route checks are UX; the Convex
+  function check is security.

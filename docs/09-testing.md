@@ -1,3 +1,6 @@
+> Aggarwal Kart has no Playwright suite yet (`tests/e2e` and `pnpm test:e2e` are not set up here); the
+> Vitest parts below apply.
+
 # 09 – Testing
 
 Two layers, each for what it does best. Every test must be able to fail when the behaviour it
