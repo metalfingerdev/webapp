@@ -34,7 +34,7 @@ bundles) with:
 ```
 Browser ──> SvelteKit (Vercel, SSR + client)
                 │
-                ├─ $lib/sveltekit  → reads auth token, talks to Convex over HTTP during SSR
+                ├─ hooks.server.ts → route protection, reads the auth token for SSR
                 ├─ /api/auth/*      → proxies Better Auth requests to the Convex site URL
                 │
                 └─ convex-svelte    → live reactive queries/mutations to Convex (client)
@@ -45,9 +45,10 @@ Browser ──> SvelteKit (Vercel, SSR + client)
 - **SSR + hydration:** server `load` functions fetch from Convex via the HTTP
   client; the client then takes over with live subscriptions. The shop grid uses
   `convexLoadPaginated`, so it SSRs and stays a live paginated subscription.
-- **Auth:** `#lib/svelte` and `$lib/sveltekit` bridge SvelteKit and Convex Better
-  Auth (token cookie, SSR auth state, and the `/api/auth` proxy). These are
-  load-bearing — the app depends on them.
+- **Auth:** the template's stack (`docs/01-overview.md`): Better Auth inside Convex,
+  `@mmailaender/convex-better-auth-svelte` on the SvelteKit side, sign-in screens in
+  `src/lib/auth`, account pages under `/account`, admin under `/admin`. Phone OTP,
+  Google and email/password are switched on in `src/convex/auth.constants.ts`.
 
 ## Directory map
 
@@ -74,12 +75,13 @@ src/
     navbar/  sidebar/        navbar + sidebar context services
     razorpay/                PaymentProcessor + Mock/Convex implementations
     products/                stock-sheet import parsing
-    svelte/  sveltekit/      Convex Better Auth adapter (load-bearing)
+    auth/ users/ admin/      sign-in, account and admin UI from the template
+    primitives/ ui/          Bits UI wrappers and the base components (Button, Modal, …)
   convex/                    backend functions + schema
     lib/                     pricing.ts (GST/money), settings.ts, orderDocument.ts (PDF data)
-    schema.ts                products, orders, addresses, cartItems, settings, userRoles, schools, bundles, …
+    schema.ts                products, orders, addresses, cartItems, settings, otpDeliveries, schools, bundles, …
     products.ts              public catalog + listShopProducts (filter/sort/search)
-    dashboard.ts             admin functions (requireElevated / requireAdmin)
+    dashboard.ts             admin functions (requireAppAdmin)
     auth.ts                  Better Auth config (Resend, Google, OTP)
 docs/                        this documentation
 ```
@@ -91,8 +93,9 @@ docs/                        this documentation
   ad-hoc arithmetic. Stored prices are **GST-inclusive**; tax is back-calculated.
 - **Pricing settings** live in the `settings` table (overriding `DEFAULT_SETTINGS`).
   Seed values are in `src/convex/seed.ts` and must be seeded per deployment.
-- **Roles** live in the `userRoles` table (by email). Admin/dashboard functions are
-  guarded by `requireElevated` / `requireAdmin` (`src/convex/dashboard.ts`).
+- **Roles:** store staff are the template's app admins (Better Auth `role`, or
+  `ADMIN_USER_IDS`). Dashboard functions are guarded by `requireAppAdmin`
+  (`src/convex/model/admin/index.ts`).
 - **No `users` table** — owners are stored as `userId: v.string()` (the Better Auth
   user id), derived server-side, never accepted as a client argument.
 - **Shop filters are URL state.** `src/lib/shop/filters.svelte.ts` reads/writes the

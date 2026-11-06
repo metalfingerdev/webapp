@@ -6,6 +6,7 @@ An e-commerce storefront built with **SvelteKit** and a **Convex** backend
 
 ## Documentation
 
+- [Template docs](docs/README.md) — setup, auth, phone OTP, email, environments, testing (from the starter this app is built on)
 - [Overview](docs/overview.md) — architecture, stack, how the pieces fit, and current status
 - [Deployment & production readiness](docs/deployment.md) — going live + the pre-launch checklist (what's left)
 - [Security review](SECURITY.md) — Convex function authorization review and the fixes applied

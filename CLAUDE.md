@@ -12,20 +12,9 @@ Convex agent skills for common tasks can be installed by running
 
 <!-- convex-ai-end -->
 
-## Project-specific Convex conventions
+<!--
+Project notes are in AGENTS.md, imported below so there is one source of truth.
+The Convex block above is managed by `npx convex ai-files`; leave it as is.
+-->
 
-After reading `src/convex/_generated/ai/guidelines.md`, also read
-**`src/convex/CONVENTIONS.md`** — it documents where this repo deviates from
-the generic guidelines. The highest-impact differences:
-
-- **Auth is `@convex-dev/better-auth`**, not raw JWT. Get the user with
-  `authComponent.safeGetAuthUser(ctx)` from `./auth.js` — `ctx.auth.getUserIdentity()`
-  is not used here.
-- **There is no `users` table.** Store owners as `userId: v.string()` holding
-  `user._id`; never use `v.id('users')` / `Id<'users'>`.
-- **Roles** live in the `userRoles` table (by email); guard admin/dashboard
-  functions with `requireElevated` / `requireAdmin` from `src/convex/dashboard.ts`.
-- Functions live in **`src/convex/`** and relative imports use **`.js`**
-  extensions (`./_generated/server.js`).
-- **Money is integer paise; GST rates are basis points.** Use `loadSettings` /
-  `calculateOrder` (`src/convex/lib/`), not ad-hoc math.
+@AGENTS.md

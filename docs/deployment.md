@@ -44,6 +44,8 @@ Secrets live in **two** places. Never commit them (see `.env.example` for local)
 | Variable                                    | Used by                                                                                            |
 | ------------------------------------------- | -------------------------------------------------------------------------------------------------- |
 | `SITE_URL`                                  | Better Auth `baseURL` (`auth.ts`) — must be your real production URL                               |
+| `BETTER_AUTH_SECRET`                        | Better Auth signing secret (`openssl rand -base64 32`)                                             |
+| `ADMIN_USER_IDS`                            | Comma-separated Better Auth user ids that are admins (first admin)                                 |
 | `RESEND_API_KEY`                            | Sending OTP / transactional email                                                                  |
 | `EMAIL_FROM`                                | OTP sender address — must be on a Resend-verified domain (not the `onboarding@resend.dev` sandbox) |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google social login                                                                                |
@@ -70,9 +72,9 @@ Ordered by importance.
 4. **Harden auth.** Set the production `SITE_URL` and configure Google OAuth prod
    credentials + redirect URIs. Email verification is already required
    (`requireEmailVerification: true`); OAuth-only users can add a password from
-   the profile page (`setMyPassword`).
-5. **Verify roles.** Ensure the right admin emails exist in `userRoles` so the
-   dashboard is reachable by you and locked for everyone else.
+   the account page.
+5. **Verify roles.** Put your Better Auth user id in `ADMIN_USER_IDS` (then promote
+   others on `/admin`) so the dashboard is reachable by you and locked for everyone else.
 6. **GST-compliant invoice numbering.** The invoice/packing-slip PDFs
    (`src/lib/pdf/`, data from `src/convex/lib/orderDocument.ts`) currently use the
    order's short id for both "Invoice Number" and "Order Number". A legal GST

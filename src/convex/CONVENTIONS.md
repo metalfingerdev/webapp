@@ -46,14 +46,12 @@ This project uses **`@convex-dev/better-auth`** (wired in `convex.config.ts` and
 
 ## Roles & authorization
 
-- Roles live in a separate **`userRoles`** table keyed by **email**
-  (`by_email` index), values `'admin' | 'developer' | 'customer'`
-  (`CUSTOMER_ROLE` in `schema.ts`). A user with no row defaults to `customer`.
-- Dashboard/admin functions guard with the helpers in `dashboard.ts`:
-  - `requireElevated(ctx)` → allows `admin` or `developer`.
-  - `requireAdmin(ctx)` → `admin` only (destructive ops: delete product/school,
-    manage users).
-    Call the guard first thing in the handler; it returns the user.
+- Store staff are the template's **app admins**: the Better Auth `role` field is `admin`,
+  or the user's id is listed in the `ADMIN_USER_IDS` Convex env var (how the first admin is
+  set up). Admins are managed on the `/admin` page. There is no `userRoles` table.
+- Dashboard functions call `requireAppAdmin(ctx)` (`./model/admin/index.js`) first thing in the
+  handler; it returns the user. UI checks (`useIsAppAdmin()`, the `/dashboard` page load) are UX
+  only.
 - Never accept a role or `userId` as a function arg for authorization — always
   derive it server-side from `safeGetAuthUser`.
 
