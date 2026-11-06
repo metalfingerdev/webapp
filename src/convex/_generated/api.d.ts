@@ -8,20 +8,12 @@
  * @module
  */
 
-import type * as access from "../access.js";
-import type * as addresses from "../addresses.js";
 import type * as admin_mutations from "../admin/mutations.js";
 import type * as admin_queries from "../admin/queries.js";
 import type * as auth from "../auth.js";
-import type * as bundle from "../bundle.js";
-import type * as cart from "../cart.js";
-import type * as dashboard from "../dashboard.js";
 import type * as deviceAuthorization from "../deviceAuthorization.js";
 import type * as email from "../email.js";
 import type * as http from "../http.js";
-import type * as lib_orderDocument from "../lib/orderDocument.js";
-import type * as lib_pricing from "../lib/pricing.js";
-import type * as lib_settings from "../lib/settings.js";
 import type * as migrations from "../migrations.js";
 import type * as model_admin_index from "../model/admin/index.js";
 import type * as model_admin_roles from "../model/admin/roles.js";
@@ -30,7 +22,11 @@ import type * as model_emails_templates_baseEmail from "../model/emails/template
 import type * as model_emails_templates_emailTemplates from "../model/emails/templates/emailTemplates.js";
 import type * as model_emails_validateEmail from "../model/emails/validateEmail.js";
 import type * as model_organizations_index from "../model/organizations/index.js";
-import type * as orders from "../orders.js";
+import type * as model_store_access from "../model/store/access.js";
+import type * as model_store_catalog from "../model/store/catalog.js";
+import type * as model_store_classes from "../model/store/classes.js";
+import type * as model_store_stock from "../model/store/stock.js";
+import type * as model_store_storeProfile from "../model/store/storeProfile.js";
 import type * as organizations_invitations_queries from "../organizations/invitations/queries.js";
 import type * as organizations_members_mutations from "../organizations/members/mutations.js";
 import type * as organizations_mutations from "../organizations/mutations.js";
@@ -47,14 +43,11 @@ import type * as otp_rateLimits from "../otp/rateLimits.js";
 import type * as otp_send from "../otp/send.js";
 import type * as otp_truecaller from "../otp/truecaller.js";
 import type * as otp_types from "../otp/types.js";
-import type * as polyfills from "../polyfills.js";
-import type * as products from "../products.js";
-import type * as productSearch from "../productSearch.js";
-import type * as profile from "../profile.js";
-import type * as schema from "../schema.js";
-import type * as seed from "../seed.js";
-import type * as slugs from "../slugs.js";
 import type * as storage from "../storage.js";
+import type * as store_access from "../store/access.js";
+import type * as store_admin_stock from "../store/admin/stock.js";
+import type * as store_seed from "../store/seed.js";
+import type * as store_validators from "../store/validators.js";
 import type * as url from "../url.js";
 import type * as users_actions from "../users/actions.js";
 import type * as users_mutations from "../users/mutations.js";
@@ -67,20 +60,12 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
-  access: typeof access;
-  addresses: typeof addresses;
   "admin/mutations": typeof admin_mutations;
   "admin/queries": typeof admin_queries;
   auth: typeof auth;
-  bundle: typeof bundle;
-  cart: typeof cart;
-  dashboard: typeof dashboard;
   deviceAuthorization: typeof deviceAuthorization;
   email: typeof email;
   http: typeof http;
-  "lib/orderDocument": typeof lib_orderDocument;
-  "lib/pricing": typeof lib_pricing;
-  "lib/settings": typeof lib_settings;
   migrations: typeof migrations;
   "model/admin/index": typeof model_admin_index;
   "model/admin/roles": typeof model_admin_roles;
@@ -89,7 +74,11 @@ declare const fullApi: ApiFromModules<{
   "model/emails/templates/emailTemplates": typeof model_emails_templates_emailTemplates;
   "model/emails/validateEmail": typeof model_emails_validateEmail;
   "model/organizations/index": typeof model_organizations_index;
-  orders: typeof orders;
+  "model/store/access": typeof model_store_access;
+  "model/store/catalog": typeof model_store_catalog;
+  "model/store/classes": typeof model_store_classes;
+  "model/store/stock": typeof model_store_stock;
+  "model/store/storeProfile": typeof model_store_storeProfile;
   "organizations/invitations/queries": typeof organizations_invitations_queries;
   "organizations/members/mutations": typeof organizations_members_mutations;
   "organizations/mutations": typeof organizations_mutations;
@@ -106,14 +95,11 @@ declare const fullApi: ApiFromModules<{
   "otp/send": typeof otp_send;
   "otp/truecaller": typeof otp_truecaller;
   "otp/types": typeof otp_types;
-  polyfills: typeof polyfills;
-  products: typeof products;
-  productSearch: typeof productSearch;
-  profile: typeof profile;
-  schema: typeof schema;
-  seed: typeof seed;
-  slugs: typeof slugs;
   storage: typeof storage;
+  "store/access": typeof store_access;
+  "store/admin/stock": typeof store_admin_stock;
+  "store/seed": typeof store_seed;
+  "store/validators": typeof store_validators;
   url: typeof url;
   "users/actions": typeof users_actions;
   "users/mutations": typeof users_mutations;
