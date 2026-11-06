@@ -57,17 +57,83 @@ When the user dictates values, update this table first, then the code constants 
 
 ## Decisions already made (don't re-ask)
 
-- **Approach**: rebuild the store step by step (`SKILL.md`), retiring each old module as its replacement lands.
-- **Foundation**: SvelteKit 3 + Convex + Better Auth from the template (done 2026-11-06). Auth, `/account`
-  and `/admin` users already exist.
-- **Public repo**: business identifiers live in `storeSettings`, not in the repo.
-- **Roles**: store staff are app admins (`requireAppAdmin`). No separate roles yet.
-- **Tests**: very few, and only ones that fail when behaviour breaks: security refusals, money and stock
-  correctness, real invariants.
-- **Function first, visual design last.**
-- **Workflow**: one branch and one draft PR per step; the owner merges; merging to `main` deploys.
+Each entry has a date and the reason. When the user decides something new, add it here the same way.
+
+- **Rebuild step by step** (2026-11-06). The store is rebuilt with this skill, one roadmap step per
+  branch, not patched. Why: the old store was not built on the template, its checkout is a mock, and
+  its schema can't hold real school sets (a set was one priced product).
+- **Old code moves to `legacy/` in step 1** (2026-11-06). The new tables reuse names the old ones
+  have (`products`, `schools`, `orders`, `addresses`), so the two can't run side by side. `legacy/`
+  sits outside the build, so each step reads the old code there, ports what is worth keeping, and
+  deletes those files. The tag `old-store` keeps the old app runnable from git.
+- **Foundation from the template** (2026-11-06): SvelteKit 3, Convex, Better Auth with phone OTP,
+  Google and email; `/account` and `/admin/users` already work.
+- **Public repo** (2026-11-06). Phone, email, GSTIN, UPI id and street address live in the
+  `storeSettings` row, typed into `/admin/settings`. Why: anything committed to a public repo is public
+  forever, even after it is deleted.
+- **Roles**: store staff are app admins (`requireAppAdmin`). No narrower staff role until asked.
+- **Payment gateway**: Razorpay (already a dependency).
+- **Tests**: few, and only ones that fail when behaviour breaks: security refusals, money and stock
+  correctness, real invariants. Why: the user pays for every test run and every token.
+- **Function first, visual design last.** Why: the screens will change once the client sees them working.
+- **Workflow**: one branch and one draft PR per step; the user reviews and merges.
+
+## Roadmap
+
+The agreed order. Each step is one branch (`step-<n>-<short-name>`) and one PR. A session works on the
+first step that is not **built**. "Needs" lists what the client must provide: ask for it early, because a
+real client takes days to answer. Where it isn't there yet, build with a named placeholder constant and
+list it in the report.
+
+0. **Foundation** (**built**, 2026-11-06). SvelteKit 3, template auth, palette, docs, CI.
+
+1. **Clear the ground and lay the store's base.**
+   - Tag the current commit `old-store`. Move the old store into `legacy/` (outside `src/`, so it is not
+     built, type-checked, linted or deployed): `src/convex/{products,productSearch,slugs,bundle,cart,orders,profile,addresses,dashboard,seed}.ts`,
+     `src/convex/lib/`, `src/components/`, `src/lib/{cart,checkout,dashboard,navbar,pdf,products,razorpay,shop,sidebar}/`,
+     `src/routes/(app)/` (keep `sitemap.xml` only if it still compiles, else move it too). Remove the old
+     tables from `schema.ts`.
+   - New tables from `data-model.md`, guards in `model/store/access.ts`, `store/access.ts#myRoles`,
+     `storeSettings` with placeholders from `model/store/storeProfile.ts`, `adjustStock`.
+   - Seed (`store/seed.ts`): the 6 schools, the categories, about 20 demo books with made-up prices,
+     one demo set. Never real customer data.
+   - Test harness `src/convex/store/harness.testutils.ts` and the refusal tests from `roles-and-access.md`.
+   - A bare home page and shop header (brand, account menu, admin link) so the app still runs.
+   - _Done when_: checks pass, `npx convex run store/seed:run` fills dev, refusal tests pass, the app
+     starts with no old store code inside `src/`.
+   - _Needs_: nothing blocking. Send the client the questions for steps 2 to 5 now.
+2. **Catalogue.** Categories, product pages, search (title, author, ISBN), URL filters; ports
+   `legacy/src/lib/shop/filters.svelte.ts` and the search text builder. _Needs_: the real category list
+   and an export of the current WooCommerce products (CSV), even rough.
+3. **School sets.** `/schools`, school and class pages, the set page with optional lines, session label.
+   _Needs_: each school's book list per class for the current session (photos or PDFs are fine), which
+   items are optional, and whether covering or labelling is offered.
+4. **Cart.** Guest and signed-in, merge on sign-in, cart sheet and `/cart`. _Needs_: nothing.
+5. **Checkout and orders.** Addresses, `priceCart`, `placeOrder` (reprice, hold stock), `transitionOrder`,
+   `/orders`, cancel. Recommended here: set up Playwright with one checkout spec against dev
+   (`docs/09-testing.md`). _Needs_: shipping fee and free-shipping threshold, COD yes or no,
+   cancellation window, delivery estimate wording.
+6. **Razorpay** (`payments.md`). _Needs_: the client's Razorpay account; test keys and the webhook secret
+   on dev; KYC and live keys before launch.
+7. **Admin.** Products, stock and import (port `legacy/src/lib/products/import.ts`), then schools and
+   sets (with "copy to next session"), then the order board and shipping (`shipping.md`), then
+   `/admin/settings`. _Needs_: who works the admin, the courier(s) used, the real store details typed
+   into settings by the client.
+8. **Invoices and packing slips.** Sequential numbers per financial year; port `legacy/src/lib/pdf/`.
+   _Needs_: the CA's answer on GST (registered, scheme, rates, "Tax invoice" or "Bill of supply"), legal
+   name and address, invoice prefix.
+9. **Product On Demand.** Form, `enquiries`, email to the store, admin inbox. _Needs_: what the store
+   promises after an enquiry, which address receives it.
+10. **Policies, SEO and launch.** Policy pages (text from the live site, checked by the client),
+    sitemap, 301s from WooCommerce URLs, production Convex and Vercel projects, Resend domain for
+    aggarwalkart.in, DLT for SMS OTP, data migration if wanted, DNS cutover on an agreed date with a
+    rollback plan. Delete `legacy/` and the `old-store` notes. _Needs_: domain and DNS access, who owns
+    the production accounts, the go-live date, the policy texts, the WooCommerce data export.
 
 ## Status (what exists)
 
-Template foundation only. Store step 1 has not started. The old store code (products, schools and
-bundles, cart, mock checkout, orders, dashboard, PDFs) still runs and is retired step by step.
+Step 0 is built (2026-11-06). **Next: step 1.** The old store (products, schools and bundles, cart,
+mock checkout, orders, dashboard, PDFs) still runs inside `src/` until step 1 moves it to `legacy/`.
+
+When a step lands, mark it **built** in the roadmap with the date, write what was built here in a few
+lines (routes, main functions, anything surprising), and move "Next" on.

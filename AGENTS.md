@@ -12,69 +12,164 @@ Convex agent skills for common tasks can be installed by running
 
 <!-- convex-ai-end -->
 
-# Project notes
+# Aggarwal Kart
 
-Aggarwal Kart: a school books, uniforms and stationery store on SvelteKit 3 + Convex + Better Auth.
-The auth stack (phone OTP, Google, email with Resend, admin pages) comes from the
-`sveltekit-convex-auth-template`; the store (catalogue, schools and bundles, cart, Razorpay checkout,
-orders, PDFs, dashboard, stock import) is this repo's own. See `README.md`, `docs/README.md` and
-`docs/overview.md`.
+Online store for **Aggarwal Books And Stationery Mart**, a real bookshop in Faridabad (NCR), live today at
+aggarwalkart.in on WooCommerce. This app replaces that site. Customers are mostly parents buying their
+child's **school book set by class** (six schools), plus single books (NCERT, sample papers,
+entrance-exam and language books). Orders ship by courier across India. The **admin** is the shop owner
+and staff.
 
-- Read `src/convex/_generated/ai/guidelines.md` and `src/convex/CONVENTIONS.md` before touching Convex code.
-- Check with `pnpm check` and `npx tsc -p src/convex --noEmit`; both must pass.
-- Never accept a `userId` argument for authorization; derive the user on the server.
-- Store staff are the template's app admins (Better Auth `role`, or `ADMIN_USER_IDS`). Guard every
-  dashboard function with `requireAppAdmin` (`src/convex/model/admin/index.ts`). There is no `users`
-  or `userRoles` table: owners are stored as `userId: v.string()` holding `user._id`.
-- **Money is integer paise; GST rates are basis points.** Use `loadSettings` / `calculateOrder`
-  (`src/convex/lib/`), not ad-hoc math.
-- Convex functions live in `src/convex/` and use `.js` import extensions for webapp's own files.
-- Secrets live in Convex env vars, never in the repo.
-- Deploys: merging to `main` deploys through Vercel (`vercel.json`); CI runs on every PR.
+**This is a real client's business.** Work carefully: small steps, nothing invented, nothing deployed or
+pushed without the user saying so.
+
+## Start here, every session
+
+1. The user usually types `/next-step`. If they ask for something else, still read
+   `.agents/skills/store-app/references/store-profile.md` (**Status** and **Roadmap**) before building
+   anything in the store.
+2. The store is being **rebuilt step by step** with the `store-app` skill. One roadmap step = one branch
+   (`step-<n>-<name>`) = one draft PR. Never build on `main`.
+3. Plan first, code after the user approves.
+4. End with `/wrap-up`: checks, store profile updated, commit, report. The next session only knows what
+   was written down.
+
+## Stack
+
+SvelteKit 3 + Svelte 5 (runes) + TypeScript, Convex (database, functions, storage, realtime), Better
+Auth inside Convex (from the `sveltekit-convex-auth-template`), Tailwind CSS 4 + Bits UI, Resend for
+email, Razorpay for payments, pdfmake for invoices, pnpm. Hosted on Vercel.
 
 ## Commands
 
 | Command                          | What it does                                                                     |
 | -------------------------------- | -------------------------------------------------------------------------------- |
-| `pnpm dev`                       | SvelteKit and `convex dev` together                                              |
+| `pnpm install`                   | install (pnpm only; version pinned in `package.json`)                            |
+| `pnpm dev`                       | SvelteKit (http://localhost:5173) and `convex dev` together                      |
+| `npx convex dev`                 | sync `src/convex` to the dev deployment and regenerate `_generated/`             |
 | `pnpm check`                     | type-check Svelte + TS (must be 0 errors)                                        |
 | `npx tsc -p src/convex --noEmit` | type-check the Convex functions                                                  |
 | `pnpm test`                      | Vitest: `src/convex/**/*.test.ts` on `edge-runtime`, `src/**/*.spec.ts` on jsdom |
 | `pnpm lint`                      | Prettier + ESLint                                                                |
+| `pnpm build`                     | production build                                                                 |
 
-Tests need `PUBLIC_CONVEX_URL` and `PUBLIC_CONVEX_SITE_URL` set (any value; `.env.local` has them).
-Convex ignores file names with more than one dot, so `foo.test.ts` is never deployed. **Only real
-tests**: each must be able to fail when the behaviour it guards breaks.
+Tests and the build need `PUBLIC_CONVEX_URL` and `PUBLIC_CONVEX_SITE_URL` (any value; `.env.local` has
+real ones). CI (`.github/workflows/ci.yml`) runs check, Convex type-check, tests and build on every PR.
+Run each check once before saying something is done; don't rerun passing ones.
+
+**Only real tests**: each must be able to fail when the behaviour it guards breaks (security refusals,
+money and stock correctness, invariants). No tests that restate a table, a string or static data.
+Convex ignores file names with more than one dot, so `foo.test.ts` is never deployed.
+
+## Repo map
+
+```
+src/convex/              backend
+  schema.ts              all tables
+  store/                 store functions (built from step 1); store/admin/ = admin functions
+  model/                 shared logic; model/admin = app admins; model/store = pricing, stock, access
+  auth.ts                Better Auth setup; auth.constants.ts = sign-in methods, admin flag, brand name
+  otp/ email.ts          phone OTP and Resend (template)
+  admin/ users/ organizations/ betterAuth/   template functions
+  _generated/            generated by `npx convex dev`; never edit by hand
+src/lib/                 UI: store/ (from step 1), ui/ + primitives/ (shared), auth/ users/ admin/ (template)
+src/routes/              pages; (auth)/ sign-in, account/, admin/, api/auth proxy
+legacy/                  the old store, from step 1 until step 10: read it, port from it, delete it
+docs/                    developer docs, start at docs/README.md
+.agents/skills/          skills; .claude/skills/ links to them
+```
+
+Before step 1 the old store is still inside `src/` (`src/components`, `src/routes/(app)`,
+`src/convex/{products,orders,dashboard,...}.ts`).
 
 ## Conventions
 
-- **Formatting:** webapp's own files use tabs and single quotes (`.prettierrc`); files copied from the template keep the template's style and are
-  listed in `.prettierignore` / `eslint.config.js`. Keep a file's existing style and never reformat
-  files you aren't changing.
-- **The UI uses our own palette and Bits UI.** Colours come from `src/themes/palette.css` only:
-  layers `background` (darkest) < `midground` < `foreground` (lightest), plus `text`, `text-muted`,
-  `primary`, `secondary`, `on-secondary`, `danger`, `warning`, `success`, `info`, `border`. Never
-  reorder the layers. Light only: there is no dark mode. Build screens from `src/lib/ui` and the
-  Bits wrappers in `src/lib/primitives/ui`. Borders and hard shadows are never black: use the
-  `edge`, `edge-flat` and `edge-press` utilities in `src/app.css` and set `--fill` to the element's
-  own background.
-- **Use `src/lib/ui` components first**; the dashboard screens use the small kit in
-  `src/components/dashboard/ui`, styled with the same palette. For elements that can't be one
-  (triggers, links, native controls) `src/app.css` has our own utilities: `button`, `tone-*`,
-  `tag`, `panel`, `control`, `field-label`, `data-table`, `bone`. Colours are the palette names only (`bg-foreground`, `text-text-muted`,
-  `border-border-muted`, `bg-danger-tint`, ...).
-- **No long Tailwind class lists inline.** Give the element a short semantic class and put the
-  Tailwind in the component's style block: `<style lang="postcss">`, `@reference 'src/app.css';`,
-  then rules with `@apply`. One or two layout utilities in markup are fine.
-- **Routes are private by default.** Add a route to `isPublic` in `src/hooks.server.ts` only if it
-  is meant for signed-out visitors. A private page opened by client-side navigation also calls
-  `useRequireSignIn()` (`src/lib/auth/requireSignIn.svelte.ts`). Route checks are UX; the Convex
-  function check is security.
+- **Read `src/convex/_generated/ai/guidelines.md` and `src/convex/CONVENTIONS.md` before touching
+  Convex code.** Their rules override what you remember about Convex.
+- **Money is integer paise; GST rates are basis points** (1800 = 18%); prices include GST. Format only
+  for display, with `en-IN`. Why: floats drift, and a paisa between the screen and the invoice becomes a
+  dispute with a real customer.
+- **Never accept a `userId`, role or email argument for authorization.** Derive the user on the server.
+  Every store function calls exactly one access guard (`store-app` → `roles-and-access.md`); admin
+  functions use `requireAppAdmin`. There is no `users` table: owners are `userId: v.string()`.
+- **Routes are private by default.** Add a route to `isPublic` in `src/hooks.server.ts` only if it is
+  meant for signed-out visitors. A private page opened by client-side navigation also calls
+  `useRequireSignIn()`. Route checks are UX; the Convex function check is security.
+- **Bounded queries with indexes.** No `.collect()` on tables that grow.
+- **Formatting**: webapp's own files use tabs and single quotes (`.prettierrc`). Files copied from the
+  template keep the template's style and are listed in `.prettierignore` and `eslint.config.js`. Never
+  reformat files you aren't changing.
+- **The UI uses our palette and Bits UI.** Colours come from `src/themes/palette.css` only: layers
+  `background` (darkest) < `midground` < `foreground` (lightest), plus `text`, `text-muted`, `primary`,
+  `secondary`, `on-secondary`, `danger`, `warning`, `success`, `info`, `border`. Light only. Build
+  screens from `src/lib/ui` (Button, Card, Pill, Field, Choice, Notice, Select, Switch, Sheet, Modal,
+  ConfirmDialog, Spinner) and `src/lib/primitives/ui`. Borders and hard shadows are never black: use
+  the `edge`, `edge-flat`, `edge-press` utilities in `src/app.css` with `--fill` set to the element's
+  background. For native elements `src/app.css` has `button`, `tone-*`, `tag`, `panel`, `control`,
+  `field-label`, `data-table`, `bone`.
+- **No long Tailwind class lists inline.** A short semantic class, and the Tailwind in the component's
+  `<style lang="postcss">` block (`@reference 'src/app.css';`, then `@apply`). One or two layout
+  utilities in markup are fine.
+- **All store UI text in `src/lib/store/strings.ts`**, so Hindi can be added later.
+- **Design for a cheap Android phone on slow 4G**: small lazy images with fixed sizes, large tap
+  targets, skeletons, nothing that needs hover, no heavy libraries on customer pages.
+
+## Real client rules
+
+- **The repo is public.** Never commit secrets, the shop's phone, email, GSTIN, UPI id or street
+  address, or any real customer's name, phone, address or order, not in code, tests, seeds, docs or
+  screenshots. Business details are typed into `/admin/settings`; secrets go in Convex or Vercel env
+  vars (`npx convex env set NAME value`).
+- **Don't invent business values** (fees, GST, set contents, policies). Use a named placeholder
+  constant, mark it `TODO (dictate)` in the store profile, and tell the user.
+- **Don't assert tax or legal rules** in code or copy. GST, invoice wording and policies are confirmed
+  by the client's CA or the client (`store-app` → `admin.md`).
+- **Production is off limits** unless the user explicitly asks in this session: no `--prod` Convex
+  commands, no `npx convex deploy`, no data imports, no pushes to `main`, no force-pushes. Once real
+  data exists, take a backup (`npx convex export`) before any migration.
+- **Ask before anything outward-facing**: pushing, opening PRs, emailing, changing env vars.
+
+## India specifics
+
+- Sign-in is **phone OTP first** (`+91`). In dev use the `console` channel (`OTP_ALLOW_CONSOLE=true`,
+  never in production): the code appears in the Convex logs. `docs/06-phone-otp.md`.
+- Phone-only users have a placeholder `...@phone.invalid` email; never mail it (`src/convex/email.ts`
+  skips them).
+- Until a domain is verified in Resend, mail only reaches the Resend account owner.
+  `docs/07-email-verification.md`.
+- SMS OTP to Indian numbers at scale needs TRAI **DLT** registration.
+- "Today" is IST (UTC+5:30); the financial year starts 1 April.
+
+## Environments and deploys
+
+| Env        | Where                                                                                  | Backend                                           |
+| ---------- | -------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| Local      | http://localhost:5173                                                                  | your Convex **dev** deployment (`npx convex dev`) |
+| Staging    | the Vercel site built from `main`                                                      | not set up yet                                    |
+| Production | aggarwalkart.in, **after step 10**; today the domain still serves the WooCommerce site | not set up yet; owned by the client               |
+
+Don't hard-code a Vercel project, Convex deployment or domain, so moving to production is a checklist,
+not a rewrite (`docs/08-environments-and-deployment.md`).
+
+Workflow: branch → draft PR → CI green → the user reviews and merges → `main` deploys staging
+(`vercel.json`).
 
 ## Skills
 
 Skills live in `.agents/skills/<name>/`; `.claude/skills/<name>` is a symlink to the same folder.
 
-| Skill       | Use it for                                                                                                                                                                                                                                   |
-| ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `store-app` | rebuilding the Aggarwal Kart shop step by step: catalogue, school sets, cart, checkout, Razorpay, orders, shipping, admin, GST invoices, Product On Demand. Read `references/store-profile.md` first (decisions and `TODO (dictate)` values) |
+| Skill       | Use it for                                                                                                 |
+| ----------- | ---------------------------------------------------------------------------------------------------------- |
+| `next-step` | starting a session: finds the next roadmap step, what it needs, branch and plan                            |
+| `wrap-up`   | ending a session: checks, review, store profile, commit, report                                            |
+| `store-app` | anything about the shop. Facts, decisions, **the roadmap** and status are in `references/store-profile.md` |
+| `convex*`   | Convex how-tos from `get-convex/agent-skills`                                                              |
+
+When the user dictates how something should work, write it down where it belongs (usually the store
+profile's **Decisions**) with the date and _why_.
+
+## Docs
+
+`docs/README.md` indexes everything. New to the project or to Claude Code: `docs/working-with-claude.md`.
+`docs/overview.md` and `docs/deployment.md` describe the **old** store and are kept for reference until
+step 10.

@@ -5,6 +5,7 @@ code came from the `@auth/svelte` jsrepo registry (see `jsrepo.config.ts`).
 
 | Doc | What it covers |
 | --- | --- |
+| [Working with Claude Code](./working-with-claude.md) | **Start here**: the session loop, what to type, reviewing, safety |
 | [01 – Overview](./01-overview.md) | What the template contains and where it lives |
 | [02 – Getting started](./02-getting-started.md) | Local setup, env vars, running the app, first admin |
 | [03 – How auth works](./03-auth.md) | Request flow, route protection, reading the user in Convex and Svelte |
