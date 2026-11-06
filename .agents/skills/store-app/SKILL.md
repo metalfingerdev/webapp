@@ -16,7 +16,8 @@ replacing. The app has two audiences:
 There are no delivery partners: orders ship by courier across India.
 
 This skill exists so every session builds the same shop the same way. The store is rebuilt **step by
-step**; each step replaces the matching old module in `src/convex/` and `src/` and deletes it. The rules
+step**; each step replaces the matching old module in `src/convex/` and `src/` with new code and leaves the old
+code in `legacy/`, which is never deleted. The rules
 are short because each one prevents a specific, expensive mistake; the references hold the detail.
 
 ## Read first
@@ -87,7 +88,8 @@ seed, move the old store to `legacy/`), 2 catalogue, 3 school sets, 4 cart, 5 ch
 
 Step 1 moves the old store out of `src/` into `legacy/`, which nothing builds, type-checks or deploys,
 because its tables use the same names as the new ones. Each later step reads the old code there, ports
-what is worth keeping, and deletes those files, so `legacy/` is empty by step 10. Worth porting rather
+what is worth keeping into new files, and leaves the old files where they are: **nothing in `legacy/`
+is ever deleted** (the user's rule, 2026-11-07). Worth porting rather
 than rewriting: the pdfmake invoice and packing slip (`legacy/src/lib/pdf/`, `legacy/src/convex/lib/orderDocument.ts`),
 the stock-sheet parser (`legacy/src/lib/products/import.ts`), the GST maths (`legacy/src/convex/lib/pricing.ts`),
 `slugify` and `reserveUniqueSlug`, and the URL filter state (`legacy/src/lib/shop/filters.svelte.ts`).

@@ -19,7 +19,7 @@ Every session starts the same way, so nothing is skipped and nothing is built tw
    **Decisions**), then the references the step names. AGENTS.md is already loaded.
 3. **Tell the user**, in five lines or fewer:
    - which step and what it builds
-   - what it retires from `legacy/` (or from `src/` before step 1)
+   - what it replaces from `legacy/` (or from `src/` before step 1); old code is never deleted
    - which `TODO (dictate)` values or client inputs it needs, and whether they are in yet
    - anything from earlier steps left unfinished in **Status**
 4. **Missing client inputs.** Ask the user now, as plain questions they can pass to the client, only for
@@ -27,7 +27,7 @@ Every session starts the same way, so nothing is skipped and nothing is built tw
    prefer; don't decide for them. Record each answer in the store profile when it comes in.
 5. **Branch.** `git switch -c step-<n>-<short-name>` (or switch to the existing one).
 6. **Plan before code.** Write a short plan: tables and functions, routes and components, which guard
-   each function uses, what gets deleted, the tests (only ones that can fail), and how the user will try
+   each function uses, what it replaces (old code stays in `legacy/`), the tests (only ones that can fail), and how the user will try
    it. Ask the user to approve it. Write no code until they do.
 7. **Build in small commits** on the branch, each one passing `pnpm check`. Commit messages are plain,
    with no attribution trailer.
