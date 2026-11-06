@@ -66,6 +66,9 @@ seed, move the old store to `legacy/`), 2 catalogue, 3 school sets, 4 cart, 5 ch
   libraries, large tap targets, skeletons instead of spinners, nothing that needs hover.
 - **All UI text lives in `src/lib/store/strings.ts`** so Hindi can be added without touching components.
 - **Use the store's own name, colours, copy and layout.** Don't copy another retailer's branding.
+- **Keep the old store's look; rebuild the code.** Each screen reproduces the matching `legacy/`
+  component's layout and feel on the new code (store profile → Decisions, and the roadmap's _Look
+  from_ lines), then deletes it. Never import from `legacy/`.
 
 ## Where code goes
 
