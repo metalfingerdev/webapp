@@ -26,7 +26,8 @@ are short because each one prevents a specific, expensive mistake; the reference
    `TODO (dictate)` hasn't been decided. Don't invent a value: put it in one named constant, say so in
    your report, and ask when it matters (fees, GST, set contents).
 3. `references/roles-and-access.md`: who may call what. Read it before writing any function.
-4. Then the side you're building: `references/customer.md`, `admin.md` or `shipping.md`; `payments.md`
+4. Before any screen: `references/design.md`.
+5. Then the side you're building: `references/customer.md`, `admin.md` or `shipping.md`; `payments.md`
    for step 6; `data-model.md` when adding or changing tables.
 
 ## Build order
@@ -66,9 +67,10 @@ seed, move the old store to `legacy/`), 2 catalogue, 3 school sets, 4 cart, 5 ch
   libraries, large tap targets, skeletons instead of spinners, nothing that needs hover.
 - **All UI text lives in `src/lib/store/strings.ts`** so Hindi can be added without touching components.
 - **Use the store's own name, colours, copy and layout.** Don't copy another retailer's branding.
-- **Keep the old store's look; rebuild the code.** Each screen reproduces the matching `legacy/`
-  component's layout and feel on the new code (store profile → Decisions, and the roadmap's _Look
-  from_ lines), then deletes it. Never import from `legacy/`.
+- **The live site's content in the hims + Apple design language.** Every screen follows
+  `references/design.md`: structure and content from aggarwalkart.in, look from `legacy/` pushed
+  toward hims and Apple, and all code new. Never import from `legacy/`. hims and Apple are references
+  for feel, never for branding.
 
 ## Where code goes
 
