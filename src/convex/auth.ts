@@ -19,6 +19,11 @@ import {
 	phoneNumber
 } from 'better-auth/plugins';
 import { apiKey } from '@better-auth/api-key';
+import {
+	isPlaceholderEmail,
+	shouldAdoptProviderEmail,
+	verifiedEmailFromIdToken
+} from './model/auth/linkedEmail';
 
 // Emails
 import {
@@ -326,7 +331,41 @@ export const createAuthOptions = (ctx: GenericCtx<DataModel>) => {
 
 		account: {
 			accountLinking: {
-				allowDifferentEmails: true
+				allowDifferentEmails: true,
+				// Google verifies the emails it hands out, so a Google sign-in with the email of an
+				// existing user joins that user instead of making a second one
+				trustedProviders: ['google']
+			}
+		},
+
+		databaseHooks: {
+			account: {
+				create: {
+					// A phone-only user who links Google gets Google's verified email in place of the
+					// placeholder, so the email step recognises them (model/auth/linkedEmail.ts)
+					after: async (account, context) => {
+						if (account.providerId !== 'google' || !context) return;
+						const providerEmail = verifiedEmailFromIdToken(account.idToken);
+						if (!providerEmail) return;
+						const { internalAdapter } = context.context;
+						const user = await internalAdapter.findUserById(account.userId);
+						if (!user || !isPlaceholderEmail(user.email)) return;
+						const existing = await internalAdapter.findUserByEmail(providerEmail);
+						if (
+							!shouldAdoptProviderEmail({
+								currentEmail: user.email,
+								providerEmail,
+								takenByAnotherUser: existing !== null && existing.user.id !== user.id
+							})
+						) {
+							return;
+						}
+						await internalAdapter.updateUser(user.id, {
+							email: providerEmail,
+							emailVerified: true
+						});
+					}
+				}
 			}
 		},
 
