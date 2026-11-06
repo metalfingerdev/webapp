@@ -51,15 +51,15 @@ export class ShopFilters {
 	}
 
 	#commit(patch: Record<string, string | null>) {
-		const sp = new URLSearchParams(this.#params);
+		const sp = new URLSearchParams(this.#params.toString());
 		for (const [k, v] of Object.entries(patch)) {
 			if (v === null || v === '') sp.delete(k);
 			else sp.set(k, v);
 		}
 		const qs = sp.toString();
 		const url = qs ? `${page.url.pathname}?${qs}` : page.url.pathname;
-		// replaceState keeps filter churn out of the back-button history.
-		goto(url, { keepFocus: true, noScroll: true, replaceState: true });
+		// replace keeps filter churn out of the back-button history.
+		goto(url, { reset: false, replace: true });
 	}
 
 	setSort = (v: SortValue) => this.#commit({ sort: v === 'relevance' ? null : v });

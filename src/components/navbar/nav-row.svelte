@@ -1,12 +1,11 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import { goto } from '$app/navigation';
-	import { useQuery } from 'convex-svelte';
-	import { api } from '$convex/_generated/api.js';
+	import { useIsAppAdmin } from '#lib/admin/api/admin.svelte.js';
 	import { ChevronDown, Search, User, Menu, ShoppingCart, LogIn } from '@lucide/svelte';
 
 	import { useSidebar } from '#lib/sidebar/sidebar.svelte.js';
-	import { useAuth } from '#lib/svelte/index.js';
+	import { useAuth } from '@mmailaender/convex-better-auth-svelte/svelte';
 	import { useCart } from '#lib/cart/service.svelte.js';
 	import { useNavbar } from '#lib/navbar/navbar.svelte.js';
 
@@ -14,7 +13,7 @@
 	const cart = useCart();
 	const auth = useAuth();
 	const sidebar = useSidebar();
-	const userQuery = useQuery(api.auth.getCurrentUser);
+	const admin = useIsAppAdmin();
 
 	const navItems: { id: string; label: string; href?: string }[] = [
 		{ id: 'schools', label: 'Schools', href: '/schools' },
@@ -22,14 +21,10 @@
 		{ id: 'unifrom', label: 'Unifroms' },
 		{ id: 'stationary', label: 'Stationary' }
 	];
-
-	const isStaff = $derived(
-		userQuery.data?.role === 'admin' || userQuery.data?.role === 'developer'
-	);
 </script>
 
 <menu class="row">
-	<li class="st brand"><a class="link" href={resolve('/')}>Aggarwalkart</a></li>
+	<li class="st brand"><a class="link" href={resolve('/(app)/(home)')}>Aggarwalkart</a></li>
 	<li class="st redirect"><a class="link" href={resolve('shop')}>Shop</a></li>
 
 	{#each navItems as item, i (item.id)}
@@ -47,7 +42,7 @@
 		</li>
 	{/each}
 
-	{#if isStaff}
+	{#if admin.isAppAdmin}
 		<li class="st redirect">
 			<a class="link" id="dashboard" href={resolve('dashboard')}>Dashboard</a>
 		</li>

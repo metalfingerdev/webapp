@@ -1,15 +1,11 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import { useQuery } from 'convex-svelte';
-	import { api } from '$convex/_generated/api.js';
+	import { useIsAppAdmin } from '#lib/admin/api/admin.svelte.js';
 	import { useSidebar } from '#lib/sidebar/index.js';
 	import { ChevronRight } from '@lucide/svelte';
 
 	const sidebar = useSidebar();
-	const userQuery = useQuery(api.auth.getCurrentUser);
-	const isStaff = $derived(
-		userQuery.data?.role === 'admin' || userQuery.data?.role === 'developer'
-	);
+	const admin = useIsAppAdmin();
 </script>
 
 <menu>
@@ -30,7 +26,7 @@
 		>Stationary <span><ChevronRight size={20} /></span></button
 	>
 
-	{#if isStaff}
+	{#if admin.isAppAdmin}
 		<a onclick={sidebar.close} class="link" id="dashboard" href={resolve('dashboard')}
 			>Dashboard <span><ChevronRight size={20} /></span></a
 		>

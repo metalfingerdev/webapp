@@ -4,7 +4,7 @@
 	import { useCart } from '#lib/cart/index.js';
 	import { useSidebar } from '#lib/sidebar/sidebar.svelte.js';
 	import { useCheckout } from '#lib/checkout/checkout.svelte.js';
-	import { useAuth } from '#lib/svelte/client.svelte.js';
+	import { useAuth } from '@mmailaender/convex-better-auth-svelte/svelte';
 	import { AddressStorage } from '#lib/cart/address-storage.js';
 	import type { Id } from '$convex/_generated/dataModel.js';
 

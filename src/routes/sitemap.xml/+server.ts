@@ -1,4 +1,4 @@
-import { createConvexHttpClient } from '#lib/sveltekit/index.js';
+import { createConvexHttpClient } from '@mmailaender/convex-better-auth-svelte/sveltekit';
 import { api } from '$convex/_generated/api.js';
 import type { RequestHandler } from './$types.js';
 

@@ -1,33 +1,22 @@
 <script lang="ts">
 	import { api } from '$convex/_generated/api.js';
-	import { authClient } from '#lib/authentication/auth-client.js';
-	import { useQuery, useMutation, usePaginatedQuery, useAction } from 'convex-svelte';
-	import { ConvexError } from 'convex/values';
+	import { resolve } from '$app/paths';
+	import { useRequireSignIn } from '#lib/auth/requireSignIn.svelte.js';
+	import { useQuery, useMutation, usePaginatedQuery } from 'convex-svelte';
 	import type { Id } from '$convex/_generated/dataModel.js';
 
 	let expandedOrderId = $state<Id<'orders'> | null>(null);
-	let name = $state('');
-	let image = $state('');
 	let newCity = $state('');
-	let username = $state('');
 	let newLabel = $state('');
 	let newState = $state('');
 	let newStreet = $state('');
 	let newPincode = $state('');
 
-	let newPassword = $state('');
-	let confirmPassword = $state('');
-	let passwordPending = $state(false);
-	let passwordFeedback = $state<{ type: 'success' | 'error'; msg: string } | null>(null);
-
-	let isSaving = $state(false);
-	let imageError = $state(false);
 	let addPending = $state(false);
 	let updatePending = $state(false);
 	let removePending = $state(false);
 	let showAddressForm = $state(false);
 	let addrFeedback = $state<{ type: 'success' | 'error'; msg: string } | null>(null);
-	let profileFeedback = $state<{ type: 'success' | 'error'; msg: string } | null>(null);
 	let editingAddress = $state<null | {
 		id: Id<'addresses'>;
 		label: string;
@@ -37,9 +26,8 @@
 		pincode: string;
 	}>(null);
 
-	const userQuery = useQuery(api.auth.getCurrentUser);
-	const authMethodsQuery = useQuery(api.auth.myAuthMethods);
-	const setPassword = useAction(api.auth.setMyPassword);
+	useRequireSignIn();
+	const userQuery = useQuery(api.users.queries.getActiveUser);
 	const addAddress = useMutation(api.profile.addAddress);
 	const addressesQuery = useQuery(api.profile.listMyAddresses);
 	const updateAddress = useMutation(api.profile.updateAddress);
@@ -48,69 +36,6 @@
 	const orderDetailQuery = $derived(
 		expandedOrderId ? useQuery(api.profile.getMyOrder, { id: expandedOrderId }) : null
 	);
-
-	$effect(() => {
-		if (userQuery.data) {
-			name = userQuery.data.name || '';
-			image = userQuery.data.image || '';
-			username = ((userQuery.data as Record<string, unknown>).username as string) || '';
-		}
-	});
-
-	$effect(() => {
-		if (image) imageError = false;
-	});
-
-	async function handleUpdateProfile(e: SubmitEvent) {
-		e.preventDefault();
-		isSaving = true;
-		profileFeedback = null;
-		try {
-			await authClient.updateUser({ name, image, ...(username ? { username } : {}) });
-			profileFeedback = { type: 'success', msg: 'Profile updated.' };
-		} catch (error) {
-			profileFeedback = {
-				type: 'error',
-				msg: error instanceof Error ? error.message : 'Update failed.'
-			};
-		} finally {
-			isSaving = false;
-		}
-	}
-
-	async function handleSetPassword(e: SubmitEvent) {
-		e.preventDefault();
-		passwordFeedback = null;
-		if (newPassword.length < 8) {
-			passwordFeedback = { type: 'error', msg: 'Password must be at least 8 characters.' };
-			return;
-		}
-		if (newPassword !== confirmPassword) {
-			passwordFeedback = { type: 'error', msg: 'Passwords do not match.' };
-			return;
-		}
-		passwordPending = true;
-		try {
-			await setPassword({ newPassword });
-			passwordFeedback = {
-				type: 'success',
-				msg: 'Password set. You can now sign in with email and password too.'
-			};
-			newPassword = confirmPassword = '';
-		} catch (error) {
-			passwordFeedback = {
-				type: 'error',
-				msg:
-					error instanceof ConvexError
-						? String(error.data)
-						: error instanceof Error
-							? error.message
-							: 'Failed to set password.'
-			};
-		} finally {
-			passwordPending = false;
-		}
-	}
 
 	function startEditAddress(addr: NonNullable<typeof addressesQuery.data>[number]) {
 		editingAddress = {
@@ -206,116 +131,12 @@
 	{:else if !userQuery.data}
 		<p class="status-msg error">No active session. Please log in.</p>
 	{:else}
-		<!-- ─── Profile ─────────────────────────────────────────────────────── -->
+		<!-- ─── Account ─────────────────────────────────────────────────────── -->
 		<section class="panel-section">
 			<header class="section-header">
-				<h2>Account Settings</h2>
-				<span class="user-id">ID: <code>{userQuery.data._id}</code></span>
+				<h2>{userQuery.data.name || 'Your account'}</h2>
+				<a href={resolve('/account')} class="add-btn">Account settings</a>
 			</header>
-
-			<form onsubmit={handleUpdateProfile} class="utility-form">
-				<div class="input-row">
-					<label for="name">Display Name</label>
-					<input
-						type="text"
-						id="name"
-						bind:value={name}
-						placeholder="Enter display name"
-						required
-					/>
-				</div>
-
-				<div class="input-row">
-					<label for="username">Username</label>
-					<input type="text" id="username" bind:value={username} placeholder="Enter username" />
-				</div>
-
-				<div class="input-row">
-					<label for="image">Avatar URL</label>
-					<div class="avatar-input-group">
-						<input
-							type="text"
-							id="image"
-							bind:value={image}
-							placeholder="https://example.com/avatar.png"
-						/>
-						{#if image && !imageError}
-							<img
-								src={image}
-								alt="Preview"
-								class="inline-preview"
-								onerror={() => (imageError = true)}
-							/>
-						{/if}
-					</div>
-				</div>
-
-				<div class="action-row">
-					<button type="submit" class="save-btn" disabled={isSaving}>
-						{isSaving ? 'Saving...' : 'Save Changes'}
-					</button>
-				</div>
-
-				{#if profileFeedback}
-					<p class="feedback-banner {profileFeedback.type}">{profileFeedback.msg}</p>
-				{/if}
-			</form>
-		</section>
-
-		<hr class="divider" />
-
-		<!-- ─── Password ────────────────────────────────────────────────────── -->
-		<section class="panel-section">
-			<header class="section-header">
-				<h2>Password</h2>
-			</header>
-
-			{#if authMethodsQuery.isLoading}
-				<p class="status-msg">Loading...</p>
-			{:else if authMethodsQuery.data?.hasPassword}
-				<p class="status-msg">
-					Your account has a password — you can sign in with email and password.
-				</p>
-			{:else}
-				<p class="status-msg">
-					{authMethodsQuery.data?.hasGoogle ? 'You currently sign in with Google. ' : ''}Add a
-					password to also sign in with your email.
-				</p>
-				<form onsubmit={handleSetPassword} class="utility-form">
-					<div class="input-row">
-						<label for="new-password">New Password</label>
-						<input
-							type="password"
-							id="new-password"
-							bind:value={newPassword}
-							placeholder="At least 8 characters"
-							autocomplete="new-password"
-							minlength="8"
-							required
-						/>
-					</div>
-					<div class="input-row">
-						<label for="confirm-password">Confirm Password</label>
-						<input
-							type="password"
-							id="confirm-password"
-							bind:value={confirmPassword}
-							placeholder="Re-enter password"
-							autocomplete="new-password"
-							minlength="8"
-							required
-						/>
-					</div>
-					<div class="action-row">
-						<button type="submit" class="save-btn" disabled={passwordPending}>
-							{passwordPending ? 'Setting...' : 'Set Password'}
-						</button>
-					</div>
-					{#if passwordFeedback}
-						<p class="feedback-banner {passwordFeedback.type}">{passwordFeedback.msg}</p>
-					{/if}
-				</form>
-			{/if}
 		</section>
 
 		<hr class="divider" />

@@ -1,11 +1,10 @@
 <script lang="ts">
 	import { useQuery, usePaginatedQuery, useMutation } from 'convex-svelte';
 	import { api } from '$convex/_generated/api.js';
-	import { authClient } from '#lib/authentication/auth-client.js';
+	import { authClient } from '#lib/auth/api/auth-client.js';
 	import { useSidebar } from '#lib/sidebar/sidebar.svelte.js';
 	import type { Id } from '$convex/_generated/dataModel.js';
 	import { resolve } from '$app/paths';
-	import { signOut } from '#lib/authentication/auth-flow.js';
 
 	let expandedOrderId = $state<Id<'orders'> | null>(null);
 	let error = $state<string | null>(null);
@@ -43,17 +42,19 @@
 		}
 	}
 	async function handleSignOut() {
-		await signOut(authClient, (msg) => {
-			error = msg;
-		});
-		sidebar.exit(resolve('/'));
+		const result = await authClient.signOut();
+		if (result.error) {
+			error = result.error.message ?? 'Failed to sign out.';
+			return;
+		}
+		sidebar.exit(resolve('/(app)/(home)'));
 	}
 </script>
 
 <div class="profile-container">
 	<header>
-		<button class="primary w-full" onclick={() => sidebar.exit(resolve('user'))}
-			>Edit your profile</button
+		<button class="primary w-full" onclick={() => sidebar.exit(resolve('/account'))}
+			>Account settings</button
 		>
 	</header>
 

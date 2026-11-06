@@ -1,0 +1,61 @@
+@theme {
+  --color-background: var(--background);
+  --color-midground: var(--midground);
+  --color-foreground: var(--foreground);
+
+  --color-text: var(--text);
+  --color-text-muted: var(--text-muted);
+
+  --color-highlight: var(--highlight);
+  --color-border: var(--border);
+  --color-border-muted: var(--border-muted);
+
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-on-secondary: var(--on-secondary);
+
+  --color-danger: var(--danger);
+  --color-warning: var(--warning);
+  --color-success: var(--success);
+  --color-info: var(--info);
+
+  --color-primary-tint: var(--primary-tint);
+  --color-secondary-tint: var(--secondary-tint);
+  --color-danger-tint: var(--danger-tint);
+  --color-success-tint: var(--success-tint);
+}
+
+/* The app's one palette (Aggarwal Kart's teal and burgundy). Change the values to rebrand; screens only ever use the names above
+   (AGENTS.md). Light only: there is no dark mode. */
+:root {
+  color-scheme: light;
+
+  /* Layers: background is the darkest, foreground the lightest. Never reorder them */
+  --background:   hsl(0 0% 90%);
+  --midground:    hsl(0 0% 95%);
+  --foreground:   hsl(0 0% 100%);
+
+  --text:         hsl(300 0% 4%);
+  --text-muted:   hsl(0 0% 28%);
+
+  --highlight:    hsl(0 0% 100%);
+  --border:       hsl(0 0% 50%);
+  --border-muted: hsl(340 0% 62%);
+
+  /* Primary is for actions; secondary is an accent, and text on it uses on-secondary */
+  --primary:      hsl(173 100% 9%);
+  --secondary:    hsl(338 43% 31%);
+  --on-secondary: hsl(0 0% 100%);
+
+  --danger:       hsl(9 21% 41%);
+  --warning:      hsl(52 23% 34%);
+  --success:      hsl(147 19% 36%);
+  --info:         hsl(217 22% 41%);
+
+  /* Solid washes of a colour on the lightest layer, for alerts, toasts and highlights. Never a
+     see-through colour: those let the page show through a toast */
+  --primary-tint:   color-mix(in oklab, var(--primary) 12%, var(--foreground));
+  --secondary-tint: color-mix(in oklab, var(--secondary) 30%, var(--foreground));
+  --danger-tint:    color-mix(in oklab, var(--danger) 12%, var(--foreground));
+  --success-tint:   color-mix(in oklab, var(--success) 15%, var(--foreground));
+}

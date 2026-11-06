@@ -1,7 +1,7 @@
 <script lang="ts">
 	// src/components/sidebar/sidebar.svelte
 	import { useSidebar } from '#lib/sidebar/sidebar.svelte.js';
-	import { useAuth } from '#lib/svelte/index.js';
+	import { useAuth } from '@mmailaender/convex-better-auth-svelte/svelte';
 
 	import { Menu, ShoppingCart, LogIn } from '@lucide/svelte';
 	import { useCart } from '#lib/cart/service.svelte.js';

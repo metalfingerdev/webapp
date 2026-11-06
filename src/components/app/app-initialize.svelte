@@ -3,7 +3,7 @@
 	import { page } from '$app/state';
 	import { useQuery, useAction } from 'convex-svelte';
 	import { api } from '$convex/_generated/api.js';
-	import { useAuth } from '#lib/svelte/index.js';
+	import { useAuth } from '@mmailaender/convex-better-auth-svelte/svelte';
 	import { MockPaymentProcessor } from '#lib/razorpay/mock-payment-processor.js';
 	import { initSidebar } from '#lib/sidebar/sidebar.svelte.js';
 	import { initCheckout } from '#lib/checkout/checkout.svelte.js';
@@ -22,7 +22,7 @@
 	initCheckout();
 
 	const auth = useAuth();
-	const userQuery = useQuery(api.auth.getCurrentUser);
+	const userQuery = useQuery(api.users.queries.getActiveUser);
 	const createPaymentOrder = useAction(api.orders.createPaymentOrder);
 	const processor = new MockPaymentProcessor(createPaymentOrder);
 
@@ -34,7 +34,7 @@
 		processor // Injected cleanly as a type-compliant PaymentProcessor
 	);
 
-	let { children, data } = $props();
+	let { children } = $props();
 
 	// The admin dashboard is its own console with its own nav — the floating shop
 	// navbar would just overlap it (badly so on mobile, where the pill is
@@ -46,7 +46,7 @@
 	<NavigationBar />
 {/if}
 
-<Sidebar {data} />
+<Sidebar />
 
 <CheckoutDialog />
 

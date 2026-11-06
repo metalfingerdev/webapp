@@ -1,53 +1,151 @@
 @import 'tailwindcss';
+@import 'tw-animate-css';
 @import '@klinking/squircle/tailwind/utils.css';
+
+@import 'themes/palette.css';
+
 @plugin '@tailwindcss/forms';
 
-:root {
-	color-scheme: light dark;
-	--bg-dark: light-dark(hsl(0 0% 90%), oklch(0.1 0 180));
-	--bg: light-dark(hsl(300 0% 95%), oklch(0.15 0 180));
-	--bg-light: light-dark(hsl(300 50% 100%), oklch(0.2 0 180));
-
-	--text: light-dark(hsl(300 0% 4%), oklch(0.96 0 180));
-	--text-muted: light-dark(hsl(0 0% 28%), oklch(0.76 0 180));
-
-	--highlight: light-dark(hsl(300 50% 100%), oklch(0.5 0 180));
-	--border: light-dark(hsl(0 0% 50%), oklch(0.4 0 180));
-	--border-muted: light-dark(hsl(340 0% 62%), oklch(0.3 0 180));
-
-	--primary: light-dark(hsl(173 100% 9%), oklch(0.76 0.1 180));
-	--secondary: light-dark(hsl(338 43% 31%), oklch(0.76 0.1 0));
-
-	--danger: light-dark(hsl(9 21% 41%), oklch(0.7 0.05 30));
-	--warning: light-dark(hsl(52 23% 34%), oklch(0.7 0.05 100));
-	--success: light-dark(hsl(147 19% 36%), oklch(0.7 0.05 160));
-	--info: light-dark(hsl(217 22% 41%), oklch(0.7 0.05 260));
-}
-
 @theme {
-	--color-background-dark: var(--bg-dark);
-	--color-background: var(--bg);
-	--color-background-light: var(--bg-light);
+	--animate-fade-in-out: fade-in-out 0.3s ease-in-out;
 
-	--color-text: var(--text);
-	--color-text-muted: var(--text-muted);
-
-	--color-highlight: var(--highlight);
-	--color-border: var(--border);
-	--color-border-muted: var(--border-muted);
-
-	--color-primary: var(--primary);
-	--color-secondary: var(--secondary);
-
-	--color-danger: var(--danger);
-	--color-warning: var(--warning);
-	--color-success: var(--success);
-	--color-info: var(--info);
+	@keyframes fade-in-out {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
+	}
 }
 
-@layer {
+@layer base {
+	html {
+		font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans', sans-serif;
+	}
+	/* The forms plugin paints focus rings blue; ours are the primary colour */
+	:where(input, select, textarea):focus {
+		--tw-ring-color: var(--color-primary);
+		border-color: var(--color-primary);
+	}
 	body {
-		@apply bg-background-dark;
+		background-color: var(--color-background);
+		color: var(--color-text);
+	}
+	@media (hover: none) and (pointer: coarse) {
+		:where(a, button, [role='button'], input, label, textarea, select) {
+			-webkit-tap-highlight-color: transparent;
+		}
+	}
+}
+
+/* Borders and hard shadows are a shade darker than the surface they sit on, never black (black is
+   for text). A component sets --fill to its own background; `edge` derives the tone from it. */
+@utility edge {
+	border: 2px solid color-mix(in oklch, var(--fill, var(--color-midground)), black 30%);
+	box-shadow: 3px 3px 0 0 color-mix(in oklch, var(--fill, var(--color-midground)), black 30%);
+}
+@utility edge-flat {
+	border: 2px solid color-mix(in oklch, var(--fill, var(--color-midground)), black 30%);
+}
+@utility edge-press {
+	@apply transition-[translate,box-shadow] duration-100 active:translate-x-0.75 active:translate-y-0.75 active:shadow-none;
+}
+
+/* A loading placeholder. Put it on the same element (and text) the real content uses, so the
+   skeleton keeps the real layout's size and never drifts from it; the text is hidden. */
+@utility bone {
+	@apply animate-pulse rounded-lg bg-background text-transparent select-none;
+	box-decoration-break: clone;
+}
+
+/* ---------- Shared looks for elements that are not a ui component ---------- */
+
+/* Buttons and button-like links and triggers (the Button component is the same look) */
+@utility button {
+	--fill: var(--color-foreground);
+	@apply edge-flat inline-flex min-h-9 items-center justify-center gap-2 rounded-lg bg-foreground px-4 text-sm font-bold text-text transition-[translate] duration-100 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50;
+}
+@utility button-sm {
+	@apply min-h-7 px-2.5 text-[0.8125rem];
+}
+@utility button-icon {
+	@apply min-w-9 px-0;
+}
+
+/* Colour tones, for buttons, tags and panels alike. Solid tones are a filled colour; soft tones
+   are a wash of the colour with a border of it */
+@utility tone-raised {
+	--fill: var(--color-foreground);
+	@apply border-[color-mix(in_oklch,var(--fill),black_30%)] bg-foreground text-text;
+}
+@utility tone-sunken {
+	--fill: var(--color-background);
+	@apply border-[color-mix(in_oklch,var(--fill),black_30%)] bg-background text-text;
+}
+@utility tone-primary {
+	--fill: var(--color-primary);
+	@apply border-[color-mix(in_oklch,var(--fill),black_30%)] bg-primary text-foreground;
+}
+@utility tone-danger {
+	--fill: var(--color-danger);
+	@apply border-[color-mix(in_oklch,var(--fill),black_30%)] bg-danger text-foreground;
+}
+@utility tone-warning {
+	--fill: var(--color-warning);
+	@apply border-[color-mix(in_oklch,var(--fill),black_30%)] bg-warning text-foreground;
+}
+@utility tone-primary-soft {
+	@apply border-primary bg-primary-tint text-text;
+}
+@utility tone-danger-soft {
+	@apply border-danger bg-danger-tint text-text;
+}
+@utility tone-warning-soft {
+	@apply border-warning bg-secondary-tint text-text;
+}
+@utility tone-success-soft {
+	@apply border-success bg-success-tint text-text;
+}
+@utility tone-outline {
+	@apply border-2 border-border bg-transparent text-text;
+}
+@utility tone-outline-success {
+	@apply border-2 border-success bg-transparent text-success;
+}
+@utility tone-outline-danger {
+	@apply border-2 border-danger bg-transparent text-danger;
+}
+
+/* A small status label */
+@utility tag {
+	@apply inline-flex min-h-5 items-center gap-1 rounded-full border-2 border-border-muted bg-foreground px-2 text-xs font-bold;
+}
+
+/* A bordered surface */
+@utility panel {
+	--fill: var(--color-foreground);
+	@apply rounded-xl border-2 border-[color-mix(in_oklch,var(--fill),black_30%)] bg-foreground;
+}
+
+/* Form: a label wrapping a caption and a native control */
+@utility field-label {
+	@apply flex flex-col gap-1 text-sm font-bold;
+}
+@utility field-caption {
+	@apply text-sm font-bold;
+}
+@utility control {
+	@apply edge-flat min-h-9 w-full rounded-lg bg-foreground px-3 py-1.5 text-sm text-text placeholder:text-text-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:bg-background disabled:text-text-muted;
+	--fill: var(--color-foreground);
+}
+
+/* A plain data table */
+@utility data-table {
+	@apply w-full border-collapse text-left;
+	& th,
+	& td {
+		@apply px-3 py-2;
 	}
 }
 

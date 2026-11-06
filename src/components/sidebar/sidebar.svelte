@@ -6,7 +6,7 @@
 	import { resolve } from '$app/paths';
 	import { fly } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
-	import { useAuth } from '#lib/svelte/index.js';
+	import { useAuth } from '@mmailaender/convex-better-auth-svelte/svelte';
 	import { useCart } from '#lib/cart/service.svelte.js';
 	import { useNavbar } from '#lib/navbar/navbar.svelte.js';
 
@@ -16,8 +16,6 @@
 	// Slide distances: the  travels ~its full width; the header rides along
 	// with a subtle nudge. Same duration/easing keeps them locked in sync.
 	const _X = 120;
-
-	let { data } = $props();
 
 	const sidebar = useSidebar();
 	const auth = useAuth();
@@ -60,7 +58,7 @@
 					out:fly={{ x: sidebar.direction * -_X, duration: DURATION, easing: cubicOut }}
 				>
 					{#if sidebar.view === 'default'}
-						<a href={resolve('/')}>Menu</a>
+						<a href={resolve('/(app)/(home)')}>Menu</a>
 					{:else}
 						<button onclick={() => sidebar.back()}><ChevronLeft size={24} /></button>
 					{/if}
@@ -106,7 +104,7 @@
 				out:fly={{ x: sidebar.direction * -_X, duration: DURATION, easing: cubicOut }}
 			>
 				{#if sidebar.view === 'auth'}
-					<Auth {data} />
+					<Auth />
 				{:else if sidebar.view === 'user'}
 					<User />
 				{:else if sidebar.view === 'shop'}
