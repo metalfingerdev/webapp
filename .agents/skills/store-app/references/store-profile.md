@@ -83,7 +83,14 @@ Each entry has a date and the reason. When the user decides something new, add i
 - **Payment gateway**: Razorpay (already a dependency).
 - **Tests**: few, and only ones that fail when behaviour breaks: security refusals, money and stock
   correctness, real invariants. Why: the user pays for every test run and every token.
-- **Function first, visual design last.** Why: the screens will change once the client sees them working.
+- **Keep the old store's look; rebuild everything under it** (2026-11-06, dictated; replaces "function
+  first, visual design last"). The customer side keeps the old UI's style and layout: the hims.com-style
+  look with the navigation bar (mega menu, search panel, slide-out sidebar), the shop and product views
+  and the dashboard shell. The structure and code are rebuilt: new tables, new functions, components
+  rewritten on `src/lib/ui` and the palette, strings in `strings.ts`, no old imports. Why: the user likes
+  the look; the old code can't run on the new data model. How: each step that rebuilds a screen opens
+  the matching `legacy/` component, reproduces its look and behaviour on the new code, then deletes it.
+  To see the original, `git switch --detach old-store`.
 - **Workflow**: one branch and one draft PR per step; the user reviews and merges. `main` is protected
   on GitHub (PRs only), and the git hooks refuse commits on `main`.
 - **This repo is staging** (2026-11-06). The store is built and shown to the client here; the live
@@ -114,6 +121,11 @@ first step that is not **built**. "Needs" lists what the client must provide: as
 real client takes days to answer. Where it isn't there yet, build with a named placeholder constant and
 list it in the report.
 
+**UI in every step:** the screens keep the old store's look (Decisions: "Keep the old store's look").
+"_Look from_" names the `legacy/` files a step reproduces and then deletes. A step isn't done until its
+screens match them in layout and feel, built on the new code. The step's PR names any differences on
+purpose.
+
 0. **Foundation** (**built**, 2026-11-06). SvelteKit 3, template auth, palette, docs, CI.
 
 1. **Clear the ground and lay the store's base.**
@@ -127,26 +139,36 @@ list it in the report.
    - Seed (`store/seed.ts`): the 6 schools, the categories, about 20 demo books with made-up prices,
      one demo set. Never real customer data.
    - Test harness `src/convex/store/harness.testutils.ts` and the refusal tests from `roles-and-access.md`.
-   - A bare home page and shop header (brand, account menu, admin link) so the app still runs.
+   - A bare home page and shop header (brand, account menu, admin link) so the app still runs. This is
+     a stand-in: step 2 replaces it with the old navigation bar.
    - _Done when_: checks pass, `npx convex run store/seed:run` fills dev, refusal tests pass, the app
      starts with no old store code inside `src/`.
    - _Needs_: nothing blocking. Send the client the questions for steps 2 to 5 now.
 2. **Catalogue.** Categories, product pages, search (title, author, ISBN), URL filters; ports
-   `legacy/src/lib/shop/filters.svelte.ts` and the search text builder. _Needs_: the real category list
-   and an export of the current WooCommerce products (CSV), even rough.
-3. **School sets.** `/schools`, school and class pages, the set page with optional lines, session label.
-   _Needs_: each school's book list per class for the current session (photos or PDFs are fine), which
+   `legacy/src/lib/shop/filters.svelte.ts` and the search text builder. Also the app shell and the
+   navigation bar, rebuilt in the old style on the new queries: mega menu (books, uniforms, stationery,
+   schools), search panel, slide-out sidebar (its cart panel waits for step 4).
+   _Look from_: `legacy/src/components/{app,navbar,sidebar}/`, `legacy/src/lib/{navbar,sidebar}/`,
+   `legacy/src/components/shop/{product-view,filters-bar,filters-sidebar}.svelte`,
+   `legacy/src/routes/(app)/(home)` and `shop/`. _Needs_: the real category list and an export of the
+   current WooCommerce products (CSV), even rough.
+3. **School sets.** `/schools`, school and class pages, the set page with optional lines, session label,
+   and uniform sets with a size picker per line. _Look from_: `legacy/src/components/shop/bundle-view.svelte`,
+   `legacy/src/components/sidebar/school.svelte`. _Needs_: each school's book list per class for the current session (photos or PDFs are fine), which
    items are optional, and whether covering or labelling is offered.
-4. **Cart.** Guest and signed-in, merge on sign-in, cart sheet and `/cart`. _Needs_: nothing.
+4. **Cart.** Guest and signed-in, merge on sign-in, cart sheet and `/cart`. _Look from_:
+   `legacy/src/components/sidebar/cart.svelte`, `legacy/src/lib/cart/`. _Needs_: nothing.
 5. **Checkout and orders.** Addresses, `priceCart`, `placeOrder` (reprice, hold stock), `transitionOrder`,
    `/orders`, cancel. Recommended here: set up Playwright with one checkout spec against dev
-   (`docs/09-testing.md`). _Needs_: shipping fee and free-shipping threshold, COD yes or no,
+   (`docs/09-testing.md`). _Look from_: `legacy/src/components/checkout/`, `legacy/src/routes/(app)/user/`.
+   _Needs_: shipping fee and free-shipping threshold, COD yes or no,
    cancellation window, delivery estimate wording.
 6. **Razorpay** (`payments.md`). _Needs_: the client's Razorpay account; test keys and the webhook secret
    on dev; KYC and live keys before launch.
 7. **Admin.** Products, stock and import (port `legacy/src/lib/products/import.ts`), then schools and
    sets (with "copy to next session"), then the order board and shipping (`shipping.md`), then
-   `/admin/settings`. _Needs_: who works the admin, the courier(s) used, the real store details typed
+   `/admin/settings`. _Look from_: `legacy/src/components/dashboard/`, `legacy/src/routes/(app)/dashboard/`.
+   _Needs_: who works the admin, the courier(s) used, the real store details typed
    into settings by the client.
 8. **Invoices and packing slips.** Sequential numbers per financial year; port `legacy/src/lib/pdf/`.
    _Needs_: the CA's answer on GST (registered, scheme, rates, "Tax invoice" or "Bill of supply"), legal
