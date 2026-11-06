@@ -61,9 +61,11 @@ What hims + Apple add:
 
 - Our own name, palette (`src/themes/palette.css`) and copy. hims and Apple are **references for
   feel, never for branding**: no copied logos, images, text or trade dress.
-- **A cheap Android phone on slow 4G comes first.** `legacy/` opens the mega menu on hover; the new
-  one must open on tap and work by keyboard. Nothing may need hover. Keep images small and lazy with
-  fixed sizes, use skeletons, and use no heavy animation libraries.
+- **A cheap Android phone on slow 4G comes first.** Phone and desktop are separate UIs (dictated
+  2026-11-07): on desktop (`lg` up) a mouse may open the mega menu on hover, as a shortcut, but
+  everything also opens by click, tap and keyboard; the phone UI has no hover at all. Nothing may
+  need hover. Keep images small and lazy with fixed sizes, use skeletons, and use no heavy animation
+  libraries.
 - Components from `src/lib/ui`; `edge` utilities for borders and shadows; short semantic classes with
   Tailwind in `<style>` (AGENTS.md).
 - All text in `src/lib/store/strings.ts`.

@@ -3,6 +3,7 @@ export const strings = {
 	brand: 'Aggarwal Kart',
 	tagline: 'School books, uniforms and stationery, delivered across India',
 	nav: {
+		label: 'Main',
 		menu: 'Menu',
 		search: 'Search',
 		close: 'Close',
@@ -71,6 +72,7 @@ export const strings = {
 		clear: 'Clear'
 	},
 	product: {
+		breadcrumb: 'Breadcrumb',
 		by: 'by',
 		from: 'From',
 		off: (percent: number) => `${percent}% off`,
