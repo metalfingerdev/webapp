@@ -74,3 +74,8 @@ What hims + Apple add:
   one. Prices and counts use `tabular-nums`. A control that appears on demand (a clear button) keeps
   its space while hidden. Skeletons take the real content's size (`bone`). Height may grow on purpose
   (the search results), but smoothly, never as a jump.
+- **Growing panels cover the page, in one motion** (dictated 2026-11-07, after the search staggered
+  and pushed the page down). A panel that opens or grows (the search in the bar, a menu) floats over the
+  content and never moves what is below it. Its open, close and content changes are one animation,
+  and everything it shows is there on the first frame: nothing loads in a moment later and shoves the
+  rest down.
