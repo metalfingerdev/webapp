@@ -6,37 +6,50 @@ Every table that is listed or filtered has an index for it; queries are bounded.
 
 ## Validators
 
-Shared in `src/convex/store/validators.ts`: `orderStatus`, `paymentStatus`, `gstRate`
-(0, 500, 1200, 1800, 2800 or exempt), `indianPincode` (6 digits, not starting with 0), `session`
-("2026-27"), `phone` (E.164, reuse `src/convex/otp/phone.ts`).
+Shared in `src/convex/store/validators.ts`: `productKind` (`book`, `uniform`, `stationery`), `gender`,
+`uniformType` (`regular`, `sports`, `winter`), `uniformPart` (`top`, `bottom`, `accessory`,
+`footwear`), `setType`, `orderStatus`, `paymentStatus`, `stockReason`, `gstRate` (0, 500, 1200, 1800,
+2800 or `exempt`), `indianPincode` / `isIndianPincode`, `session` / `isSession` ("2026-27"), `phone`
+(E.164, reuse `src/convex/otp/phone.ts`), `addressSnapshot`, `cartLine`.
+
+Classes are numbers (`model/store/classes.ts`): Mont-01 = -2, Mont-02 = -1, Mont-03 = 0, Class 1 to 12 =
+1 to 12, so a set or uniform item covers a range (`classFrom`, `classTo`).
 
 ## Tables
 
-| Table              | Key fields                                                                                                                                                                                                                             | Indexes                                                            |
-| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| `categories`       | `name`, `slug`, `sortOrder`, `isActive`                                                                                                                                                                                                | `by_slug`, `by_sortOrder`                                          |
-| `products`         | `title`, `slug`, `categoryId`, `kind` (`book` or `stationery`), `author?`, `publisher?`, `isbn?`, `edition?`, `subject?`, `classLevel?`, `mrp`, `price`, `hsn`, `gstRate`, `stock`, `lowStockAt`, `imageId?`, `isActive`, `searchText` | `by_slug`, `by_category_active`, `by_isbn`, search on `searchText` |
-| `schools`          | `name`, `slug`, `isActive`, `sortOrder`                                                                                                                                                                                                | `by_slug`                                                          |
-| `schoolSets`       | `schoolId`, `label` ("Class 1", "Mont-01 (Nur)"), `classOrder`, `session`, `isActive`                                                                                                                                                  | `by_school_session`, `by_school_label_session`                     |
-| `setItems`         | `setId`, `productId`, `quantity`, `isOptional`                                                                                                                                                                                         | `by_set`, `by_product`                                             |
-| `carts`            | `userId`, `lines: [{ productId, quantity }]`, `updatedAt`                                                                                                                                                                              | `by_userId`                                                        |
-| `addresses`        | `userId`, `name`, `phone`, `line1`, `line2?`, `landmark?`, `city`, `state`, `pincode`, `isDefault`                                                                                                                                     | `by_userId`                                                        |
-| `orders`           | `userId`, `number` (readable, unique), `status`, `paymentStatus`, `address` (snapshot), `subtotal`, `shippingFee`, `total`, `placedAt`, `paidAt?`, `cancelledAt?`, `refund?`, `setLabel?`                                              | `by_userId_placedAt`, `by_status_placedAt`, `by_number`            |
-| `orderItems`       | `orderId`, `productId`, `title`, `isbn?`, `hsn`, `gstRate`, `unitPrice`, `quantity`, `fromSetId?`                                                                                                                                      | `by_order`                                                         |
-| `stockAdjustments` | `productId`, `delta`, `reason` (`received`, `damaged`, `count`, `order`, `cancel`, `import`), `orderId?`, `by`, `at`                                                                                                                   | `by_product_at`                                                    |
-| `shipments`        | `orderId`, `courier`, `awb`, `trackingUrl?`, `shippedAt`, `deliveredAt?`                                                                                                                                                               | `by_order`, `by_awb`                                               |
-| `payments`         | `orderId`, `gatewayOrderId`, `gatewayPaymentId?`, `amount`, `status` (`creating`, `created`, `paid`, `failed`, `refunded`), `refund?`, `createdAt`                                                                                     | `by_order`, `by_gatewayOrderId`                                    |
-| `enquiries`        | `name`, `email`, `phone`, `bookName?`, `author?`, `classLevel?`, `status` (`new`, `quoted`, `closed`), `note?`, `createdAt`                                                                                                            | `by_status_createdAt`                                              |
-| `storeSettings`    | one row: business name, legal name, phone, email, address, GSTIN, shipping fees and threshold, return windows, invoice prefix, `placedOrdersOpen`                                                                                      | none (single row)                                                  |
-| `invoiceCounters`  | `financialYear`, `next`                                                                                                                                                                                                                | `by_financialYear`                                                 |
-| `otpDeliveries`    | already there (template)                                                                                                                                                                                                               | `by_phoneNumber`                                                   |
+Index names follow the Convex rule: `by_field1_and_field2`.
+
+| Table              | Key fields                                                                                                                                                                                                                                                             | Indexes                                                                                          |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `categories`       | `name`, `slug`, `parentId?`, `sortOrder`, `isActive`                                                                                                                                                                                                                   | `by_slug`, `by_parentId_and_sortOrder`                                                           |
+| `products`         | `title`, `slug`, `categoryId`, `kind`; books: `author?`, `publisher?`, `isbn?`, `edition?`, `subject?`; `classFrom?`, `classTo?`; uniforms: `schoolId?`, `gender?`, `uniformType?`, `part?`; `hsn`, `gstRate`, `imageId?`, `isActive`, `searchText`. No price or stock | `by_slug`, `by_categoryId_and_isActive`, `by_schoolId_and_kind`, `by_isbn`, search `search_text` |
+| `productVariants`  | `productId`, `label`, `size?`, `house?`, `sku?`, `mrp`, `price`, `stock`, `lowStockAt`, `sortOrder`, `isActive`                                                                                                                                                        | `by_productId_and_sortOrder`, `by_sku`                                                           |
+| `schools`          | `name`, `slug`, `isActive`, `sortOrder`                                                                                                                                                                                                                                | `by_slug`, `by_sortOrder`                                                                        |
+| `schoolSets`       | `schoolId`, `type` (`books`, `uniform`), `label`, `classFrom`, `classTo`, `gender?`, `uniformType?`, `session`, `sortOrder`, `isActive`                                                                                                                                | `by_schoolId_and_session_and_sortOrder`, `by_schoolId_and_label_and_session`                     |
+| `setItems`         | `setId`, `productId`, `variantId?` (unset on a uniform line: the parent picks a size), `quantity`, `isOptional`, `sortOrder`                                                                                                                                           | `by_setId_and_sortOrder`, `by_productId`                                                         |
+| `carts`            | `userId`, `lines: [{ variantId, quantity, fromSetId? }]`, `updatedAt`                                                                                                                                                                                                  | `by_userId`                                                                                      |
+| `addresses`        | `userId`, `name`, `phone`, `line1`, `line2?`, `landmark?`, `city`, `state`, `pincode`, `isDefault`                                                                                                                                                                     | `by_userId`                                                                                      |
+| `orders`           | `userId`, `number` (readable, unique), `status`, `paymentStatus`, `address` (snapshot), `subtotal`, `shippingFee`, `total`, `placedAt`, `paidAt?`, `packedAt?`, `shippedAt?`, `deliveredAt?`, `cancelledAt?`, `refund?`                                                | `by_userId_and_placedAt`, `by_status_and_placedAt`, `by_number`                                  |
+| `orderItems`       | `orderId`, `productId`, `variantId`, `title`, `variantLabel?`, `isbn?`, `hsn`, `gstRate`, `unitPrice`, `quantity`, `fromSetId?`                                                                                                                                        | `by_orderId`                                                                                     |
+| `stockAdjustments` | `variantId`, `productId`, `delta`, `stockAfter`, `reason` (`received`, `damaged`, `count`, `order`, `cancel`, `import`), `orderId?`, `by`, `at`                                                                                                                        | `by_variantId_and_at`                                                                            |
+| `shipments`        | `orderId`, `courier`, `awb`, `trackingUrl?`, `shippedAt`, `deliveredAt?`                                                                                                                                                                                               | `by_orderId`, `by_awb`                                                                           |
+| `payments`         | `orderId`, `gatewayOrderId`, `gatewayPaymentId?`, `amount`, `status` (`creating`, `created`, `paid`, `failed`, `refunded`), `refund?`, `createdAt`                                                                                                                     | `by_orderId`, `by_gatewayOrderId`                                                                |
+| `enquiries`        | `name`, `email`, `phone`, `bookName?`, `author?`, `classLevel?`, `status` (`new`, `quoted`, `closed`), `note?`, `createdAt`                                                                                                                                            | `by_status_and_createdAt`                                                                        |
+| `storeSettings`    | one row: `businessName`, `legalName?`, `phone?`, `whatsapp?`, `email?`, `address?`, `gstin?`, `shippingFee`, `freeShippingFrom`, `returnWindowDays`, `invoicePrefix?`, `currentSession`, `placedOrdersOpen`                                                            | none (single row)                                                                                |
+| `invoiceCounters`  | `financialYear`, `next`                                                                                                                                                                                                                                                | `by_financialYear`                                                                               |
+| `otpDeliveries`    | already there (template)                                                                                                                                                                                                                                               | `by_phoneNumber`                                                                                 |
 
 Notes:
 
-- A set holds **lines**, not a price. Total = sum of `setItems.quantity × products.price`, computed at
-  checkout. Optional lines the customer unticked are left out.
-- `orderItems` copy title, ISBN, HSN, GST rate and price. `orders.address` is a copy too.
-- Products and sets are hidden (`isActive: false`), never deleted, once an order refers to them.
+- **Every product has at least one variant**, and price and stock live only on the variant. A book or
+  stationery item has one `Default` variant; a uniform item has one per size, or per size and house
+  colour for the house T-shirt. Price changes with size. Cart lines, order lines and the stock log all
+  point to a variant. Why: one place for stock, so one helper can guard it.
+- A set holds **lines**, not a price. Total = sum of `setItems.quantity × variant.price`, computed at
+  checkout. Optional lines the customer unticked are left out. A uniform line has no `variantId` until
+  the parent picks a size; a one-size item (a tie) may name it.
+- `orderItems` copy title, variant label, ISBN, HSN, GST rate and price. `orders.address` is a copy too.
+- Products, variants and sets are hidden (`isActive: false`), never deleted, once an order refers to them.
 - Prices include GST; `orderItems` keep the rate so the invoice can split taxable value and tax.
 
 ## State machine
@@ -55,6 +68,6 @@ awaiting_payment ──paid──▶ paid ──▶ packed ──▶ shipped ─
 
 ## Stock helper
 
-`adjustStock(ctx, { productId, delta, reason, orderId? })` in `src/convex/model/store/stock.ts` is the
-only code that writes `products.stock`. It refuses to go below zero, writes a `stockAdjustments` row,
+`adjustStock(ctx, { variantId, delta, reason, by, orderId? })` in `src/convex/model/store/stock.ts` is the
+only code that writes `productVariants.stock` (the seed too: variants start at 0). It refuses to go below zero, writes a `stockAdjustments` row,
 and returns the new level. Checkout uses it to hold stock; cancel uses it to release.

@@ -12,8 +12,11 @@ Edit **this** file instead (it is not generated).
 - Relative imports use explicit **`.js` extensions**:
   `import { query, mutation } from './_generated/server.js'`. Match this in new
   files — `./_generated/server` without `.js` is wrong here.
-- Shared, non-registered helpers live in `src/convex/lib/` (`pricing.ts`,
-  `settings.ts`) and top-level helper modules (`slugs.ts`, `productSearch.ts`).
+- Store functions live in `store/` (`store/admin/` for admin functions); shared, non-registered
+  store helpers in `model/store/` (access guards, `adjustStock`, slugs and search text, class
+  numbers, placeholder business values). The old store's code is in `legacy/` until step 10.
+- Convex tests are `*.test.ts`; store tests use the harness in `store/harness.testutils.ts`
+  (a signed-out caller, two customers and an admin, as real Better Auth rows).
 
 ## Authentication — better-auth, NOT raw JWT
 
@@ -31,7 +34,7 @@ This project uses **`@convex-dev/better-auth`** (wired in `convex.config.ts` and
   matching auth config provider comes from `auth.config.ts`.
 - Public, auth-optional queries should **return empty (`[]`/`null`) instead of
   throwing** when `safeGetAuthUser` is null, so the UI can render a signed-out
-  state (see `addresses.getMyAddresses`).
+  state .
 
 ## User identity is a string, there is no `users` table
 
@@ -39,81 +42,40 @@ This project uses **`@convex-dev/better-auth`** (wired in `convex.config.ts` and
   has **no `users` table**. Do **not** use `v.id('users')` / `Id<'users'>` — it
   does not exist here.
 - Store the owner of a row as **`userId: v.string()`** holding `user._id`
-  (see `cartItems`, `orders`, `addresses`). Index it with `by_userId` and scope
+  (see `carts`, `orders`, `addresses`). Index it with `by_userId` and scope
   every per-user query through that index.
-- Ownership checks compare `row.userId === user._id` (see
-  `orders.confirmOrder`, `addresses.deleteAddress`).
+- Ownership checks compare `row.userId === user._id`, and refuse with the same message whether
+  the row is missing or someone else's.
 
 ## Roles & authorization
 
 - Store staff are the template's **app admins**: the Better Auth `role` field is `admin`,
   or the user's id is listed in the `ADMIN_USER_IDS` Convex env var (how the first admin is
   set up). Admins are managed on the `/admin` page. There is no `userRoles` table.
-- Dashboard functions call `requireAppAdmin(ctx)` (`./model/admin/index.js`) first thing in the
-  handler; it returns the user. UI checks (`useIsAppAdmin()`, the `/dashboard` page load) are UX
-  only.
+- Every store function calls exactly one guard from `model/store/access.ts`: `requireCustomer`
+  or `requireAppAdmin` (admin functions, first thing in the handler), or says in a comment that
+  it is deliberately public. UI checks (`useIsAppAdmin()`, `myRoles`) are UX only.
 - Never accept a role or `userId` as a function arg for authorization — always
   derive it server-side from `safeGetAuthUser`.
 
-## Money & settings
+## Money, stock and settings
 
 - All monetary values are **integer paise** (e.g. ₹50 = `5000`). GST rates are
   **basis points** (18% = `1800`). Never use floats for money.
-- Tunable numbers come from the `settings` table via
-  `loadSettings(ctx.db)` (`lib/settings.ts`), which layers DB rows over
-  `DEFAULT_SETTINGS`. Order math goes through `calculateOrder()` in
-  `lib/pricing.ts` — don't recompute totals/shipping/tax ad hoc.
+- Price and stock live on **`productVariants`**, never on `products`. Stock is written only by
+  `adjustStock` (`model/store/stock.ts`), which logs every change in `stockAdjustments`.
+- Business values not yet decided are placeholder constants in `model/store/storeProfile.ts`
+  (each TODO (dictate)); the seed copies them into the single `storeSettings` row.
 
 ## Products: searchText & slugs are derived — keep them in sync
 
-- `products.searchText` is a **denormalized** field backing the `search_name`
-  full-text index. Whenever you insert or update a product, recompute it with
-  `buildSearchText(...)` from `productSearch.ts`. Never write a product without
-  it.
-- `products.slug` is a **stable** URL slug (`by_slug` index). Generate once on
-  insert with `slugify()` + uniqueness via `dbUniqueSlug`/`reserveUniqueSlug`
-  (`slugs.ts`). **Never change an existing slug** — product URLs depend on it.
-  Backfill missing slugs only (see `dashboard.backfillSlugs`).
+- `products.searchText` backs the `search_text` index. Rebuild it with `buildSearchText(...)`
+  (`model/store/catalog.ts`) on every product insert or update.
+- `products.slug` is generated once with `slugify()` + `reserveUniqueSlug()` and **never
+  changed**: product URLs depend on it.
 
-## Shop catalog query (`products.listShopProducts`)
+## Enums live in store/validators.ts
 
-The storefront grid (both `/shop` and `/shop/[category]`) is backed by the single
-paginated query `listShopProducts`. It picks an **access path per active filter**
-so each maps to an index:
-
-- text search (`q`) → `search_name` full-text index (with `category` as a filter
-  field);
-- price sort or price range → `by_category_price` / `by_salePrice` index, walked
-  in price order with `.gte`/`.lte` bounds;
-- otherwise → `by_category` (or whole table) in creation order.
-
-`in-stock` is a `stock > 0` `.filter()` on top. A search index **can't be
-`.order()`'d**, so when a search is combined with an explicit sort the query
-collects the top matches (`SEARCH_CAP`), filters + sorts in memory, and paginates
-by a **numeric-offset cursor** (returns a hand-built `PaginationResult`). Filters
-are URL state on the client (`src/lib/shop/`), so the loaders just parse the query
-string into these args.
-
-## Documents (invoice + packing slip)
-
-Both PDFs render from **one** server-built model: `assembleOrderDocument(ctx,
-order, customer)` in `lib/orderDocument.ts`. Line prices come from
-`purchases.priceAtPurchase`; shipping/total come from the **stored** order (so the
-document reflects what was charged); the GST split is back-calculated via
-`calculateOrder`. The customer's invoice goes through `orders.getOrderInvoice`
-(owner-guarded); the dashboard's copies through `dashboard.getOrderDocument`
-(`requireElevated`). The client renderers live in `src/lib/pdf/` — keep them
-presentation-only; all amounts are decided server-side.
-
-## Enums live in schema.ts
-
-Reuse the exported validators instead of re-declaring literal unions:
-`CUSTOMER_ROLE`, `ORDER_STATUS`, `TRACKING_STATUS`, `TAX_CATEGORY`.
-
-## Domain notes
-
-- Orders use a status state machine (`ORDER_STATUS`); `tracking` events
-  (`TRACKING_STATUS`) drive `order.status` via the map in
-  `dashboard.pushTrackingEvent`. Stock is decremented in `orders.createOrder`.
-- Payment is currently **mocked** (`orders.createPaymentOrder` returns a fake
-  order id) — checkout is "client-agnostic" pending a real gateway.
+Reuse the exported validators (`productKind`, `orderStatus`, `gstRate`, `stockReason`, …)
+instead of re-declaring literal unions. The full model is in
+`.agents/skills/store-app/references/data-model.md`.
