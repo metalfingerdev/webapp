@@ -22,8 +22,9 @@ Every session starts the same way, so nothing is skipped and nothing is built tw
    - what it retires from `legacy/` (or from `src/` before step 1)
    - which `TODO (dictate)` values or client inputs it needs, and whether they are in yet
    - anything from earlier steps left unfinished in **Status**
-4. **Missing client inputs.** List them as plain questions the user can forward to the client. Offer to
-   build with named placeholder constants meanwhile. Ask which they prefer; don't decide for them.
+4. **Missing client inputs.** Ask the user now, as plain questions they can pass to the client, only for
+   what this step needs. Offer to build with named placeholder constants meanwhile. Ask which they
+   prefer; don't decide for them. Record each answer in the store profile when it comes in.
 5. **Branch.** `git switch -c step-<n>-<short-name>` (or switch to the existing one).
 6. **Plan before code.** Write a short plan: tables and functions, routes and components, which guard
    each function uses, what gets deleted, the tests (only ones that can fail), and how the user will try

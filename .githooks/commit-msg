@@ -1,0 +1,7 @@
+#!/bin/sh
+# Refuses AI attribution in commit messages. GitHub turns a Co-Authored-By trailer into a listed
+# contributor, and a squash merge copies it onto main.
+if grep -qiE '^co-authored-by:.*(claude|anthropic)|generated with .*claude|noreply@anthropic\.com' "$1"; then
+  echo "commit-msg: remove the Claude/Anthropic attribution from the commit message." >&2
+  exit 1
+fi
