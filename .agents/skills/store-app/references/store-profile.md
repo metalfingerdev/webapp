@@ -111,6 +111,10 @@ Each entry has a date and the reason. When the user decides something new, add i
   **house-colour T-shirt** (so a variant can be size + house), and **shoes** are sold. Class bands
   (placeholder, researched as typical: shorts up to Class 5, trousers from Class 6): pre-primary
   (Mont-01 to Mont-03), primary (Class 1 to 5), senior (Class 6 to 12). Real bands per school TODO (dictate).
+- **Staging sign-in without a domain** (2026-11-07). With no domain yet, other people sign in with
+  Google or TextBee SMS, not email. Why: Resend can't mail anyone but its owner until a sending domain
+  is verified, and the user has no domain. A subdomain such as `mail.<the shop's domain>` is the
+  cleanest choice once DNS access exists, because it doesn't touch the live site's own email.
 - **Staging deploy order** (2026-11-06). Vercel was set up before step 2, so the client can see
   progress early; `docs/08-environments-and-deployment.md` is the checklist. Console OTP on staging is
   accepted only while the user is the sole tester.
@@ -209,12 +213,21 @@ with `references/design.md`.
 - **UI**: a bare home page and `src/lib/store/ShopHeader.svelte` (stand-ins until step 2).
 - **Staging is live** (2026-11-06): a Vercel project (Hobby, SvelteKit) deploys `main`, with
   `PUBLIC_APP_ENV=staging`. Its backend is this repo's Convex **Production** slot. Convex env vars set
-  there: the Better Auth secret and host and URL, `OTP_CHANNELS=console` with `OTP_ALLOW_CONSOLE=true`
-  (sign-in codes appear only in that deployment's logs; remove both before the real launch), and
-  `ADMIN_USER_IDS` (the owner). Not set yet: Resend (`RESEND_API_KEY`, `EMAIL_SEND_FROM`) and Google
-  sign-in, so only phone sign-in works. Staging has no demo data until the seed is run with `--prod`,
-  which needs the user's say-so in that session. Deployment names and ids are in the dashboards, not
-  here (public repo).
+  there: the Better Auth secret, host and URL; `ADMIN_USER_IDS` (the owner); phone sign-in by real SMS
+  through TextBee (`OTP_CHANNELS=textbee`, `TEXTBEE_API_KEY`; sign-in depends on one Android phone
+  being online; `OTP_ALLOW_CONSOLE` was removed); Google sign-in (`GOOGLE_CLIENT_ID`,
+  `GOOGLE_CLIENT_SECRET`; the Google consent screen is in **Testing** mode, so only listed test users
+  can sign in). `RESEND_API_KEY` is set, but `EMAIL_SEND_FROM` isn't: there is no domain yet, so Resend
+  only mails its account owner and email sign-up can't work for anyone else. Staging has no demo data
+  until the seed is run with `--prod`, which needs the user's say-so in that session. Deployment
+  names and ids are in the dashboards, not here (public repo). To lock out nobody if SMS fails:
+  `OTP_CHANNELS=console` plus `OTP_ALLOW_CONSOLE=true` brings back log-based codes.
+- **Linking Google to a phone user** (2026-11-07, PR #5). A phone-only user's email is a
+  `...@phone.invalid` placeholder. When Google is linked, the user takes Google's verified email in
+  its place (`model/auth/linkedEmail.ts`), so the email step of sign-in recognises them. A real email
+  is never replaced, and an email another user already has is left alone. Google is a trusted provider
+  (a Google sign-in with an existing user's email joins that user). Known gap: an account with only
+  Google still gets a password prompt in the email step; it should offer Google or an email code.
 - **Not in yet**: no public catalogue queries, no `/admin/settings` (the settings row holds
   placeholders), no cart, checkout or orders.
 
