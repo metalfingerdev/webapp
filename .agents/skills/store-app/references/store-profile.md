@@ -128,7 +128,7 @@ until its screens follow `design.md`; the step's PR names any deliberate departu
 
 0. **Foundation** (**built**, 2026-11-06). SvelteKit 3, template auth, palette, docs, CI.
 
-1. **Clear the ground and lay the store's base.**
+1. **Clear the ground and lay the store's base** (**built**, 2026-11-06).
    - Tag the current commit `old-store`. Move the old store into `legacy/` (outside `src/`, so it is not
      built, type-checked, linted or deployed): `src/convex/{products,productSearch,slugs,bundle,cart,orders,profile,addresses,dashboard,seed}.ts`,
      `src/convex/lib/`, `src/components/`, `src/lib/{cart,checkout,dashboard,navbar,pdf,products,razorpay,shop,sidebar}/`,
@@ -187,8 +187,25 @@ until its screens follow `design.md`; the step's PR names any deliberate departu
 
 ## Status (what exists)
 
-Step 0 is built (2026-11-06). **Next: step 1.** The old store (products, schools and bundles, cart,
-mock checkout, orders, dashboard, PDFs) still runs inside `src/` until step 1 moves it to `legacy/`.
+Steps 0 and 1 are built (2026-11-06, branch `step-1-base`). **Next: step 2 (catalogue)**, which starts
+with `references/design.md`.
+
+- **Old store**: in `legacy/` (not built, linted or type-checked); tag `old-store` runs it.
+- **Tables**: all of `data-model.md`. Every product has one or more `productVariants` holding price and
+  stock (books: one `Default`; uniforms: one per size, house T-shirt per size and house). Uniform
+  products carry school, gender, uniform type, part and class range; `schoolSets` are `books` or
+  `uniform`. Classes are numbers (`model/store/classes.ts`, Mont-01 = -2).
+- **Functions**: `store/access.ts#myRoles` (public), `store/admin/stock.ts#adjust` (admin),
+  `store/seed.ts#run` (internal; dev already seeded: 6 schools, categories, 20 books, 6 stationery
+  items, a full demo uniform range for Ryan, a Class 1 book set and a "Boys regular, Class 1 to 5"
+  uniform set). Guards in `model/store/access.ts`; `adjustStock` in `model/store/stock.ts`, used by the
+  seed too, so the stock log is complete from the start.
+- **Tests**: `store/harness.testutils.ts` signs in real Better Auth rows (signed out, two customers,
+  admin); `store/access.test.ts` covers stock refusals, logging and never-below-zero. convex-test
+  needs the module glob at the Convex root: `modules.testutils.ts`.
+- **UI**: a bare home page and `src/lib/store/ShopHeader.svelte` (stand-ins until step 2).
+- **Not in yet**: no public catalogue queries, no `/admin/settings` (the settings row holds
+  placeholders), no cart, checkout or orders.
 
 When a step lands, mark it **built** in the roadmap with the date, write what was built here in a few
 lines (routes, main functions, anything surprising), and move "Next" on.
