@@ -65,3 +65,8 @@ _generated
 /jsrepo.config.ts
 /.github
 /CLAUDE.md
+
+# Convex agent skills and their lock file, installed by `npx convex ai-files install`: kept as shipped
+/.agents/skills/convex*/
+/.claude/skills/convex*/
+/skills-lock.json
