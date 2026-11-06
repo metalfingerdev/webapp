@@ -1,5 +1,7 @@
 # Deployment & production readiness
 
+> **This describes the old store.** Its pre-launch checklist is now part of the roadmap in `.agents/skills/store-app/references/store-profile.md`. Kept for reference until step 10.
+
 How to take Aggarwalkart from local dev to a live site, and the gaps to close
 before taking real orders. The app has **two backends to deploy**: the SvelteKit
 frontend (Vercel) and the Convex backend (Convex cloud).

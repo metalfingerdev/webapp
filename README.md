@@ -6,6 +6,9 @@ An e-commerce storefront built with **SvelteKit** and a **Convex** backend
 
 ## Documentation
 
+- **[Working with Claude Code](docs/working-with-claude.md)**: how sessions work on this project (`/next-step`, `/wrap-up`). Start here.
+- [AGENTS.md](AGENTS.md): the rules every session follows
+
 - [Template docs](docs/README.md) — setup, auth, phone OTP, email, environments, testing (from the starter this app is built on)
 - [Overview](docs/overview.md) — architecture, stack, how the pieces fit, and current status
 - [Deployment & production readiness](docs/deployment.md) — going live + the pre-launch checklist (what's left)

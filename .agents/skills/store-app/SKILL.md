@@ -31,20 +31,11 @@ are short because each one prevents a specific, expensive mistake; the reference
 
 ## Build order
 
-One branch and one draft PR per step. Each step is usable and testable alone, and deletes what it replaces.
-
-1. Tables, access guards, `storeSettings`, seed (schools, categories, demo books), test harness
-2. Catalogue: categories, product pages, search (title, author, ISBN)
-3. School sets: `/schools` → school → class → set page (buy the set, untick books already owned)
-4. Cart (guest and signed-in, merge on sign-in)
-5. Checkout, `placeOrder`, pricing with shipping, stock hold, `/orders`
-6. Razorpay online payment: signed webhook, payment window, refunds
-7. Admin: products, stock and import → schools and sets → order board and shipping → settings
-8. GST invoices (sequential numbers per financial year) and packing slips
-9. Product On Demand enquiries (customer form and admin inbox)
-10. Policy pages, SEO and launch: sitemap, 301s from the old WooCommerce URLs, domain cutover
-
-Step 5 is where money and stock correctness live, so everything after it leans on it.
+The roadmap, with what each step builds, retires and needs from the client, is in
+`references/store-profile.md` → **Roadmap**, and what is done is under **Status**. Work on the first
+step not marked **built**: one branch and one draft PR per step. In short: 1 base (tables, guards,
+seed, move the old store to `legacy/`), 2 catalogue, 3 school sets, 4 cart, 5 checkout and orders,
+6 Razorpay, 7 admin, 8 invoices, 9 Product On Demand, 10 policies, SEO and launch.
 
 ## Rules and why
 
@@ -87,20 +78,15 @@ Step 5 is where money and stock correctness live, so everything after it leans o
 | Components, cart state, strings                       | `src/lib/store/*`                                                    |
 | Routes                                                | `src/routes/` (customer), `src/routes/admin/*`                       |
 
-## What each step retires
+## The old store (`legacy/`)
 
-| Old module                                                                        | Replaced by (step)                                                  |
-| --------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
-| `products.ts`, `productSearch.ts`, `slugs.ts`                                     | `store/catalog.ts` (2)                                              |
-| `bundle.ts`, schools and bundles tables                                           | `store/sets.ts` (3)                                                 |
-| `cart.ts`, `src/lib/cart`, `src/components/sidebar/cart.svelte`                   | `store/cart.ts` (4)                                                 |
-| `orders.ts`, `profile.ts`, `addresses.ts`, `src/lib/checkout`, `src/lib/razorpay` | `store/orders.ts`, `store/addresses.ts`, `store/payments.ts` (5, 6) |
-| `dashboard.ts`, `src/components/dashboard`, `src/routes/(app)/dashboard`          | `store/admin/*`, `src/routes/admin/*` (7)                           |
-| `src/lib/pdf`, `lib/orderDocument.ts`                                             | `store/admin/invoices.ts` (8), ported, not rewritten                |
-| `src/components/{navbar,shop,sidebar,checkout}`, `src/lib/{shop,navbar,sidebar}`  | `src/lib/store/*` (as each page is rebuilt)                         |
-
-Port, don't reinvent: the pdfmake invoice and packing slip (`src/lib/pdf/*`), the stock-sheet parser
-(`src/lib/products/import.ts`), `slugify` / `reserveUniqueSlug`, and the GST math in `lib/pricing.ts`.
+Step 1 moves the old store out of `src/` into `legacy/`, which nothing builds, type-checks or deploys,
+because its tables use the same names as the new ones. Each later step reads the old code there, ports
+what is worth keeping, and deletes those files, so `legacy/` is empty by step 10. Worth porting rather
+than rewriting: the pdfmake invoice and packing slip (`legacy/src/lib/pdf/`, `legacy/src/convex/lib/orderDocument.ts`),
+the stock-sheet parser (`legacy/src/lib/products/import.ts`), the GST maths (`legacy/src/convex/lib/pricing.ts`),
+`slugify` and `reserveUniqueSlug`, and the URL filter state (`legacy/src/lib/shop/filters.svelte.ts`).
+Before step 1 these are still at the same paths without `legacy/`.
 
 Reuse before writing: `authComponent.getAuthUser` / `safeGetAuthUser` (`src/convex/auth.ts`),
 `requireAppAdmin` (`src/convex/model/admin/index.ts`), `src/lib/ui` and the primitives in
