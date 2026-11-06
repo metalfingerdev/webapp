@@ -72,8 +72,9 @@ Each entry has a date and the reason. When the user decides something new, add i
   its schema can't hold real school sets (a set was one priced product).
 - **Old code moves to `legacy/` in step 1** (2026-11-06). The new tables reuse names the old ones
   have (`products`, `schools`, `orders`, `addresses`), so the two can't run side by side. `legacy/`
-  sits outside the build, so each step reads the old code there, ports what is worth keeping, and
-  deletes those files. The tag `old-store` keeps the old app runnable from git.
+  sits outside the build, so each step reads the old code there and ports what is worth keeping into
+  new files. The old files stay (see "Old code is never deleted" below). The tag `old-store` keeps the
+  old app runnable from git.
 - **Foundation from the template** (2026-11-06): SvelteKit 3, Convex, Better Auth with phone OTP,
   Google and email; `/account` and `/admin/users` already work.
 - **Public repo** (2026-11-06). Phone, email, GSTIN, UPI id and street address live in the
@@ -91,6 +92,12 @@ Each entry has a date and the reason. When the user decides something new, add i
   and Apple. The code, tables and components are new. Why: customers know the live shop; the user
   wants the premium feel they were working towards; the old code can't run on the new data model.
   How: `references/design.md`. To see the old UI, `git switch --detach old-store`.
+- **Old code is never deleted** (2026-11-07, dictated). Nothing under `legacy/` is removed, by any
+  step, including step 10, and the `old-store` tag stays. Ported code is copied into new files. Why:
+  the user wants the old design and logic always at hand to look at and port from; step 2 deleted the old
+  navbar before the new one matched it, and it had to be restored. How: a step that replaces old code
+  leaves the `legacy/` file as it is. Before a commit, check `git diff --diff-filter=D --stat` shows no
+  deleted file under `legacy/`.
 - **Workflow**: one branch and one draft PR per step; the user reviews and merges. `main` is protected
   on GitHub (PRs only), and the git hooks refuse commits on `main`.
 - **This repo is staging** (2026-11-06). The store is built and shown to the client here; the live
@@ -130,7 +137,7 @@ list it in the report.
 
 **UI in every step:** read `references/design.md` first. Screens take their content and structure
 from the live aggarwalkart.in and their look from `legacy/`, in the hims + Apple direction. "_Look
-from_" names the `legacy/` files a step reproduces in that style and then deletes. A step isn't done
+from_" names the `legacy/` files a step reproduces in that style; they stay in `legacy/`. A step isn't done
 until its screens follow `design.md`; the step's PR names any deliberate departure.
 
 0. **Foundation** (**built**, 2026-11-06). SvelteKit 3, template auth, palette, docs, CI.
@@ -188,7 +195,7 @@ until its screens follow `design.md`; the step's PR names any deliberate departu
     client), sitemap, 301 map from the WooCommerce URLs, and `docs/launch.md`: the checklist for
     launching from the separate production repo (new Convex and Vercel projects, env vars, Razorpay live
     keys and webhook, Resend domain for aggarwalkart.in, DLT for SMS OTP, data migration if wanted, DNS
-    cutover with a rollback plan). Delete `legacy/` and the `old-store` notes. _Needs_: the policy texts,
+    cutover with a rollback plan). Keep `legacy/` and the `old-store` tag. _Needs_: the policy texts,
     the go-live date, who owns the production accounts, domain and DNS access, the WooCommerce data
     export.
 

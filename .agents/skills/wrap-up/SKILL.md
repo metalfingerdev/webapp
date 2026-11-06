@@ -21,6 +21,7 @@ someone with no memory of today can carry on.
    - stock only changes through `adjustStock`
    - no phone numbers, emails, GSTIN, keys, real customer data or `.env` files
    - UI text is in `src/lib/store/strings.ts`
+   - nothing under `legacy/` is deleted: `git diff --cached --diff-filter=D --name-only -- legacy` is empty
      Fix what you find, or list it for the user.
 3. **Write it down** in `.agents/skills/store-app/references/store-profile.md`:
    - **Roadmap**: mark the step **built** (with today's date) or say what is left
