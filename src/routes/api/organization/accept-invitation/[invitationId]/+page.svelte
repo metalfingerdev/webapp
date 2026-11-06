@@ -39,7 +39,7 @@
 			}
 
 			accepted = true;
-			goto(resolve('/(app)/(home)'));
+			goto(resolve('/'));
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'An unknown error occurred';
 		} finally {
@@ -77,14 +77,14 @@
 				<TriangleAlertIcon class="size-10" />
 				<h1 class="text-lg font-semibold">Couldn't accept invitation</h1>
 				<p class="text-sm opacity-80">{error}</p>
-				<Button href={resolve('/(app)/(home)')}>Go to Home</Button>
+				<Button href={resolve('/')}>Go to Home</Button>
 			</div>
 		{:else if !invitationId}
 			<div class="flex flex-col items-center gap-4">
 				<TriangleAlertIcon class="size-10" />
 				<h1 class="text-lg font-semibold">Invalid invite link</h1>
 				<p class="text-sm opacity-60">Please use a valid invite link.</p>
-				<Button href={resolve('/(app)/(home)')}>Go to Home</Button>
+				<Button href={resolve('/')}>Go to Home</Button>
 			</div>
 		{/if}
 		</Card>
