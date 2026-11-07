@@ -192,7 +192,7 @@ until its screens follow `design.md`; the step's PR names any deliberate departu
    items are optional, and whether covering or labelling is offered.
    - **3b. Menu drawer** (**built**, 2026-11-07, branch `step-3b-drawer`). The hims-style floating
      drawer for the menu, on every screen size. _Needs_: nothing.
-4. **Cart.** Guest and signed-in, merge on sign-in, cart sheet and `/cart`. _Look from_:
+4. **Cart** (**built**, 2026-11-07, branch `step-4-cart`). Guest and signed-in, merge on sign-in, cart sheet and `/cart`. _Look from_:
    `legacy/src/components/sidebar/cart.svelte`, `legacy/src/lib/cart/`. _Needs_: nothing.
 5. **Checkout and orders.** Addresses, `priceCart`, `placeOrder` (reprice, hold stock), `transitionOrder`,
    `/orders`, cancel. Recommended here: set up Playwright with one checkout spec against dev
@@ -221,7 +221,7 @@ until its screens follow `design.md`; the step's PR names any deliberate departu
 
 ## Status (what exists)
 
-Steps 0 to 3b are built (step 3b: 2026-11-07, branch `step-3b-drawer`). **Next: step 4 (cart)**.
+Steps 0 to 4 are built (step 4: 2026-11-07, branch `step-4-cart`). **Next: step 5 (checkout and orders)**.
 
 - **Old store**: in `legacy/` (not built, linted or type-checked); tag `old-store` runs it.
 - **Tables**: all of `data-model.md`. Every product has one or more `productVariants` holding price and
@@ -314,7 +314,26 @@ Steps 0 to 3b are built (step 3b: 2026-11-07, branch `step-3b-drawer`). **Next: 
   WhatsApp only when a number is set (a 10-digit number gets 91) and two policy links. The set page
   remembers the last two sets on this device (`recentSets.ts`, `localStorage`) for the Continue cards.
   No backend change.
-- **Not in yet**: no cart, checkout or orders, no `/admin/settings` (the settings row holds placeholders).
+- **Step 4, cart** (built on seed data). `store/cart.ts`: `getCart` (`requireCustomer`), `getGuestCart`
+  (deliberately public: prices a guest's lines, stores nothing), `setLines` (replaces the cart, the
+  client sends the whole list) and `mergeGuest` (adds guest lines on sign-in). Every line is checked
+  against the catalogue: hidden or unknown variants drop out, quantity is clamped to the shelf and to
+  `MAX_LINE_QUANTITY`, lines to `MAX_CART_LINES` (`model/store/cart.ts`, **placeholders 10 and 20,
+  TODO (dictate)**). Out-of-stock lines stay but are not in the subtotal. The cart reserves no stock:
+  that is `placeOrder` in step 5. Client: `cart.svelte.ts` (context set in the `(shop)` layout; guest
+  lines in `localStorage` key `aggarwalkart:cart`), `CartDrawer` (from the right), `CartList`,
+  `CartSummary`, `/cart` (public). Add to cart works on set pages (ticked, sized, in-stock lines with
+  `fromSetId`) and product pages (size picked first). Checkout button is disabled until step 5.
+  Tests: `store/cart.test.ts`.
+- **Filter and sort dock** (2026-11-07, dictated: filter and sort "at the bottom with a fading top
+  edge"). `ProductListing.svelte`: a floating pill at the bottom opens a filter sheet (the old GET form)
+  and a sort sheet (`?sort=new|price-asc|price-desc|title`). Sorting reorders only the products already
+  loaded, because price is on variants; real price sorting needs a price on the product. Search results
+  show Sort only.
+- **Catalogue data**: the staging page `/shop/book` of the earlier store showed ~47 titles with prices
+  ₹148 to ₹650 and publishers (Saar, SP, S Chand, PP) only inside titles: no authors or classes. Nothing
+  imported; the WooCommerce CSV is still needed.
+- **Not in yet**: no checkout or orders, no `/admin/settings` (the settings row holds placeholders).
 
 When a step lands, mark it **built** in the roadmap with the date, write what was built here in a few
 lines (routes, main functions, anything surprising), and move "Next" on.
