@@ -8,8 +8,8 @@
 	import { useIsAppAdmin } from '#lib/admin/api/admin.svelte.js';
 	import { ADMIN_ROUTE } from '#lib/admin/utils/admin.constants.js';
 	import UserButton from '#lib/users/ui/UserButton.svelte';
-	import Sheet from '#lib/ui/Sheet.svelte';
 	import MegaPanel from './MegaPanel.svelte';
+	import MenuDrawer from './MenuDrawer.svelte';
 	import SearchPanel from './SearchPanel.svelte';
 	import { strings } from './strings.js';
 
@@ -17,10 +17,12 @@
 	let {
 		categories,
 		schools,
+		whatsapp,
 		initialData
 	}: {
 		categories: Category[];
 		schools: { name: string; slug: string }[];
+		whatsapp?: string;
 		initialData?: Parameters<typeof UserButton>[1]['initialData'];
 	} = $props();
 
@@ -32,8 +34,8 @@
 		...categories.map((category) => ({ id: category.slug, label: category.name }))
 	]);
 
-	// Desktop and phone are separate UIs: the triggers and the box below exist from lg up; on a phone
-	// the menu button opens the sheet instead. One thing is open at a time: a panel, the search, or none.
+	// The triggers and the box below exist from lg up, for browsing by hover. The menu button opens the
+	// drawer on every screen size. One thing is open at a time: a panel, the search, or none.
 	let active = $state<number | null>(null);
 	let searchOpen = $state(false);
 	let menuOpen = $state(false);
@@ -118,6 +120,19 @@
 >
 	<nav class="bar" aria-label={strings.nav.label}>
 		<menu class="row">
+			<li>
+				<button
+					class="action"
+					type="button"
+					aria-label={strings.nav.menu}
+					onclick={() => {
+						dismiss();
+						menuOpen = true;
+					}}
+				>
+					<MenuIcon class="size-5" aria-hidden="true" />
+				</button>
+			</li>
 			<li class="brand"><a href={resolve('/(shop)')}>{strings.brand}</a></li>
 
 			{#each triggers as trigger, i (trigger.id)}
@@ -162,16 +177,6 @@
 				</button>
 			</li>
 			<li><UserButton {initialData} /></li>
-			<li class="narrow">
-				<button
-					class="action"
-					type="button"
-					aria-label={strings.nav.menu}
-					onclick={() => (menuOpen = true)}
-				>
-					<MenuIcon class="size-5" aria-hidden="true" />
-				</button>
-			</li>
 		</menu>
 		{#if searchOpen}
 			<SearchPanel {categories} onclose={dismiss} />
@@ -201,52 +206,7 @@
 	</div>
 </header>
 
-<!-- On a phone the row is too narrow for the triggers: the menu button opens this instead -->
-<Sheet bind:open={menuOpen} title={strings.nav.menu} closeLabel={strings.nav.close}>
-	<div class="sheet">
-		<section>
-			<h2 class="heading">{strings.nav.categories}</h2>
-			<ul class="links">
-				<li><a href={resolve('/(shop)/shop')}>{strings.nav.allProducts}</a></li>
-				{#each categories as category (category.slug)}
-					<li>
-						<a
-							class="strong"
-							href={resolve('/(shop)/shop/[category]', { category: category.slug })}
-						>
-							{category.name}
-						</a>
-						{#if category.children.length}
-							<ul class="sub">
-								{#each category.children as child (child.slug)}
-									<li>
-										<a href={resolve('/(shop)/shop/[category]', { category: child.slug })}
-											>{child.name}</a
-										>
-									</li>
-								{/each}
-							</ul>
-						{/if}
-					</li>
-				{/each}
-			</ul>
-		</section>
-		<section>
-			<h2 class="heading">{strings.nav.schools}</h2>
-			<ul class="links">
-				{#each schools as school (school.slug)}
-					<li>
-						<a href={resolve('/(shop)/schools/[school]', { school: school.slug })}>{school.name}</a>
-					</li>
-				{/each}
-			</ul>
-		</section>
-		{#if admin.isAppAdmin}
-			<a class="strong" href={resolve(ADMIN_ROUTE)}>{strings.nav.dashboard}</a>
-		{/if}
-		<a class="strong" href={resolve('/account')}>{strings.nav.account}</a>
-	</div>
-</Sheet>
+<MenuDrawer bind:open={menuOpen} {categories} {schools} {whatsapp} />
 
 <style lang="postcss">
 	@reference 'src/app.css';
@@ -283,10 +243,6 @@
 
 	.wide {
 		@apply hidden lg:block;
-	}
-
-	.narrow {
-		@apply lg:hidden;
 	}
 
 	.trigger,
@@ -378,29 +334,5 @@
 		.slot {
 			transition: none;
 		}
-	}
-
-	.sheet {
-		@apply grid gap-5;
-	}
-
-	.heading {
-		@apply mb-1 text-xs font-extrabold tracking-wide text-text-muted uppercase;
-	}
-
-	.links {
-		@apply flex flex-col;
-
-		a {
-			@apply flex min-h-11 items-center;
-		}
-	}
-
-	.strong {
-		@apply flex min-h-11 items-center font-bold;
-	}
-
-	.sub {
-		@apply mb-1 ml-3 flex flex-col border-l-2 border-border-muted pl-3 text-sm;
 	}
 </style>
