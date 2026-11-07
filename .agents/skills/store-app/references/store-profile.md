@@ -39,27 +39,27 @@ in your report, and ask when it affects behaviour.
 
 ## To dictate
 
-| Item                                                       | Value                                                                                     | Used for                                 |
-| ---------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ---------------------------------------- |
-| Courier and how AWBs are entered (manual or API)           | **TODO (dictate)**                                                                        | `shipments`, shipping screen             |
-| Shipping fee, free-shipping threshold, zones               | **TODO (dictate)**; placeholder flat ₹79, free from ₹999, one zone                        | `priceCart`                              |
-| Store pickup, or local delivery in Faridabad?              | **TODO (dictate)**; placeholder: courier delivery only                                    | checkout options                         |
-| Online payment only, or cash on delivery too?              | **TODO (dictate)**; placeholder: online only, no COD                                      | checkout, order states                   |
-| Product export from WooCommerce, real category list        | not yet (2026-11-06); broad shape is known (see above)                                    | step 2                                   |
-| What each set contains, per school and class               | not yet (2026-11-06)                                                                      | `setItems`                               |
-| Uniform items, sizes and size chart per school             | shape dictated 2026-11-06 (see Decisions); real items, sizes and chart **TODO (dictate)** | uniform products, set page               |
-| What may be unticked from a set                            | **everything** (dictated 2026-11-07, see Decisions)                                       | set page                                 |
-| Optional extras: covering, labelling                       | **none** (dictated 2026-11-06)                                                            | set page                                 |
-| Current academic session and when the next opens           | 2026-27 now; next opens April 2027 (all Indian private schools run April to March)        | `schoolSets.session`                     |
-| Cancellation and return windows                            | **TODO (dictate)**; placeholder: cancel until packed, return 7 days                       | order rules (from the live policy pages) |
-| GST: registered, GSTIN, composition scheme?                | **TODO (dictate)**, confirm with the CA                                                   | invoice tax columns                      |
-| Invoice prefix (3 letters or fewer)                        | **TODO (dictate)**                                                                        | invoice numbers                          |
-| Legal name and address for invoices                        | **TODO (dictate)**                                                                        | invoice header                           |
-| Store phone, WhatsApp, email                               | **TODO (dictate)**, entered in the admin                                                  | help text, footer                        |
-| Brand colours and logo                                     | **TODO (dictate)**                                                                        | `src/themes/palette.css`                 |
-| Languages in the UI                                        | English, Hindi-ready (all text in `src/lib/store/strings.ts`)                             | `strings.ts`                             |
-| Carry over WooCommerce customers, orders, products?        | **TODO (dictate)**                                                                        | migration script                         |
-| Who works the admin; is a role narrower than admin needed? | **TODO (dictate)**                                                                        | `roles-and-access.md`                    |
+| Item                                                       | Value                                                                                                                                 | Used for                                 |
+| ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- |
+| Courier and how AWBs are entered (manual or API)           | **TODO (dictate)**                                                                                                                    | `shipments`, shipping screen             |
+| Delivery fee, free-delivery threshold, COD fee             | dictated 2026-11-07: "make up typical" → placeholder flat ₹50, free from ₹1,000, no COD fee; client to confirm                        | `priceCart`                              |
+| Where it delivers                                          | **Faridabad only for now, as the first delivery zone; built to add zones** (dictated 2026-11-07); its pincode list **TODO (dictate)** | checkout address check                   |
+| Online payment only, or cash on delivery too?              | **both** (dictated 2026-11-07)                                                                                                        | checkout, order states                   |
+| Product export from WooCommerce, real category list        | not yet (2026-11-06); broad shape is known (see above)                                                                                | step 2                                   |
+| What each set contains, per school and class               | not yet (2026-11-06)                                                                                                                  | `setItems`                               |
+| Uniform items, sizes and size chart per school             | shape dictated 2026-11-06 (see Decisions); real items, sizes and chart **TODO (dictate)**                                             | uniform products, set page               |
+| What may be unticked from a set                            | **everything** (dictated 2026-11-07, see Decisions)                                                                                   | set page                                 |
+| Optional extras: covering, labelling                       | **none** (dictated 2026-11-06)                                                                                                        | set page                                 |
+| Current academic session and when the next opens           | 2026-27 now; next opens April 2027 (all Indian private schools run April to March)                                                    | `schoolSets.session`                     |
+| Cancellation and return windows                            | cancel until the order ships; after delivery a return request (dictated 2026-11-07); return window days still placeholder 7           | order rules (from the live policy pages) |
+| GST: registered, GSTIN, composition scheme?                | **TODO (dictate)**, confirm with the CA                                                                                               | invoice tax columns                      |
+| Invoice prefix (3 letters or fewer)                        | **TODO (dictate)**                                                                                                                    | invoice numbers                          |
+| Legal name and address for invoices                        | **TODO (dictate)**                                                                                                                    | invoice header                           |
+| Store phone, WhatsApp, email                               | **TODO (dictate)**, entered in the admin                                                                                              | help text, footer                        |
+| Brand colours and logo                                     | **TODO (dictate)**                                                                                                                    | `src/themes/palette.css`                 |
+| Languages in the UI                                        | English, Hindi-ready (all text in `src/lib/store/strings.ts`)                                                                         | `strings.ts`                             |
+| Carry over WooCommerce customers, orders, products?        | **TODO (dictate)**                                                                                                                    | migration script                         |
+| Who works the admin; is a role narrower than admin needed? | **TODO (dictate)**                                                                                                                    | `roles-and-access.md`                    |
 
 When the user dictates values, update this table first, then the code constants and the seed.
 
@@ -143,6 +143,14 @@ Each entry has a date and the reason. When the user decides something new, add i
   The drawer, from the menu button on every size, is for the journey (school, then class). Why: one
   rule for the whole bar (hover on desktop, "don't overcomplicate"), and the drawer gives phone and
   desktop the same guided path without a second set of triggers.
+- **Delivery is zone-based, built for expansion** (2026-11-07, dictated; corrects an earlier wrong
+  reading). Today the client delivers **inside Faridabad only**, "same day or 1 to 2 days", but he hired
+  the rebuild to grow, so nothing may be hard-wired to one city. Delivery zones are data (pincodes, fee,
+  free-delivery threshold, estimate, method local or courier); Faridabad is the first zone. Courier and
+  AWB stay in the model (`shipments`) for zones that ship by courier. Why: opening a new area must be a
+  new zone in the admin, not a code change. Cash on delivery **and** online payment are both offered. A
+  customer can cancel until the order ships; after it arrives they can submit a return request.
+  Delivery charges were left to Claude as "typical" (placeholders, to confirm with the client).
 - **Client questions go through the user** (2026-11-06). Ask the user when a step needs an answer;
   they get it from the client. Don't batch questions far ahead of the step that needs them.
 

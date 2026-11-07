@@ -57,6 +57,8 @@ export const phone = v.string();
 
 export const orderStatus = v.union(
 	v.literal('awaiting_payment'),
+	// Cash on delivery: accepted and waiting to be packed. Online orders go awaiting_payment, paid.
+	v.literal('confirmed'),
 	v.literal('paid'),
 	v.literal('packed'),
 	v.literal('shipped'),
@@ -71,6 +73,20 @@ export const paymentStatus = v.union(
 	v.literal('failed'),
 	v.literal('refunded')
 );
+
+export const paymentMethod = v.union(v.literal('online'), v.literal('cod'));
+export type PaymentMethod = Infer<typeof paymentMethod>;
+
+/** How a zone is served: the shop's own delivery nearby, or a courier with a tracking number */
+export const deliveryMethod = v.union(v.literal('local'), v.literal('courier'));
+export type DeliveryMethod = Infer<typeof deliveryMethod>;
+
+/** A customer's request to return an order after it arrived; the shop answers it in the admin */
+export const returnRequest = v.object({
+	reason: v.string(),
+	requestedAt: v.number(),
+	status: v.union(v.literal('requested'), v.literal('approved'), v.literal('rejected'))
+});
 
 export const gatewayPaymentStatus = v.union(
 	v.literal('creating'),

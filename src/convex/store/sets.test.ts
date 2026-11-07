@@ -14,8 +14,6 @@ const seedSets = async () => {
 	const ids = await t.run(async (ctx) => {
 		await ctx.db.insert('storeSettings', {
 			businessName: 'Test',
-			shippingFee: 0,
-			freeShippingFrom: 0,
 			returnWindowDays: 7,
 			currentSession: '2026-27',
 			placedOrdersOpen: true
