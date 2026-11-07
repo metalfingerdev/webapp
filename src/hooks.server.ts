@@ -14,6 +14,7 @@ const isLogin = createRouteMatcher(['/signin']);
 const isPublic = createRouteMatcher([
 	'/',
 	'/shop{/*rest}',
+	'/schools{/*rest}',
 	'/policies{/*rest}',
 	'/sitemap.xml',
 	'/signin',

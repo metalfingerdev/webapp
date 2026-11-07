@@ -233,11 +233,13 @@
 		</section>
 		<section>
 			<h2 class="heading">{strings.nav.schools}</h2>
-			<!-- Step 3 turns these into links to each school's sets -->
 			<ul class="links">
-				{#each schools as school (school.slug)}<li class="plain">{school.name}</li>{/each}
+				{#each schools as school (school.slug)}
+					<li>
+						<a href={resolve('/(shop)/schools/[school]', { school: school.slug })}>{school.name}</a>
+					</li>
+				{/each}
 			</ul>
-			<p class="note">{strings.nav.schoolsSoon}</p>
 		</section>
 		{#if admin.isAppAdmin}
 			<a class="strong" href={resolve(ADMIN_ROUTE)}>{strings.nav.dashboard}</a>
@@ -389,8 +391,7 @@
 	.links {
 		@apply flex flex-col;
 
-		a,
-		.plain {
+		a {
 			@apply flex min-h-11 items-center;
 		}
 	}
@@ -401,9 +402,5 @@
 
 	.sub {
 		@apply mb-1 ml-3 flex flex-col border-l-2 border-border-muted pl-3 text-sm;
-	}
-
-	.note {
-		@apply text-sm text-text-muted;
 	}
 </style>
