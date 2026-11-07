@@ -24,6 +24,7 @@ import type * as model_emails_templates_emailTemplates from "../model/emails/tem
 import type * as model_emails_validateEmail from "../model/emails/validateEmail.js";
 import type * as model_organizations_index from "../model/organizations/index.js";
 import type * as model_store_access from "../model/store/access.js";
+import type * as model_store_cart from "../model/store/cart.js";
 import type * as model_store_catalog from "../model/store/catalog.js";
 import type * as model_store_classes from "../model/store/classes.js";
 import type * as model_store_publicProjection from "../model/store/publicProjection.js";
@@ -49,6 +50,7 @@ import type * as otp_types from "../otp/types.js";
 import type * as storage from "../storage.js";
 import type * as store_access from "../store/access.js";
 import type * as store_admin_stock from "../store/admin/stock.js";
+import type * as store_cart from "../store/cart.js";
 import type * as store_catalog from "../store/catalog.js";
 import type * as store_seed from "../store/seed.js";
 import type * as store_sets from "../store/sets.js";
@@ -81,6 +83,7 @@ declare const fullApi: ApiFromModules<{
   "model/emails/validateEmail": typeof model_emails_validateEmail;
   "model/organizations/index": typeof model_organizations_index;
   "model/store/access": typeof model_store_access;
+  "model/store/cart": typeof model_store_cart;
   "model/store/catalog": typeof model_store_catalog;
   "model/store/classes": typeof model_store_classes;
   "model/store/publicProjection": typeof model_store_publicProjection;
@@ -106,6 +109,7 @@ declare const fullApi: ApiFromModules<{
   storage: typeof storage;
   "store/access": typeof store_access;
   "store/admin/stock": typeof store_admin_stock;
+  "store/cart": typeof store_cart;
   "store/catalog": typeof store_catalog;
   "store/seed": typeof store_seed;
   "store/sets": typeof store_sets;

@@ -1,12 +1,19 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import BookOpenIcon from '@lucide/svelte/icons/book-open';
+	import Button from '#lib/ui/Button.svelte';
 	import Pill from '#lib/ui/Pill.svelte';
+	import { useCart } from '#lib/store/cart.svelte.js';
 	import { classRange, discountPercent, formatPrice } from '#lib/store/format.js';
 	import { strings } from '#lib/store/strings.js';
 
 	let { data } = $props();
 	const product = $derived(data.product);
+	const cart = useCart();
+	// A product with one size needs no choice; with several, the parent picks first
+	let picked = $state('');
+	const variantId = $derived(product.variants.length === 1 ? product.variants[0].id : picked);
+	const chosen = $derived(product.variants.find((variant) => variant.id === variantId));
 	const percent = $derived(discountPercent(product.price, product.mrp));
 	const classes = $derived(classRange(product.classFrom, product.classTo));
 	const details = $derived(
@@ -69,13 +76,32 @@
 			<ul class="variants">
 				{#each product.variants as variant (variant.id)}
 					<li>
-						<span class="font-bold">{variant.label}</span>
-						<span>{formatPrice(variant.price)}</span>
-						{#if variant.availability === 'out'}<Pill tone="bad">{strings.product.out}</Pill>{/if}
+						<label class="pick">
+							<input
+								type="radio"
+								name="size"
+								value={variant.id}
+								bind:group={picked}
+								disabled={variant.availability === 'out'}
+							/>
+							<span class="font-bold">{variant.label}</span>
+							<span>{formatPrice(variant.price)}</span>
+							{#if variant.availability === 'out'}<Pill tone="bad">{strings.product.out}</Pill>{/if}
+						</label>
 					</li>
 				{/each}
 			</ul>
 		{/if}
+
+		<Button
+			variant="primary"
+			large
+			disabled={!chosen || chosen.availability === 'out'}
+			onclick={() => cart.add([{ variantId: variantId, quantity: 1 }])}
+		>
+			{strings.cart.adding}
+		</Button>
+		{#if !chosen}<p class="muted">{strings.cart.chooseSize}</p>{/if}
 
 		{#if details.length}
 			<h2 class="section">{strings.product.details}</h2>
@@ -134,6 +160,14 @@
 
 	.section {
 		@apply mt-2 text-lg font-extrabold;
+	}
+
+	.pick {
+		@apply flex min-h-11 cursor-pointer items-center gap-3;
+
+		input {
+			@apply size-5;
+		}
 	}
 
 	.variants {

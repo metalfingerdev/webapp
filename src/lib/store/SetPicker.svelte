@@ -7,6 +7,7 @@
 		summariseSelection,
 		type Selection
 	} from '#convex/model/store/setSelection.js';
+	import { useCart } from './cart.svelte.js';
 	import { formatPrice } from './format.js';
 	import { strings } from './strings.js';
 
@@ -23,7 +24,8 @@
 		}[];
 	};
 
-	let { lines }: { lines: Line[] } = $props();
+	let { lines, setId }: { lines: Line[]; setId: string } = $props();
+	const cart = useCart();
 	const text = strings.schools;
 
 	// What the parent changed; everything else follows the defaults (all ticked, single sizes chosen)
@@ -42,6 +44,18 @@
 		(changes[line.id] = { ...selection[line.id], ticked });
 	const setSize = (line: Line, variantId: string) =>
 		(changes[line.id] = { ...selection[line.id], variantId });
+
+	// Each ticked, sized, in-stock line goes in with the set it came from
+	const addSet = () =>
+		cart.add(
+			lines.flatMap((line) => {
+				const pick = selection[line.id];
+				const option = pick.ticked ? chosen(line) : undefined;
+				return option && option.availability !== 'out'
+					? [{ variantId: option.variantId, quantity: line.quantity, fromSetId: setId }]
+					: [];
+			})
+		);
 
 	const ticked = $derived(lines.filter((line) => selection[line.id].ticked).length);
 	const problem = $derived(
@@ -126,9 +140,11 @@
 		<strong class="amount">{formatPrice(summary.total)}</strong>
 		{#if problem}<span class="problem">{problem}</span>{/if}
 	</div>
-	<Button variant="primary" large disabled title={text.cartSoon}>{text.addToCart}</Button>
+	<Button variant="primary" large disabled={ticked === 0 || summary.needSize > 0} onclick={addSet}>
+		{text.addToCart}
+	</Button>
 </div>
-<p class="note">{text.cartSoon} {strings.product.inclusiveOfTax}.</p>
+<p class="note">{strings.product.inclusiveOfTax}.</p>
 
 <style lang="postcss">
 	@reference 'src/app.css';

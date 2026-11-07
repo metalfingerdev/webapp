@@ -16,6 +16,7 @@ const isPublic = createRouteMatcher([
 	'/shop{/*rest}',
 	'/schools{/*rest}',
 	'/policies{/*rest}',
+	'/cart',
 	'/sitemap.xml',
 	'/signin',
 	'/reset-password',

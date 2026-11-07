@@ -61,7 +61,7 @@
   }
   @media (min-width: 768px) {
     :global(.ui-sheet) {
-      @apply inset-y-0 right-0 left-auto max-h-none w-[28rem] max-w-full rounded-t-none rounded-l-xl;
+      @apply inset-y-0 right-0 left-auto max-h-none w-md max-w-full rounded-t-none rounded-l-xl;
     }
   }
 </style>

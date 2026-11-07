@@ -97,8 +97,30 @@ export const strings = {
 		unavailable: (n: number) =>
 			n === 1 ? '1 ticked item is out of stock' : `${n} ticked items are out of stock`,
 		nothingTicked: 'Tick at least one item',
-		addToCart: 'Add to cart',
-		cartSoon: 'The cart arrives in the next update.'
+		addToCart: 'Add to cart'
+	},
+	cart: {
+		title: 'Your cart',
+		open: (n: number) => (n === 0 ? 'Cart, empty' : `Cart, ${n} ${n === 1 ? 'item' : 'items'}`),
+		empty: 'Your cart is empty.',
+		emptyHint: 'Pick your school and class to add a whole set, or browse single books.',
+		browse: 'Browse the shop',
+		viewCart: 'View cart',
+		subtotal: 'Subtotal',
+		shippingNote: 'Shipping is worked out at checkout.',
+		checkout: 'Checkout',
+		checkoutSoon: 'Checkout arrives in the next update.',
+		otherItems: 'Other items',
+		set: (school: string, label: string) => `${school} · ${label}`,
+		increase: (title: string) => `One more ${title}`,
+		decrease: (title: string) => `One fewer ${title}`,
+		remove: (title: string) => `Remove ${title}`,
+		clear: 'Empty cart',
+		outOfStock: 'Out of stock, not counted',
+		fewLeft: 'Only a few left',
+		added: 'Added to your cart',
+		adding: 'Add to cart',
+		chooseSize: 'Choose a size first'
 	},
 	shop: {
 		title: 'Shop',
