@@ -9,10 +9,10 @@ import { buildSearchText, reserveUniqueSlug, slugify } from '../model/store/cata
 import { adjustStock } from '../model/store/stock.js';
 import { PLACEHOLDER_CLASS_BANDS as BANDS } from '../model/store/classes.js';
 import {
-	PLACEHOLDER_FREE_SHIPPING_FROM,
+	PLACEHOLDER_COD_ENABLED,
 	PLACEHOLDER_RETURN_WINDOW_DAYS,
 	PLACEHOLDER_SESSION,
-	PLACEHOLDER_SHIPPING_FEE,
+	PLACEHOLDER_ZONES,
 	STORE_NAME
 } from '../model/store/storeProfile.js';
 import type { Gender, GstRate, ProductKind, UniformType } from './validators.js';
@@ -45,12 +45,13 @@ export const run = internalMutation({
 		// Settings: placeholders until the owner types the real values into /admin/settings.
 		await ctx.db.insert('storeSettings', {
 			businessName: STORE_NAME,
-			shippingFee: PLACEHOLDER_SHIPPING_FEE,
-			freeShippingFrom: PLACEHOLDER_FREE_SHIPPING_FROM,
+			codEnabled: PLACEHOLDER_COD_ENABLED,
 			returnWindowDays: PLACEHOLDER_RETURN_WINDOW_DAYS,
 			currentSession: PLACEHOLDER_SESSION,
 			placedOrdersOpen: true
 		});
+
+		await addDemoZones(ctx);
 
 		// Categories
 		const category = async (name: string, sortOrder: number, parentId?: Id<'categories'>) =>
@@ -492,5 +493,44 @@ export const addDemoSets = internalMutation({
 		if (!school) return 'Run the seed first.';
 		await addExtraSets(ctx, school._id);
 		return 'Demo sets are in place.';
+	}
+});
+
+/** Delivery zones from the placeholders: Faridabad (local) and the rest of India (courier). */
+const addDemoZones = async (ctx: MutationCtx) => {
+	if (await ctx.db.query('deliveryZones').first()) return;
+	const { local, courier } = PLACEHOLDER_ZONES;
+	const localId = await ctx.db.insert('deliveryZones', {
+		name: local.name,
+		method: 'local',
+		fee: local.fee,
+		freeFrom: local.freeFrom,
+		estimate: local.estimate,
+		isFallback: false,
+		isActive: true,
+		sortOrder: 1
+	});
+	for (const pincode of local.pincodes) {
+		await ctx.db.insert('zonePincodes', { zoneId: localId, pincode });
+	}
+	await ctx.db.insert('deliveryZones', {
+		name: courier.name,
+		method: 'courier',
+		fee: courier.fee,
+		freeFrom: courier.freeFrom,
+		estimate: courier.estimate,
+		isFallback: true,
+		isActive: true,
+		sortOrder: 2
+	});
+};
+
+/** Dev helper: adds the delivery zones to an already seeded deployment. Idempotent. */
+export const addZones = internalMutation({
+	args: {},
+	returns: v.string(),
+	handler: async (ctx) => {
+		await addDemoZones(ctx);
+		return 'Delivery zones are in place.';
 	}
 });

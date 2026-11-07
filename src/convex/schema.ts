@@ -3,15 +3,18 @@ import { v } from 'convex/values';
 import {
 	addressSnapshot,
 	cartLine,
+	deliveryMethod,
 	enquiryStatus,
 	gatewayPaymentStatus,
 	gender,
 	gstRate,
 	orderStatus,
+	paymentMethod,
 	paymentStatus,
 	phone,
 	productKind,
 	refund,
+	returnRequest,
 	session,
 	setType,
 	stockReason,
@@ -168,6 +171,10 @@ export default defineSchema({
 		status: orderStatus,
 		paymentStatus,
 		address: addressSnapshot, // a copy, so editing the address book never changes an order
+		paymentMethod,
+		// The zone's name and method as they were; editing a zone later never rewrites an order
+		zoneName: v.string(),
+		deliveryMethod,
 		subtotal: v.number(),
 		shippingFee: v.number(),
 		total: v.number(),
@@ -177,7 +184,8 @@ export default defineSchema({
 		shippedAt: v.optional(v.number()),
 		deliveredAt: v.optional(v.number()),
 		cancelledAt: v.optional(v.number()),
-		refund: v.optional(refund)
+		refund: v.optional(refund),
+		returnRequest: v.optional(returnRequest)
 	})
 		.index('by_userId_and_placedAt', ['userId', 'placedAt'])
 		.index('by_status_and_placedAt', ['status', 'placedAt'])
@@ -253,13 +261,38 @@ export default defineSchema({
 		email: v.optional(v.string()),
 		address: v.optional(v.string()),
 		gstin: v.optional(v.string()),
-		shippingFee: v.number(),
-		freeShippingFrom: v.number(),
+		// Superseded by deliveryZones; kept optional so older rows stay valid. Nothing reads them.
+		shippingFee: v.optional(v.number()),
+		freeShippingFrom: v.optional(v.number()),
+		// Cash on delivery for every zone; unset means the placeholder in model/store/storeProfile.ts
+		codEnabled: v.optional(v.boolean()),
 		returnWindowDays: v.number(),
 		invoicePrefix: v.optional(v.string()),
 		currentSession: session,
 		placedOrdersOpen: v.boolean()
 	}),
+
+	// Where the shop delivers. A zone lists pincodes (`zonePincodes`) or is the fallback that serves
+	// every pincode no other zone lists. Opening a new area is a new zone, never a code change.
+	deliveryZones: defineTable({
+		name: v.string(),
+		method: deliveryMethod,
+		fee: v.number(), // paise
+		freeFrom: v.number(), // paise; a subtotal at or above this ships free
+		estimate: v.string(), // shown to the customer, e.g. "3 to 7 business days"
+		isFallback: v.boolean(),
+		isActive: v.boolean(),
+		sortOrder: v.number()
+	})
+		.index('by_isFallback_and_isActive', ['isFallback', 'isActive'])
+		.index('by_sortOrder', ['sortOrder']),
+
+	zonePincodes: defineTable({
+		zoneId: v.id('deliveryZones'),
+		pincode: v.string()
+	})
+		.index('by_pincode', ['pincode'])
+		.index('by_zoneId', ['zoneId']),
 
 	invoiceCounters: defineTable({
 		financialYear: v.string(), // "2026-27", April to March
