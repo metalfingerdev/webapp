@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import { useCart } from './cart.svelte.js';
 	import Button from '#lib/ui/Button.svelte';
 	import { formatPrice } from './format.js';
@@ -16,8 +17,15 @@
 		<strong class="amount">{formatPrice(cart.view?.subtotal ?? 0)}</strong>
 	</div>
 	<p class="note">{text.shippingNote} {strings.product.inclusiveOfTax}.</p>
-	<Button variant="primary" large block disabled title={text.checkoutSoon}>{text.checkout}</Button>
-	<p class="note">{text.checkoutSoon}</p>
+	<Button
+		variant="primary"
+		large
+		block
+		href={resolve('/(shop)/checkout')}
+		onclick={() => (cart.open = false)}
+	>
+		{text.checkout}
+	</Button>
 	<button class="clear" type="button" onclick={() => (cart.clear(), onclear?.())}>
 		{text.clear}
 	</button>

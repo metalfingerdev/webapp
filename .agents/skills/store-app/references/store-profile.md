@@ -202,7 +202,7 @@ until its screens follow `design.md`; the step's PR names any deliberate departu
      drawer for the menu, on every screen size. _Needs_: nothing.
 4. **Cart** (**built**, 2026-11-07, branch `step-4-cart`). Guest and signed-in, merge on sign-in, cart sheet and `/cart`. _Look from_:
    `legacy/src/components/sidebar/cart.svelte`, `legacy/src/lib/cart/`. _Needs_: nothing.
-5. **Checkout and orders.** Addresses, `priceCart`, `placeOrder` (reprice, hold stock), `transitionOrder`,
+5. **Checkout and orders** (**built**, 2026-11-07, branch `step-5-checkout`). Addresses, `priceCart`, `placeOrder` (reprice, hold stock), `transitionOrder`,
    `/orders`, cancel. Recommended here: set up Playwright with one checkout spec against dev
    (`docs/09-testing.md`). _Look from_: `legacy/src/components/checkout/`, `legacy/src/routes/(app)/user/`.
    _Needs_: shipping fee and free-shipping threshold, COD yes or no,
@@ -229,7 +229,7 @@ until its screens follow `design.md`; the step's PR names any deliberate departu
 
 ## Status (what exists)
 
-Steps 0 to 4 are built (step 4: 2026-11-07, branch `step-4-cart`). **Next: step 5 (checkout and orders)**.
+Steps 0 to 5 are built (step 5: 2026-11-07, branch `step-5-checkout`). **Next: step 6 (Razorpay)**.
 
 - **Old store**: in `legacy/` (not built, linted or type-checked); tag `old-store` runs it.
 - **Tables**: all of `data-model.md`. Every product has one or more `productVariants` holding price and
@@ -341,7 +341,28 @@ Steps 0 to 4 are built (step 4: 2026-11-07, branch `step-4-cart`). **Next: step 
 - **Catalogue data**: the staging page `/shop/book` of the earlier store showed ~47 titles with prices
   ₹148 to ₹650 and publishers (Saar, SP, S Chand, PP) only inside titles: no authors or classes. Nothing
   imported; the WooCommerce CSV is still needed.
-- **Not in yet**: no checkout or orders, no `/admin/settings` (the settings row holds placeholders).
+- **Step 5, checkout and orders** (built on seed data). Delivery is **zone based**: `deliveryZones` +
+  `zonePincodes` (`model/store/delivery.ts#findZone`: the zone listing the pincode, else the active
+  fallback zone; none means "we do not deliver there yet"). Seed zones are placeholders: **Faridabad**
+  (local, ₹40, free from ₹500, "Same day or within 1 to 2 days", pincodes 121001 to 121010, **list to
+  confirm**) and **Rest of India** (courier, ₹79, free from ₹999, "3 to 7 business days after
+  dispatch"). Add a zone later with a new row (admin screen in step 7); `store/seed:addZones` adds the
+  two to an already seeded deployment. Functions: `store/addresses.ts` (list, save, remove; max 10),
+  `store/checkout.ts#preview` (the cart priced for an address), `store/orders.ts` (`placeOrder`,
+  `myOrders`, `getOrder`, `cancelOrder`, `requestReturn`), all `requireCustomer`. `placeOrder`
+  re-reads the cart and prices it with `model/store/pricing.ts#priceCart`, refuses the whole order
+  if any line is short, holds stock through `adjustStock` (reason `order`), snapshots the lines,
+  address and zone, and empties the cart; it is rate limited per customer (5 per 10 minutes). All
+  status changes go through `model/store/orders.ts#transitionOrder` (idempotent; cancel puts stock
+  back; cash on delivery is marked paid on delivery). Cash on delivery orders start `confirmed`.
+  **Pay online is shown disabled** (`ONLINE_PAYMENT_ENABLED = false` in `storeProfile.ts`) and the
+  server refuses it until step 6 turns it on and adds the payment-window expiry and the refund on
+  cancelling a paid order (marked TODO in `transitionOrder`). Routes (private): `/checkout`, `/orders`,
+  `/orders/[number]` (status timeline, cancel until it ships, return request after delivery inside the
+  window; a local zone reads "Out for delivery", a courier zone "Shipped" with courier and tracking
+  number once step 7 writes a `shipments` row). Cart's Checkout button now links to `/checkout`; the
+  menu drawer has "My orders". Tests: `store/orders.test.ts`, `model/store/pricing.test.ts`.
+- **Not in yet**: no payment gateway, no order board for staff (step 7), no `/admin/settings` (the settings row holds placeholders).
 
 When a step lands, mark it **built** in the roadmap with the date, write what was built here in a few
 lines (routes, main functions, anything surprising), and move "Next" on.
