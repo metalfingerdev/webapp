@@ -52,24 +52,31 @@
 		--fill: var(--color-foreground);
 		@apply flex edge-press flex-col gap-1.5 rounded-xl bg-foreground p-2.5 edge;
 	}
+
 	.picture {
 		@apply relative grid aspect-[3/4] place-items-center overflow-hidden rounded-lg bg-midground;
+
+		img {
+			@apply size-full object-cover;
+		}
 	}
-	.picture img {
-		@apply size-full object-cover;
-	}
+
 	.badge {
 		@apply absolute top-1.5 left-1.5;
 	}
+
 	.title {
 		@apply line-clamp-2 text-sm leading-snug font-bold;
 	}
+
 	.meta {
 		@apply line-clamp-1 text-xs text-text-muted;
 	}
+
 	.price {
 		@apply flex flex-wrap items-baseline gap-x-1.5 tabular-nums;
 	}
+
 	.from,
 	.mrp {
 		@apply text-xs text-text-muted;

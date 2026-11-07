@@ -299,13 +299,15 @@
 	}
 	.field {
 		@apply flex items-center gap-3 border-b border-border-muted px-2 text-text-muted;
-	}
-	.field input {
-		@apply min-h-13 w-full bg-transparent text-lg text-text outline-none placeholder:text-text-muted md:text-xl;
-	}
-	/* the field has its own clear button */
-	.field input::-webkit-search-cancel-button {
-		appearance: none;
+
+		input {
+			@apply min-h-13 w-full bg-transparent text-lg text-text outline-none placeholder:text-text-muted md:text-xl;
+
+			/* the field has its own clear button */
+			&::-webkit-search-cancel-button {
+				appearance: none;
+			}
+		}
 	}
 	.clear {
 		@apply grid size-9 shrink-0 place-items-center rounded-full bg-midground text-text;
@@ -313,14 +315,17 @@
 	.results {
 		@apply max-h-[min(65dvh,34rem)] overflow-y-auto overscroll-contain;
 	}
-	.results > div {
-		@apply flex flex-col gap-1 pt-2;
+	.results {
+		> div {
+			@apply flex flex-col gap-1 pt-2;
+		}
 	}
 	.heading {
 		@apply flex items-center justify-between px-2 pt-2;
-	}
-	.heading h2 {
-		@apply text-xs font-bold text-text-muted;
+
+		h2 {
+			@apply text-xs font-bold text-text-muted;
+		}
 	}
 	.text-button {
 		@apply min-h-9 px-2 text-xs font-bold text-primary;
@@ -337,9 +342,10 @@
 	}
 	.cover {
 		@apply grid h-12 w-9 shrink-0 place-items-center overflow-hidden rounded-md bg-midground;
-	}
-	.cover img {
-		@apply size-full object-cover;
+
+		img {
+			@apply size-full object-cover;
+		}
 	}
 	.hit-text {
 		@apply flex min-w-0 flex-1 flex-col;
@@ -358,9 +364,10 @@
 	}
 	.quiet {
 		@apply line-clamp-1 text-sm text-text-muted;
-	}
-	p.quiet {
-		@apply px-2 py-3;
+
+		&:is(p) {
+			@apply px-2 py-3;
+		}
 	}
 	@media (prefers-reduced-motion: reduce) {
 		.search-panel {

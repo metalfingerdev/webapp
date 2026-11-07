@@ -139,34 +139,44 @@
 
 	.filters {
 		@apply mb-4 panel p-3;
+
+		summary {
+			@apply min-h-11 cursor-pointer content-center font-bold;
+		}
 	}
-	.filters summary {
-		@apply min-h-11 cursor-pointer content-center font-bold;
-	}
+
 	.filter-form {
 		@apply mt-2 grid gap-3 sm:grid-cols-2 lg:grid-cols-4;
 	}
+
 	.check {
 		@apply flex min-h-11 items-center gap-2 text-sm font-bold;
+
+		input {
+			@apply size-5;
+		}
 	}
-	.check input {
-		@apply size-5;
-	}
+
 	.actions {
 		@apply flex flex-wrap gap-2 sm:col-span-2 lg:col-span-4;
 	}
+
 	.grid {
 		@apply grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5;
 	}
+
 	.more {
 		@apply mt-6 flex justify-center;
 	}
+
 	.swap {
 		@apply grid;
+
+		> span {
+			@apply col-start-1 row-start-1;
+		}
 	}
-	.swap > span {
-		@apply col-start-1 row-start-1;
-	}
+
 	.gone {
 		@apply invisible;
 	}

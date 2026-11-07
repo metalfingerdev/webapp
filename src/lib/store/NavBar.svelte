@@ -250,54 +250,76 @@
 	@reference 'src/app.css';
 
 	/* The old floating bar, softer: a rounded card with a light shadow and no hard edge. The panels
-	   position against the header, which is the same width as the bar. */
-	/* The header keeps the collapsed bar's height (top gap + row + padding + border); the bar floats in
-	   it, so when the search grows the bar it covers the page instead of pushing it down */
+	   position against the header, which is the same width as the bar. The header keeps the collapsed
+	   bar's height (top gap + row + padding + border); the bar floats in it, so when the search grows
+	   the bar it covers the page instead of pushing it down. */
 	.bar-wrap {
 		@apply sticky top-0 z-30 mx-auto max-w-6xl px-3 pt-3;
 		height: calc(0.75rem + 2.75rem + 0.75rem + 2px);
 		container-type: inline-size;
 	}
+
 	.bar {
 		@apply absolute inset-x-3 top-3 rounded-3xl border border-border-muted bg-foreground p-1.5 shadow-lg;
 	}
+
 	.row {
 		@apply flex h-11 items-center gap-0.5;
 	}
+
 	.brand {
 		@apply mr-2 flex-1 text-lg font-extrabold text-primary lg:flex-none;
+
+		a {
+			@apply flex min-h-11 items-center px-3;
+		}
 	}
-	.brand a {
-		@apply flex min-h-11 items-center px-3;
-	}
+
 	.spacer {
 		@apply hidden lg:block lg:flex-1;
 	}
+
 	.wide {
 		@apply hidden lg:block;
 	}
+
 	.narrow {
 		@apply lg:hidden;
 	}
+
 	.trigger,
 	.link {
 		@apply inline-flex min-h-11 items-center gap-1.5 squircle-4xl px-4 font-bold transition-colors;
 	}
-	.trigger :global(.caret) {
-		@apply transition-transform;
+
+	.trigger {
+		:global(.caret) {
+			@apply transition-transform;
+		}
+
+		&.active :global(.caret) {
+			@apply rotate-180;
+		}
 	}
-	.trigger:hover,
-	.trigger.active,
-	.link:hover,
-	.action:hover,
-	.action.active {
-		@apply bg-midground;
-	}
-	.trigger.active :global(.caret) {
-		@apply rotate-180;
-	}
+
 	.action {
 		@apply grid size-11 place-items-center rounded-full transition-colors;
+
+		&.active {
+			@apply bg-midground;
+		}
+	}
+
+	.trigger,
+	.link,
+	.action {
+		&:hover {
+			@apply bg-midground;
+		}
+	}
+
+	.trigger.active {
+		@apply bg-midground;
 	}
 
 	/* The sliding box, desktop only. Its position follows the active trigger; nothing else is measured. */
@@ -307,25 +329,31 @@
 			opacity 200ms ease,
 			translate 200ms ease,
 			visibility 200ms;
+
+		&.open {
+			@apply pointer-events-auto visible translate-y-0 opacity-100;
+		}
+
+		/* Jump instead of slide, e.g. on first open */
+		&.snap .box,
+		&.snap .arrow {
+			transition: none;
+		}
 	}
-	.box-wrap.open {
-		@apply pointer-events-auto visible translate-y-0 opacity-100;
-	}
+
 	.box {
 		@apply relative grid w-[34rem] max-w-full rounded-3xl border border-border-muted bg-foreground shadow-lg;
 		/* centred under the trigger, never past the bar's edges (100cqw is the bar's width) */
 		transform: translateX(clamp(0px, calc(var(--centre) - 17rem), calc(100cqw - 34rem)));
 		transition: transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
 	}
+
 	.arrow {
 		@apply absolute -top-1.5 left-0 z-10 size-3 border-t border-l border-border-muted bg-foreground;
 		transform: translateX(calc(var(--centre) - 6px)) rotate(45deg);
 		transition: transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
 	}
-	.snap .box,
-	.snap .arrow {
-		transition: none;
-	}
+
 	/* Every panel sits in the same grid cell; the others wait to one side and fade out */
 	.slot {
 		@apply pointer-events-none invisible col-start-1 row-start-1 opacity-0;
@@ -334,11 +362,13 @@
 			opacity 200ms ease,
 			transform 200ms ease,
 			visibility 200ms;
+
+		&.current {
+			@apply pointer-events-auto visible opacity-100;
+			transform: none;
+		}
 	}
-	.slot.current {
-		@apply pointer-events-auto visible opacity-100;
-		transform: none;
-	}
+
 	@media (prefers-reduced-motion: reduce) {
 		.box-wrap,
 		.box,
@@ -351,22 +381,28 @@
 	.sheet {
 		@apply grid gap-5;
 	}
+
 	.heading {
 		@apply mb-1 text-xs font-extrabold tracking-wide text-text-muted uppercase;
 	}
+
 	.links {
 		@apply flex flex-col;
+
+		a,
+		.plain {
+			@apply flex min-h-11 items-center;
+		}
 	}
-	.links a,
-	.links .plain {
-		@apply flex min-h-11 items-center;
-	}
+
 	.strong {
 		@apply flex min-h-11 items-center font-bold;
 	}
+
 	.sub {
 		@apply mb-1 ml-3 flex flex-col border-l-2 border-border-muted pl-3 text-sm;
 	}
+
 	.note {
 		@apply text-sm text-text-muted;
 	}
