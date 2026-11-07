@@ -30,13 +30,16 @@
 
 <section class="block">
 	<h2 class="title">{strings.home.schoolsTitle}</h2>
-	<!-- Step 3 turns these tiles into links to each school's book and uniform sets -->
 	<ul class="schools">
 		{#each data.schools as school (school.slug)}
-			<li><Card>{school.name}</Card></li>
+			<li>
+				<Card as="a" pressable href={resolve('/(shop)/schools/[school]', { school: school.slug })}
+					>{school.name}</Card
+				>
+			</li>
 		{/each}
 	</ul>
-	<p class="note">{strings.home.schoolsSoon}</p>
+	<Button href={resolve('/(shop)/schools')}>{strings.home.allSchools}</Button>
 </section>
 
 <section class="block">

@@ -39,27 +39,27 @@ in your report, and ask when it affects behaviour.
 
 ## To dictate
 
-| Item                                                               | Value                                                                                     | Used for                                 |
-| ------------------------------------------------------------------ | ----------------------------------------------------------------------------------------- | ---------------------------------------- |
-| Courier and how AWBs are entered (manual or API)                   | **TODO (dictate)**                                                                        | `shipments`, shipping screen             |
-| Shipping fee, free-shipping threshold, zones                       | **TODO (dictate)**; placeholder flat ₹79, free from ₹999, one zone                        | `priceCart`                              |
-| Store pickup, or local delivery in Faridabad?                      | **TODO (dictate)**; placeholder: courier delivery only                                    | checkout options                         |
-| Online payment only, or cash on delivery too?                      | **TODO (dictate)**; placeholder: online only, no COD                                      | checkout, order states                   |
-| Product export from WooCommerce, real category list                | not yet (2026-11-06); broad shape is known (see above)                                    | step 2                                   |
-| What each set contains, per school and class                       | not yet (2026-11-06)                                                                      | `setItems`                               |
-| Uniform items, sizes and size chart per school                     | shape dictated 2026-11-06 (see Decisions); real items, sizes and chart **TODO (dictate)** | uniform products, set page               |
-| What may be unticked from a set (workbooks, notebooks, stationery) | **TODO (dictate)**                                                                        | set page                                 |
-| Optional extras: covering, labelling                               | **none** (dictated 2026-11-06)                                                            | set page                                 |
-| Current academic session and when the next opens                   | **TODO (dictate)**; placeholder 2026-27                                                   | `schoolSets.session`                     |
-| Cancellation and return windows                                    | **TODO (dictate)**; placeholder: cancel until packed, return 7 days                       | order rules (from the live policy pages) |
-| GST: registered, GSTIN, composition scheme?                        | **TODO (dictate)**, confirm with the CA                                                   | invoice tax columns                      |
-| Invoice prefix (3 letters or fewer)                                | **TODO (dictate)**                                                                        | invoice numbers                          |
-| Legal name and address for invoices                                | **TODO (dictate)**                                                                        | invoice header                           |
-| Store phone, WhatsApp, email                                       | **TODO (dictate)**, entered in the admin                                                  | help text, footer                        |
-| Brand colours and logo                                             | **TODO (dictate)**                                                                        | `src/themes/palette.css`                 |
-| Languages in the UI                                                | English, Hindi-ready (all text in `src/lib/store/strings.ts`)                             | `strings.ts`                             |
-| Carry over WooCommerce customers, orders, products?                | **TODO (dictate)**                                                                        | migration script                         |
-| Who works the admin; is a role narrower than admin needed?         | **TODO (dictate)**                                                                        | `roles-and-access.md`                    |
+| Item                                                       | Value                                                                                     | Used for                                 |
+| ---------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ---------------------------------------- |
+| Courier and how AWBs are entered (manual or API)           | **TODO (dictate)**                                                                        | `shipments`, shipping screen             |
+| Shipping fee, free-shipping threshold, zones               | **TODO (dictate)**; placeholder flat ₹79, free from ₹999, one zone                        | `priceCart`                              |
+| Store pickup, or local delivery in Faridabad?              | **TODO (dictate)**; placeholder: courier delivery only                                    | checkout options                         |
+| Online payment only, or cash on delivery too?              | **TODO (dictate)**; placeholder: online only, no COD                                      | checkout, order states                   |
+| Product export from WooCommerce, real category list        | not yet (2026-11-06); broad shape is known (see above)                                    | step 2                                   |
+| What each set contains, per school and class               | not yet (2026-11-06)                                                                      | `setItems`                               |
+| Uniform items, sizes and size chart per school             | shape dictated 2026-11-06 (see Decisions); real items, sizes and chart **TODO (dictate)** | uniform products, set page               |
+| What may be unticked from a set                            | **everything** (dictated 2026-11-07, see Decisions)                                       | set page                                 |
+| Optional extras: covering, labelling                       | **none** (dictated 2026-11-06)                                                            | set page                                 |
+| Current academic session and when the next opens           | 2026-27 now; next opens April 2027 (all Indian private schools run April to March)        | `schoolSets.session`                     |
+| Cancellation and return windows                            | **TODO (dictate)**; placeholder: cancel until packed, return 7 days                       | order rules (from the live policy pages) |
+| GST: registered, GSTIN, composition scheme?                | **TODO (dictate)**, confirm with the CA                                                   | invoice tax columns                      |
+| Invoice prefix (3 letters or fewer)                        | **TODO (dictate)**                                                                        | invoice numbers                          |
+| Legal name and address for invoices                        | **TODO (dictate)**                                                                        | invoice header                           |
+| Store phone, WhatsApp, email                               | **TODO (dictate)**, entered in the admin                                                  | help text, footer                        |
+| Brand colours and logo                                     | **TODO (dictate)**                                                                        | `src/themes/palette.css`                 |
+| Languages in the UI                                        | English, Hindi-ready (all text in `src/lib/store/strings.ts`)                             | `strings.ts`                             |
+| Carry over WooCommerce customers, orders, products?        | **TODO (dictate)**                                                                        | migration script                         |
+| Who works the admin; is a role narrower than admin needed? | **TODO (dictate)**                                                                        | `roles-and-access.md`                    |
 
 When the user dictates values, update this table first, then the code constants and the seed.
 
@@ -98,6 +98,9 @@ Each entry has a date and the reason. When the user decides something new, add i
   navbar before the new one matched it, and it had to be restored. How: a step that replaces old code
   leaves the `legacy/` file as it is. Before a commit, check `git diff --diff-filter=D --stat` shows no
   deleted file under `legacy/`.
+- **Every set line is the parent's choice** (2026-11-07, dictated: "full freedom for the customer").
+  Any book or uniform piece can be unticked; only an empty selection is refused. Why: parents often
+  have part of the list already. How: `model/store/setSelection.ts`; `setItems.isOptional` is not read.
 - **Nothing shifts when its text changes** (2026-11-07, dictated). Why: a parent on a cheap phone
   taps where a button was; a label that changes width moves the target and looks cheap. How:
   `references/design.md` → "Rules that still win".
@@ -177,7 +180,7 @@ until its screens follow `design.md`; the step's PR names any deliberate departu
    `legacy/src/components/shop/{product-view,filters-bar,filters-sidebar}.svelte`,
    `legacy/src/routes/(app)/(home)` and `shop/`. _Needs_: the real category list and an export of the
    current WooCommerce products (CSV), even rough.
-3. **School sets.** `/schools`, school and class pages, the set page with optional lines, session label,
+3. **School sets** (**built**, 2026-11-07). `/schools`, school and class pages, the set page with optional lines, session label,
    and uniform sets with a size picker per line, as a guided flow (school, class, books or uniform,
    sizes; `design.md`). _Look from_: `legacy/src/components/shop/bundle-view.svelte`,
    `legacy/src/components/sidebar/school.svelte`. _Needs_: each school's book list per class for the current session (photos or PDFs are fine), which
@@ -211,8 +214,7 @@ until its screens follow `design.md`; the step's PR names any deliberate departu
 
 ## Status (what exists)
 
-Steps 0, 1 and 2 are built (step 2: 2026-11-07, branch `step-2-catalogue`). **Next: step 3 (school sets)**,
-which starts with `references/design.md`.
+Steps 0 to 3 are built (step 3: 2026-11-07, branch `step-3-school-sets`). **Next: step 4 (cart)**.
 
 - **Old store**: in `legacy/` (not built, linted or type-checked); tag `old-store` runs it.
 - **Tables**: all of `data-model.md`. Every product has one or more `productVariants` holding price and
@@ -282,8 +284,20 @@ which starts with `references/design.md`.
     header keeps the collapsed bar's height while the bar floats over the page, so growing never moves
     the content below.
   - The old code stays in `legacy/`. Cart icon waits for step 4.
-- **Not in yet**: no cart, checkout or orders, no `/admin/settings` (the settings row holds placeholders),
-  and no school or set pages.
+- **Step 3, school sets** (built on seed data; no real school lists yet). Public queries in
+  `store/sets.ts`: `listForSchool(schoolSlug)` (active sets of the current session, from
+  `storeSettings.currentSession`) and `getSet(schoolSlug, setId)` (lines; a book line has its one
+  size, a uniform line every active size). Hidden schools, sets, products, categories and sizes never
+  appear, nor do other sessions or stock numbers (`store/sets.test.ts`). Routes (public): `/schools`,
+  `/schools/[school]` (guided steps kept in the address: `?for=books|uniform&gender=&type=`, so Back
+  works), `/schools/[school]/[set]` (the set's database id is in the URL). The set page
+  (`SetPicker.svelte`) ticks every line, shows a size picker for uniform pieces, and a sticky total;
+  maths in `model/store/setSelection.ts` (a line counts only if ticked, sized and in stock). **Add to
+  cart is disabled until step 4.** The nav menu, sheet and home grid now link to schools. Seed:
+  `store/seed:addDemoSets` adds Class 2 books and a girls' regular uniform set to an already seeded
+  deployment (the seed itself calls the same code). The step's `isOptional` column is stored but
+  unused by the UI, since every line is untickable.
+- **Not in yet**: no cart, checkout or orders, no `/admin/settings` (the settings row holds placeholders).
 
 When a step lands, mark it **built** in the roadmap with the date, write what was built here in a few
 lines (routes, main functions, anything surprising), and move "Next" on.

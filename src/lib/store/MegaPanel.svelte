@@ -25,12 +25,17 @@
 			</ul>
 		{/if}
 	{:else if schools}
-		<!-- Step 3 turns these into links to each school's sets -->
-		<p class="lead plain">{strings.nav.schools}</p>
+		<a class="lead" href={resolve('/(shop)/schools')}>
+			<span>{strings.nav.viewAll(strings.nav.schools)}</span>
+			<ArrowRightIcon class="size-6" aria-hidden="true" />
+		</a>
 		<ul class="items">
-			{#each schools as school (school.slug)}<li class="plain">{school.name}</li>{/each}
+			{#each schools as school (school.slug)}
+				<li>
+					<a href={resolve('/(shop)/schools/[school]', { school: school.slug })}>{school.name}</a>
+				</li>
+			{/each}
 		</ul>
-		<p class="note">{strings.nav.schoolsSoon}</p>
 	{/if}
 </div>
 
@@ -45,24 +50,11 @@
 		@apply flex items-start justify-between gap-3 text-2xl leading-tight font-extrabold;
 	}
 
-	.plain {
-		@apply block;
-	}
-
 	.items {
 		@apply grid gap-x-6 sm:grid-cols-2;
 
-		a,
-		.plain {
-			@apply flex min-h-12 items-center rounded-xl px-3 text-lg font-bold;
-		}
-
 		a {
-			@apply transition-colors hover:bg-midground focus-visible:bg-midground;
+			@apply flex min-h-12 items-center rounded-xl px-3 text-lg font-bold transition-colors hover:bg-midground focus-visible:bg-midground;
 		}
-	}
-
-	.note {
-		@apply text-sm text-text-muted;
 	}
 </style>

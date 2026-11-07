@@ -4,7 +4,7 @@
 // school exists.
 import { v } from 'convex/values';
 import { internalMutation, type MutationCtx } from '../_generated/server.js';
-import type { Id } from '../_generated/dataModel.js';
+import type { Doc, Id } from '../_generated/dataModel.js';
 import { buildSearchText, reserveUniqueSlug, slugify } from '../model/store/catalog.js';
 import { adjustStock } from '../model/store/stock.js';
 import { PLACEHOLDER_CLASS_BANDS as BANDS } from '../model/store/classes.js';
@@ -118,6 +118,7 @@ export const run = internalMutation({
 			'General Knowledge'
 		];
 		const class1Books: Id<'productVariants'>[] = [];
+		const class2Books: Id<'productVariants'>[] = [];
 		for (const classOrder of [1, 2]) {
 			for (const [i, subject] of subjects.entries()) {
 				const { variantIds } = await product(
@@ -127,7 +128,7 @@ export const run = internalMutation({
 					one(180 + i * 35),
 					{ publisher: 'Demo Publisher', subject, classFrom: classOrder, classTo: classOrder }
 				);
-				if (classOrder === 1) class1Books.push(variantIds[0]);
+				(classOrder === 1 ? class1Books : class2Books).push(variantIds[0]);
 			}
 		}
 		for (const [i, title] of [
@@ -362,7 +363,9 @@ export const run = internalMutation({
 			await ctx.db.insert('setItems', { setId: uniformSet, ...line, sortOrder: i + 1 });
 		}
 
-		return `Seeded ${SCHOOLS.length} schools, the categories, demo books, stationery and uniforms, and 2 demo sets.`;
+		await addExtraSets(ctx, demoSchool);
+
+		return `Seeded ${SCHOOLS.length} schools, the categories, demo books, stationery and uniforms, and demo sets.`;
 	}
 });
 
@@ -411,3 +414,83 @@ async function insertProduct(
 	}
 	return { productId, variantIds };
 }
+
+/** Adds the Class 2 book set and the girls' regular uniform set for a school, if not there yet. */
+async function addExtraSets(ctx: MutationCtx, schoolId: Id<'schools'>) {
+	const bySlug = async (title: string) => {
+		const product = await ctx.db
+			.query('products')
+			.withIndex('by_slug', (q) => q.eq('slug', slugify(title)))
+			.unique();
+		if (!product) throw new Error(`Demo product missing: ${title}`);
+		return product;
+	};
+	const addSet = async (
+		set: Omit<Doc<'schoolSets'>, '_id' | '_creationTime' | 'schoolId' | 'session' | 'isActive'>,
+		lines: { title: string; quantity: number; oneSize?: boolean }[]
+	) => {
+		const exists = await ctx.db
+			.query('schoolSets')
+			.withIndex('by_schoolId_and_label_and_session', (q) =>
+				q.eq('schoolId', schoolId).eq('label', set.label).eq('session', PLACEHOLDER_SESSION)
+			)
+			.first();
+		if (exists) return;
+		const setId = await ctx.db.insert('schoolSets', {
+			...set,
+			schoolId,
+			session: PLACEHOLDER_SESSION,
+			isActive: true
+		});
+		for (const [i, line] of lines.entries()) {
+			const product = await bySlug(line.title);
+			const variants = await ctx.db
+				.query('productVariants')
+				.withIndex('by_productId_and_sortOrder', (q) => q.eq('productId', product._id))
+				.take(1);
+			await ctx.db.insert('setItems', {
+				setId,
+				productId: product._id,
+				variantId: line.oneSize ? variants[0]._id : undefined,
+				quantity: line.quantity,
+				isOptional: true,
+				sortOrder: i + 1
+			});
+		}
+	};
+
+	await addSet(
+		{ type: 'books', label: 'Class 2', classFrom: 2, classTo: 2, sortOrder: 3 },
+		['English', 'Hindi', 'Mathematics', 'Environmental Studies', 'General Knowledge'].map(
+			(subject) => ({ title: `Demo ${subject} Reader, Class 2`, quantity: 1, oneSize: true })
+		)
+	);
+	await addSet(
+		{
+			type: 'uniform',
+			label: 'Girls regular, Class 1 to 5',
+			classFrom: 1,
+			classTo: 5,
+			gender: 'girls',
+			uniformType: 'regular',
+			sortOrder: 4
+		},
+		[
+			{ title: 'Demo Girls Shirt', quantity: 2 },
+			{ title: 'Demo Girls Skirt, Primary', quantity: 2 },
+			{ title: 'Demo School Tie', quantity: 1, oneSize: true }
+		]
+	);
+}
+
+/** Dev helper: adds the extra demo sets to an already seeded deployment. Idempotent. */
+export const addDemoSets = internalMutation({
+	args: {},
+	returns: v.string(),
+	handler: async (ctx) => {
+		const school = await ctx.db.query('schools').withIndex('by_sortOrder').first();
+		if (!school) return 'Run the seed first.';
+		await addExtraSets(ctx, school._id);
+		return 'Demo sets are in place.';
+	}
+});
