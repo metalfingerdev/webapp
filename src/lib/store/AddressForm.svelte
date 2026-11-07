@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { useConvexClient } from 'convex-svelte';
+	import { useConvexClient, useQuery } from 'convex-svelte';
 	import { api } from '#convex/_generated/api.js';
 	import type { Id } from '#convex/_generated/dataModel.js';
 	import Button from '#lib/ui/Button.svelte';
@@ -35,10 +35,18 @@
 
 	const text = strings.checkout;
 	const client = useConvexClient();
+	// A new address starts with the account's name and number (still editable: the parcel may be
+	// for someone else). A phone-only account's name is its number, which is no name, so skip it.
+	const me = useQuery(api.users.queries.getActiveUser, {});
+	const digits = (value: string) => value.replace(/\D/g, '');
+	const accountName = $derived(
+		me.data?.name && digits(me.data.name).length < 10 ? me.data.name : ''
+	);
+	const accountPhone = $derived(me.data?.phoneNumber ? digits(me.data.phoneNumber).slice(-10) : '');
 	// The saved phone is +91XXXXXXXXXX; the field shows the 10 digits
 	const initial = $derived({
-		name: existing?.name ?? '',
-		phone: existing?.phone.replace(/^\+91/, '') ?? '',
+		name: existing?.name ?? accountName,
+		phone: existing ? existing.phone.replace(/^\+91/, '') : accountPhone,
 		line1: existing?.line1 ?? '',
 		line2: existing?.line2 ?? '',
 		landmark: existing?.landmark ?? '',
