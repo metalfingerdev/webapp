@@ -40,22 +40,28 @@
 	.panel {
 		@apply grid gap-3 p-6;
 	}
+
 	.lead {
 		@apply flex items-start justify-between gap-3 text-2xl leading-tight font-extrabold;
 	}
+
 	.plain {
 		@apply block;
 	}
+
 	.items {
 		@apply grid gap-x-6 sm:grid-cols-2;
+
+		a,
+		.plain {
+			@apply flex min-h-12 items-center rounded-xl px-3 text-lg font-bold;
+		}
+
+		a {
+			@apply transition-colors hover:bg-midground focus-visible:bg-midground;
+		}
 	}
-	.items a,
-	.items .plain {
-		@apply flex min-h-12 items-center rounded-xl px-3 text-lg font-bold;
-	}
-	.items a {
-		@apply transition-colors hover:bg-midground focus-visible:bg-midground;
-	}
+
 	.note {
 		@apply text-sm text-text-muted;
 	}

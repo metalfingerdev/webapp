@@ -94,46 +94,63 @@
 <style lang="postcss">
 	@reference 'src/app.css';
 
-	.crumbs a {
-		@apply inline-flex min-h-11 items-center text-sm font-bold text-primary;
+	.crumbs {
+		a {
+			@apply inline-flex min-h-11 items-center text-sm font-bold text-primary;
+		}
 	}
+
 	.product {
 		@apply grid gap-6 md:grid-cols-2;
 	}
+
 	.picture {
 		@apply grid aspect-[3/4] max-h-[32rem] place-items-center overflow-hidden rounded-xl bg-midground;
+
+		img {
+			@apply size-full object-cover;
+		}
 	}
-	.picture img {
-		@apply size-full object-cover;
-	}
+
 	.info {
 		@apply flex flex-col gap-3;
 	}
+
 	.title {
 		@apply text-3xl leading-tight font-extrabold;
 	}
+
 	.muted {
 		@apply text-sm text-text-muted;
 	}
+
 	.price {
 		@apply flex flex-wrap items-baseline gap-2 tabular-nums;
 	}
+
 	.amount {
 		@apply text-3xl;
 	}
+
 	.section {
 		@apply mt-2 text-lg font-extrabold;
 	}
-	.variants li {
-		@apply flex min-h-11 items-center justify-between gap-3 border-b-2 border-border-muted tabular-nums;
+
+	.variants {
+		li {
+			@apply flex min-h-11 items-center justify-between gap-3 border-b-2 border-border-muted tabular-nums;
+		}
 	}
+
 	.details {
 		@apply flex flex-col gap-1;
-	}
-	.details div {
-		@apply flex gap-3;
-	}
-	.details dt {
-		@apply w-28 shrink-0;
+
+		div {
+			@apply flex gap-3;
+		}
+
+		dt {
+			@apply w-28 shrink-0;
+		}
 	}
 </style>
