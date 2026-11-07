@@ -3,6 +3,7 @@
 	import { page } from '$app/state';
 	import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
 	import MenuIcon from '@lucide/svelte/icons/menu';
+	import ShoppingBagIcon from '@lucide/svelte/icons/shopping-bag';
 	import SearchIcon from '@lucide/svelte/icons/search';
 	import XIcon from '@lucide/svelte/icons/x';
 	import { useIsAppAdmin } from '#lib/admin/api/admin.svelte.js';
@@ -11,6 +12,7 @@
 	import MegaPanel from './MegaPanel.svelte';
 	import MenuDrawer from './MenuDrawer.svelte';
 	import SearchPanel from './SearchPanel.svelte';
+	import { useCart } from './cart.svelte.js';
 	import { strings } from './strings.js';
 
 	type Category = { name: string; slug: string; children: { name: string; slug: string }[] };
@@ -27,6 +29,7 @@
 	} = $props();
 
 	const admin = useIsAppAdmin();
+	const cart = useCart();
 
 	// The row: Schools first, then each top-level category (Books, Uniforms, Stationery)
 	const triggers = $derived([
@@ -176,6 +179,20 @@
 					{/if}
 				</button>
 			</li>
+			<li>
+				<button
+					class="action cart"
+					type="button"
+					aria-label={strings.cart.open(cart.count)}
+					onclick={() => {
+						dismiss();
+						cart.open = true;
+					}}
+				>
+					<ShoppingBagIcon class="size-5" aria-hidden="true" />
+					{#if cart.count > 0}<span class="badge" aria-hidden="true">{cart.count}</span>{/if}
+				</button>
+			</li>
 			<li><UserButton {initialData} /></li>
 		</menu>
 		{#if searchOpen}
@@ -265,6 +282,15 @@
 
 		&.active {
 			@apply bg-midground;
+		}
+	}
+
+	/* The count sits over the icon's corner, so it never changes the button's size */
+	.cart {
+		@apply relative;
+
+		.badge {
+			@apply absolute top-0.5 right-0.5 grid min-w-5 place-items-center rounded-full bg-primary px-1 text-xs leading-5 font-bold text-foreground tabular-nums;
 		}
 	}
 

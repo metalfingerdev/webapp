@@ -35,7 +35,7 @@
 
 <!-- Keyed by the set, so moving to another set starts from fresh ticks -->
 {#key data.set.id}
-	<SetPicker lines={data.lines} />
+	<SetPicker lines={data.lines} setId={data.set.id} />
 {/key}
 
 <style lang="postcss">
