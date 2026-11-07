@@ -5,7 +5,12 @@
 	let { data, children } = $props();
 </script>
 
-<NavBar categories={data.categories} schools={data.schools} initialData={data.initialData} />
+<NavBar
+	categories={data.categories}
+	schools={data.schools}
+	whatsapp={data.contact.whatsapp}
+	initialData={data.initialData}
+/>
 <div class="page">{@render children()}</div>
 <Footer name={data.contact.businessName} gstin={data.contact.gstin} />
 

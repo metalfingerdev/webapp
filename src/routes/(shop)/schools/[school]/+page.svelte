@@ -4,6 +4,7 @@
 	import Card from '#lib/ui/Card.svelte';
 	import Pill from '#lib/ui/Pill.svelte';
 	import { classRange } from '#lib/store/format.js';
+	import { forGender } from '#lib/store/schoolSets.js';
 	import { strings } from '#lib/store/strings.js';
 
 	let { data } = $props();
@@ -21,8 +22,6 @@
 
 	const bookSets = $derived(data.sets.filter((set) => set.type === 'books'));
 	const uniformSets = $derived(data.sets.filter((set) => set.type === 'uniform'));
-	const forGender = (set: (typeof data.sets)[number], who: string) =>
-		!set.gender || set.gender === 'unisex' || set.gender === who;
 	const genders = $derived(
 		(['boys', 'girls'] as const).filter((who) => uniformSets.some((set) => forGender(set, who)))
 	);

@@ -138,6 +138,11 @@ Each entry has a date and the reason. When the user decides something new, add i
 - **Staging deploy order** (2026-11-06). Vercel was set up before step 2, so the client can see
   progress early; `docs/08-environments-and-deployment.md` is the checklist. Console OTP on staging is
   accepted only while the user is the sole tester.
+- **Menu drawer and bar** (2026-11-07, dictated: "a hims like dialog sidebar", details left to
+  Claude). The bar stays for browsing: on desktop, Schools and the categories keep their hover boxes.
+  The drawer, from the menu button on every size, is for the journey (school, then class). Why: one
+  rule for the whole bar (hover on desktop, "don't overcomplicate"), and the drawer gives phone and
+  desktop the same guided path without a second set of triggers.
 - **Client questions go through the user** (2026-11-06). Ask the user when a step needs an answer;
   they get it from the client. Don't batch questions far ahead of the step that needs them.
 
@@ -185,6 +190,8 @@ until its screens follow `design.md`; the step's PR names any deliberate departu
    sizes; `design.md`). _Look from_: `legacy/src/components/shop/bundle-view.svelte`,
    `legacy/src/components/sidebar/school.svelte`. _Needs_: each school's book list per class for the current session (photos or PDFs are fine), which
    items are optional, and whether covering or labelling is offered.
+   - **3b. Menu drawer** (**built**, 2026-11-07, branch `step-3b-drawer`). The hims-style floating
+     drawer for the menu, on every screen size. _Needs_: nothing.
 4. **Cart.** Guest and signed-in, merge on sign-in, cart sheet and `/cart`. _Look from_:
    `legacy/src/components/sidebar/cart.svelte`, `legacy/src/lib/cart/`. _Needs_: nothing.
 5. **Checkout and orders.** Addresses, `priceCart`, `placeOrder` (reprice, hold stock), `transitionOrder`,
@@ -214,7 +221,7 @@ until its screens follow `design.md`; the step's PR names any deliberate departu
 
 ## Status (what exists)
 
-Steps 0 to 3 are built (step 3: 2026-11-07, branch `step-3-school-sets`). **Next: step 4 (cart)**.
+Steps 0 to 3b are built (step 3b: 2026-11-07, branch `step-3b-drawer`). **Next: step 4 (cart)**.
 
 - **Old store**: in `legacy/` (not built, linted or type-checked); tag `old-store` runs it.
 - **Tables**: all of `data-model.md`. Every product has one or more `productVariants` holding price and
@@ -297,6 +304,16 @@ Steps 0 to 3 are built (step 3: 2026-11-07, branch `step-3-school-sets`). **Next
   `store/seed:addDemoSets` adds Class 2 books and a girls' regular uniform set to an already seeded
   deployment (the seed itself calls the same code). The step's `isOptional` column is stored but
   unused by the UI, since every line is untickable.
+- **Step 3b, menu drawer**. `Drawer.svelte` is a floating rounded card over the page (Bits UI
+  Dialog: focus trap, Escape, scroll lock), from the left now and from the right for the cart in
+  step 4. `MenuDrawer.svelte` has a back stack whose views slide in and back: menu (Continue cards,
+  Schools and each category in large type, All products, help, sign-in or account and Dashboard),
+  schools, a school (`MenuSchool.svelte`: book set or uniform tabs, then gender and type chips, then
+  the class tiles, loaded with `listForSchool` on the client), and a category's sections plus "View
+  all". It replaced the phone sheet; the menu button sits first in the bar on every size. Help shows
+  WhatsApp only when a number is set (a 10-digit number gets 91) and two policy links. The set page
+  remembers the last two sets on this device (`recentSets.ts`, `localStorage`) for the Continue cards.
+  No backend change.
 - **Not in yet**: no cart, checkout or orders, no `/admin/settings` (the settings row holds placeholders).
 
 When a step lands, mark it **built** in the roadmap with the date, write what was built here in a few

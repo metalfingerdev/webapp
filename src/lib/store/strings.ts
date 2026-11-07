@@ -14,6 +14,16 @@ export const strings = {
 		dashboard: 'Dashboard',
 		viewAll: (name: string) => `View all ${name}`
 	},
+	menu: {
+		back: 'Back',
+		continue: 'Continue where you left off',
+		shop: 'Shop',
+		help: 'Help',
+		whatsapp: 'Chat on WhatsApp',
+		signIn: 'Sign in with your phone',
+		signInHint: 'See your orders and save your address',
+		loading: 'Loading'
+	},
 	search: {
 		title: 'Search',
 		label: 'Search by title, author or ISBN',

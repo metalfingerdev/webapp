@@ -5,7 +5,19 @@
 	import { classRange } from '#lib/store/format.js';
 	import { strings } from '#lib/store/strings.js';
 
+	import { rememberSet } from '#lib/store/recentSets.js';
+
 	let { data } = $props();
+
+	// For the menu's "Continue" card
+	$effect(() => {
+		rememberSet({
+			schoolSlug: data.school.slug,
+			schoolName: data.school.name,
+			setId: data.set.id,
+			label: data.set.label
+		});
+	});
 </script>
 
 <svelte:head>
