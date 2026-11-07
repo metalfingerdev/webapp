@@ -32,7 +32,18 @@ export const list = query({
 			.take(MAX_ADDRESSES);
 		return rows
 			.sort((a, b) => Number(b.isDefault) - Number(a.isDefault))
-			.map(({ _id, userId: _userId, _creationTime, ...rest }) => ({ id: _id, ...rest }));
+			.map((row) => ({
+				id: row._id,
+				name: row.name,
+				phone: row.phone,
+				line1: row.line1,
+				line2: row.line2,
+				landmark: row.landmark,
+				city: row.city,
+				state: row.state,
+				pincode: row.pincode,
+				isDefault: row.isDefault
+			}));
 	}
 });
 

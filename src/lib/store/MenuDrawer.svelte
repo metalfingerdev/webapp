@@ -157,6 +157,7 @@
 								{strings.nav.account}
 							</a>
 						</li>
+						<li><a href={resolve('/(shop)/orders')}>{strings.nav.orders}</a></li>
 						{#if admin.isAppAdmin}
 							<li><a href={resolve(ADMIN_ROUTE)}>{strings.nav.dashboard}</a></li>
 						{/if}
