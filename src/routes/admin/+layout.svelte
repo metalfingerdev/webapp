@@ -41,19 +41,19 @@
 </svelte:head>
 
 {#if adminResponse.error}
-	<div class="text-danger mx-auto max-w-md p-6 text-center text-sm">
+	<div class="failed">
 		{adminResponse.error.message}
 	</div>
 {:else if auth.isLoading || !auth.isAuthenticated || isAdmin === undefined}
-	<div class="flex min-h-[60vh] items-center justify-center p-6">
+	<div class="waiting">
 		<Spinner />
 	</div>
 {:else if isAdmin === false}
 	<div class="denied">
-		<ShieldAlertIcon class="size-10 opacity-60" aria-hidden="true" />
+		<ShieldAlertIcon size={40} aria-hidden="true" />
 		<div>
-			<h1 class="text-lg font-extrabold">{text.denied.title}</h1>
-			<p class="text-text-muted mt-1 text-sm">{text.denied.body}</p>
+			<h1>{text.denied.title}</h1>
+			<p>{text.denied.body}</p>
 		</div>
 		<Button href={resolve('/(shop)')}>{text.denied.home}</Button>
 	</div>
@@ -64,7 +64,23 @@
 <style lang="postcss">
 	@reference 'src/app.css';
 
-	.denied {
+	div.failed {
+		@apply mx-auto max-w-md p-6 text-center text-sm text-danger;
+	}
+	div.waiting {
+		@apply flex min-h-[60vh] items-center justify-center p-6;
+	}
+	div.denied {
 		@apply mx-auto flex min-h-[60vh] w-full max-w-md flex-col items-center justify-center gap-4 p-6 text-center;
+
+		> :global(svg) {
+			@apply opacity-60;
+		}
+		h1 {
+			@apply type-headline;
+		}
+		p {
+			@apply mt-1 text-sm text-text-muted;
+		}
 	}
 </style>

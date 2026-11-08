@@ -4,6 +4,7 @@
 	import { istDayStart, useNow } from '#lib/store/admin/clock.svelte.js';
 	import OrderCard from '#lib/store/admin/OrderCard.svelte';
 	import ShipForm from '#lib/store/admin/ShipForm.svelte';
+	import PageHead from '#lib/store/PageHead.svelte';
 	import { strings } from '#lib/store/strings.js';
 
 	// Packed orders, each with the ship form open, for working through a pile of parcels.
@@ -17,17 +18,16 @@
 	<title>{text.title} · {strings.admin.title}</title>
 </svelte:head>
 
-<h1 class="mb-2 text-2xl font-extrabold">{text.title}</h1>
-<p class="text-text-muted mb-4 text-sm">{text.intro}</p>
+<PageHead title={text.title} lead={text.intro} size="headline" />
 
 {#if !board.data}
-	<div class="bone h-40 rounded-xl"></div>
+	<div class="loading bone"></div>
 {:else if packed.length === 0}
-	<p class="text-text-muted py-10 text-center">{text.empty}</p>
+	<p class="empty">{text.empty}</p>
 {:else}
 	<ul class="list">
 		{#each packed as order (order._id)}
-			<li class="panel item">
+			<li class="item">
 				<OrderCard {order} now={now.value} />
 				<ShipForm number={order.number} local={order.deliveryMethod === 'local'} />
 			</li>
@@ -38,10 +38,17 @@
 <style lang="postcss">
 	@reference 'src/app.css';
 
-	.list {
-		@apply grid gap-3 lg:grid-cols-2;
+	div.loading {
+		@apply h-40 rounded-[1.75rem];
 	}
-	.item {
-		@apply flex flex-col gap-3 p-3;
+	p.empty {
+		@apply py-10 text-center text-text-muted;
+	}
+	ul.list {
+		@apply grid gap-4 lg:grid-cols-2;
+
+		li.item {
+			@apply flex flex-col gap-4 rounded-[1.75rem] raised p-4;
+		}
 	}
 </style>

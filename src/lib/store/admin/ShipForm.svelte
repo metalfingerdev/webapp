@@ -46,9 +46,9 @@
 
 <form class="ship" onsubmit={submit}>
 	{#if local}
-		<p class="text-text-muted text-sm">{text.localHint}</p>
+		<p class="hint">{text.localHint}</p>
 	{:else}
-		<div class="grid">
+		<div class="fields">
 			<Field label={text.courier}>
 				<select bind:value={courier}>
 					{#each COURIERS as c (c)}<option value={c}>{c}</option>{/each}
@@ -79,13 +79,17 @@
 <style lang="postcss">
 	@reference 'src/app.css';
 
-	.ship {
-		@apply flex flex-col gap-3;
-	}
-	.grid {
-		@apply grid gap-3 sm:grid-cols-2;
-	}
-	.wide {
-		@apply sm:col-span-2;
+	form.ship {
+		@apply flex flex-col gap-4;
+
+		p.hint {
+			@apply text-sm text-text-muted;
+		}
+		div.fields {
+			@apply grid gap-4 sm:grid-cols-2;
+		}
+		div.wide {
+			@apply sm:col-span-2;
+		}
 	}
 </style>

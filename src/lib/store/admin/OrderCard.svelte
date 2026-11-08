@@ -44,25 +44,27 @@
 <style lang="postcss">
 	@reference 'src/app.css';
 
-	.card {
-		@apply flex press flex-col gap-0.5 rounded-xl raised p-3;
-	}
-	.top {
-		@apply flex items-baseline justify-between gap-2;
-	}
-	.number {
-		@apply font-mono text-sm font-bold;
-	}
-	.total {
-		@apply font-bold;
-	}
-	.who {
-		@apply truncate text-sm;
-	}
-	.meta {
-		@apply text-xs text-text-muted;
-	}
-	.pills {
-		@apply mt-1 flex flex-wrap gap-1 empty:hidden;
+	a.card {
+		@apply flex press flex-col gap-1 rounded-3xl raised p-4;
+
+		span.top {
+			@apply flex items-baseline justify-between gap-2;
+
+			span.number {
+				@apply font-mono text-sm font-bold;
+			}
+			span.total {
+				@apply font-display text-lg font-bold;
+			}
+		}
+		span.who {
+			@apply truncate text-sm;
+		}
+		span.meta {
+			@apply text-xs text-text-muted;
+		}
+		span.pills {
+			@apply mt-1 flex flex-wrap gap-1 empty:hidden;
+		}
 	}
 </style>
