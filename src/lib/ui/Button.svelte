@@ -55,7 +55,7 @@
   @reference 'src/app.css';
 
   .ui-button {
-    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-lg px-4 font-bold raised press hover:not-disabled:brightness-[1.04] disabled:opacity-50;
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-lg px-4 font-bold text-text raised press hover:not-disabled:brightness-[1.04] disabled:opacity-50;
   }
   .primary {
     @apply raised-primary text-foreground;
