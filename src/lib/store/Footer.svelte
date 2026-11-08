@@ -1,8 +1,11 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
+	import { useDrawer } from './drawer.svelte.js';
 	import { strings } from './strings.js';
 
 	let { name, gstin }: { name: string; gstin?: string } = $props();
+	// The account lives in the shop drawer
+	const drawer = useDrawer();
 </script>
 
 <footer class="footer">
@@ -10,7 +13,11 @@
 		<section>
 			<h2 class="heading">{strings.footer.account}</h2>
 			<ul>
-				<li><a href={resolve('/account')}>{strings.footer.myAccount}</a></li>
+				<li>
+					<button class="link" type="button" onclick={() => drawer.show('account')}>
+						{strings.footer.myAccount}
+					</button>
+				</li>
 			</ul>
 		</section>
 		<section>
@@ -42,8 +49,9 @@
 	.heading {
 		@apply mb-1 text-xs font-extrabold tracking-wide text-text-muted uppercase;
 	}
-	li a {
-		@apply flex min-h-11 items-center;
+	li a,
+	.link {
+		@apply flex min-h-11 items-center text-left;
 	}
 	.legal {
 		@apply mx-auto mt-6 max-w-6xl text-sm text-text-muted;

@@ -263,6 +263,19 @@ export const strings = {
 		notFound: 'We could not find that product.',
 		backToShop: 'Back to the shop'
 	},
+	account: {
+		title: 'Account',
+		hello: (name: string) => (name ? `Hi, ${name}` : 'Hi there'),
+		signInTitle: 'Sign in',
+		recentOrders: 'Recent orders',
+		allOrders: 'All orders',
+		addresses: 'Saved addresses',
+		noAddresses: 'No saved addresses yet. Add one here or at checkout.',
+		default: 'Default',
+		settings: 'Account settings',
+		settingsHint: 'Name, photo, email, phone, sign-in methods',
+		signOut: 'Sign out'
+	},
 	footer: {
 		account: 'Account',
 		myAccount: 'My account',

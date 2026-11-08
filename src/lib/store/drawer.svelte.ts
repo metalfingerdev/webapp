@@ -12,6 +12,7 @@ export type MenuCategory = {
 export type DrawerView =
 	| { kind: 'root' }
 	| { kind: 'cart' }
+	| { kind: 'account' }
 	| { kind: 'schools' }
 	| { kind: 'school'; slug: string; name: string }
 	| { kind: 'category'; category: MenuCategory };
@@ -24,7 +25,7 @@ export class ShopDrawer {
 	view = $derived(this.stack[this.stack.length - 1]);
 	previous = $derived<DrawerView | undefined>(this.stack[this.stack.length - 2]);
 
-	show = (kind: 'root' | 'cart') => {
+	show = (kind: 'root' | 'cart' | 'account') => {
 		this.direction = 'fwd';
 		this.stack = [{ kind }];
 		this.open = true;
