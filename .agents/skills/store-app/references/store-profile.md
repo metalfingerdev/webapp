@@ -156,6 +156,9 @@ Each entry has a date and the reason. When the user decides something new, add i
   hover triggers, then search, cart and menu; no user icon. Menu and cart are views of one drawer
   whose icon row (search, account or sign-in, cart, close) switches between them. Why: it is what
   was meant from the start (the old sidebar and hims work this way); two drawers felt like two apps.
+  The account is a third view (dictated the same day): signed out, the sign-in form; signed in, the
+  photo and "Hi, {name}", recent orders, saved addresses (add, edit, remove), Account settings
+  (`/account/profile`), Dashboard for admins, Sign out. The footer's "My account" opens it.
 - **Sets are customizable** (2026-11-08, dictated). On a set page the parent can change the copies
   per line, tick extra items (the school's other products and the stationery, placeholder source
   `EXTRAS_CATEGORY_SLUG` in `store/sets.ts`) that go in with the set, and come back from the cart's
