@@ -30,14 +30,19 @@
 			'Noto Sans',
 			sans-serif;
 	}
+	/* Headlines in the magazine's display face */
+	:where(h1, h2, h3) {
+		font-family: var(--font-display);
+		letter-spacing: -0.015em;
+	}
 	/* The forms plugin paints focus rings blue; ours are the primary colour */
 	:where(input, select, textarea):focus {
-		--tw-ring-color: var(--color-primary);
-		border-color: var(--color-primary);
+		--tw-ring-color: var(--primary);
+		border-color: var(--primary);
 	}
 	body {
-		background-color: var(--color-background);
-		color: var(--color-text);
+		background-color: var(--background);
+		color: var(--text);
 	}
 	@media (hover: none) and (pointer: coarse) {
 		:where(a, button, [role='button'], input, label, textarea, select) {
@@ -46,81 +51,168 @@
 	}
 }
 
-/* Soft layers (dictated 2026-11-08, after Sajid's technique). Depth comes from the three layers,
-   from gradients that mix them, and from soft shadows; the light is straight above. Never a dark
-   border. See src/themes/palette.css for the gradients and shadows. */
+/* ---------- Neumorphism (docs/10-ui.md) ----------
+   A surface is the colour of the page under it. Light comes from straight above: raised things
+   glow on top and cast a soft shade below; sunken things are shaded at the top. The colours come
+   from the palette the element sits in (palette.css), so all of these work inside any chapter. */
 
-/* The default surface: lit at the top, a small shadow straight down */
+/* The default surface: raised out of the page */
 @utility raised {
-	background-color: var(--color-foreground);
-	background-image: var(--gradient-raised);
-	box-shadow: var(--shadow-s);
+	@apply shadow-s;
+	background-color: var(--background);
+	background-image: linear-gradient(
+		to bottom,
+		color-mix(in oklab, var(--foreground) 55%, var(--background)),
+		var(--background)
+	);
 }
-/* A recess (inputs, tracks, wells): shaded at the top with an inner shadow */
+/* Pressed into the page (inputs, tracks, wells) */
 @utility sunken {
-	background-color: var(--color-background);
-	background-image: var(--gradient-sunken);
-	box-shadow: var(--shadow-inset);
+	@apply shadow-inset;
+	background-color: var(--background);
+	background-image: linear-gradient(
+		to bottom,
+		color-mix(in oklab, var(--background), black 4%),
+		var(--background)
+	);
 }
 /* A raised colour: the colour lit a little at the top. Text on it is set by the component */
 @utility raised-primary {
-	background-color: var(--color-primary);
+	@apply shadow-s;
+	background-color: var(--primary);
 	background-image: linear-gradient(
 		to bottom,
-		color-mix(in oklab, var(--color-primary), var(--color-foreground) 14%),
-		var(--color-primary)
+		color-mix(in oklab, var(--primary), white 12%),
+		var(--primary)
 	);
-	box-shadow: var(--shadow-s);
 }
 @utility raised-secondary {
-	background-color: var(--color-secondary);
+	@apply shadow-s;
+	background-color: var(--secondary);
 	background-image: linear-gradient(
 		to bottom,
-		color-mix(in oklab, var(--color-secondary), var(--color-foreground) 14%),
-		var(--color-secondary)
+		color-mix(in oklab, var(--secondary), white 12%),
+		var(--secondary)
 	);
-	box-shadow: var(--shadow-s);
 }
 @utility raised-danger {
-	background-color: var(--color-danger);
+	@apply shadow-s;
+	background-color: var(--danger);
 	background-image: linear-gradient(
 		to bottom,
-		color-mix(in oklab, var(--color-danger), var(--color-foreground) 14%),
-		var(--color-danger)
+		color-mix(in oklab, var(--danger), white 12%),
+		var(--danger)
 	);
-	box-shadow: var(--shadow-s);
 }
 @utility raised-success {
-	background-color: var(--color-success);
+	@apply shadow-s;
+	background-color: var(--success);
 	background-image: linear-gradient(
 		to bottom,
-		color-mix(in oklab, var(--color-success), var(--color-foreground) 14%),
-		var(--color-success)
+		color-mix(in oklab, var(--success), white 12%),
+		var(--success)
 	);
-	box-shadow: var(--shadow-s);
 }
 @utility raised-warning {
-	background-color: var(--color-warning);
+	@apply shadow-s;
+	background-color: var(--warning);
 	background-image: linear-gradient(
 		to bottom,
-		color-mix(in oklab, var(--color-warning), var(--color-foreground) 14%),
-		var(--color-warning)
+		color-mix(in oklab, var(--warning), white 12%),
+		var(--warning)
 	);
-	box-shadow: var(--shadow-s);
 }
-/* Pressing sinks the thing straight down and into its surface */
+/* Pressing sinks the thing straight down into the page */
 @utility press {
 	@apply transition-[translate,box-shadow] duration-100;
 	&:active:not(:disabled) {
+		@apply shadow-inset;
 		translate: 0 1px;
-		box-shadow: var(--shadow-inset);
 	}
 }
-/* Anything floating over the page (dialogs, drawers, menus, toasts) */
+/* Anything floating over the page (dialogs, drawers, menus, toasts): the lightest layer */
 @utility floating {
-	background-color: var(--color-foreground);
-	background-image: var(--gradient-raised);
-	box-shadow: var(--shadow-l);
+	@apply shadow-l;
+	background-color: var(--foreground);
+	background-image: linear-gradient(
+		to bottom,
+		var(--foreground),
+		color-mix(in oklab, var(--foreground) 70%, var(--background))
+	);
+}
+
+/* ---------- Magazine ---------- */
+
+/* A chapter: a full-width rounded section in its own palette. Add one of the colours below */
+@utility chapter {
+	@apply rounded-chapter;
+	padding-block: clamp(2rem, 6vw, 4.5rem);
+	padding-inline: clamp(1.25rem, 5vw, 4rem);
+}
+@utility chapter-paper {
+	@apply palette-paper;
+	background-color: var(--background);
+	color: var(--text);
+}
+@utility chapter-ink {
+	@apply palette-ink;
+	background-color: var(--background);
+	color: var(--text);
+}
+@utility chapter-wine {
+	@apply palette-wine;
+	background-color: var(--background);
+	color: var(--text);
+}
+@utility chapter-saffron {
+	@apply palette-saffron;
+	background-color: var(--background);
+	color: var(--text);
+}
+
+/* Editorial type. display: the one big headline of a page or chapter; headline: a section
+   title; title: a card's title; kicker: the small label above a headline; accent: the coloured
+   second line of a headline */
+@utility display {
+	font-family: var(--font-display);
+	font-size: clamp(2.25rem, 7vw, 4.5rem);
+	font-weight: 600;
+	line-height: 1.02;
+	letter-spacing: -0.035em;
+	text-wrap: balance;
+}
+@utility headline {
+	font-family: var(--font-display);
+	font-size: clamp(1.75rem, 4.5vw, 3rem);
+	font-weight: 600;
+	line-height: 1.06;
+	letter-spacing: -0.03em;
+	text-wrap: balance;
+}
+@utility title {
+	font-family: var(--font-display);
+	font-size: 1.25rem;
+	font-weight: 700;
+	line-height: 1.2;
+	letter-spacing: -0.015em;
+}
+@utility kicker {
+	@apply text-xs font-bold tracking-[0.14em] text-text-muted uppercase;
+}
+@utility accent {
+	color: var(--accent);
+}
+
+/* A row of cards that scrolls sideways with the thumb, snapping to each card */
+@utility rail {
+	@apply grid snap-x snap-mandatory auto-cols-[minmax(15rem,80%)] grid-flow-col gap-4 overflow-x-auto pb-4 sm:auto-cols-[18rem];
+	scrollbar-width: none;
+	&::-webkit-scrollbar {
+		display: none;
+	}
+	& > * {
+		@apply snap-start;
+	}
 }
 
 /* A loading placeholder. Put it on the same element (and text) the real content uses, so the
@@ -134,9 +226,9 @@
 
 /* Buttons and button-like links and triggers (the Button component is the same look) */
 @utility button {
-	@apply inline-flex min-h-9 press items-center justify-center gap-2 rounded-lg raised px-4 text-sm font-bold text-text disabled:cursor-not-allowed disabled:opacity-50;
+	@apply inline-flex min-h-9 press items-center justify-center gap-2 rounded-full raised px-4 text-sm font-bold text-text disabled:cursor-not-allowed disabled:opacity-50;
 	&:hover:not(:disabled) {
-		background-image: var(--gradient-raised-hover);
+		filter: brightness(1.03);
 	}
 }
 @utility button-sm {
@@ -187,12 +279,12 @@
 
 /* A small status label */
 @utility tag {
-	@apply inline-flex min-h-5 items-center gap-1 rounded-full bg-midground px-2 text-xs font-bold;
+	@apply inline-flex min-h-5 items-center gap-1 rounded-full sunken px-2 text-xs font-bold;
 }
 
 /* A raised surface */
 @utility panel {
-	@apply rounded-xl raised;
+	@apply rounded-2xl raised;
 }
 
 /* Form: a label wrapping a caption and a native control */
@@ -203,7 +295,7 @@
 	@apply text-sm font-bold;
 }
 @utility control {
-	@apply min-h-9 w-full rounded-lg sunken px-3 py-1.5 text-sm text-text placeholder:text-text-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:text-text-muted disabled:opacity-60;
+	@apply min-h-9 w-full rounded-xl sunken px-3 py-1.5 text-sm text-text placeholder:text-text-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:text-text-muted disabled:opacity-60;
 }
 
 /* A plain data table */
@@ -233,10 +325,7 @@
 		width: auto;
 	}
 	.rtable tr {
-		background-color: var(--color-foreground);
-		background-image: var(--gradient-raised);
-		box-shadow: var(--shadow-s);
-		border-radius: 0.75rem;
+		@apply rounded-2xl raised;
 		margin-bottom: 0.5rem;
 		overflow: hidden;
 	}
@@ -252,7 +341,7 @@
 	.rtable td[data-label]::before {
 		content: attr(data-label);
 		font-weight: 500;
-		color: var(--color-text-muted);
+		color: var(--text-muted);
 		text-align: left;
 	}
 	.rtable td.rtable-full {

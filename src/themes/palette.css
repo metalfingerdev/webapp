@@ -1,4 +1,7 @@
-@theme {
+/* `inline`: utilities use the expressions below as they are (`.text-text { color: var(--text) }`),
+   so a chapter that redefines --text, --background and the rest recolours everything inside it,
+   template components included. */
+@theme inline {
   --color-background: var(--background);
   --color-midground: var(--midground);
   --color-foreground: var(--foreground);
@@ -13,74 +16,149 @@
   --color-primary: var(--primary);
   --color-secondary: var(--secondary);
   --color-on-secondary: var(--on-secondary);
+  --color-accent: var(--accent);
 
   --color-danger: var(--danger);
   --color-warning: var(--warning);
   --color-success: var(--success);
   --color-info: var(--info);
 
-  --color-primary-tint: var(--primary-tint);
-  --color-secondary-tint: var(--secondary-tint);
-  --color-danger-tint: var(--danger-tint);
-  --color-success-tint: var(--success-tint);
+  --color-primary-tint: color-mix(in oklab, var(--primary) 12%, var(--foreground));
+  --color-secondary-tint: color-mix(in oklab, var(--secondary) 22%, var(--foreground));
+  --color-danger-tint: color-mix(in oklab, var(--danger) 14%, var(--foreground));
+  --color-success-tint: color-mix(in oklab, var(--success) 16%, var(--foreground));
 
-  /* Shadows (Tailwind's shadow-s, shadow-m, shadow-l, shadow-inset): a thin lit line along the top
-     edge, then two soft shadows straight down in a very dark teal (never black). s for cards and
-     buttons, m for the bar and docks, l for anything floating over the page (dialogs, drawers,
-     menus, toasts). Inset is for recesses. --shade and --lit-edge are in :root below. */
-  --shadow-s: var(--lit-edge), 0 1px 2px color-mix(in oklab, var(--shade) 14%, transparent), 0 2px 4px color-mix(in oklab, var(--shade) 6%, transparent);
-  --shadow-m: var(--lit-edge), 0 2px 4px color-mix(in oklab, var(--shade) 10%, transparent), 0 6px 14px color-mix(in oklab, var(--shade) 10%, transparent);
-  --shadow-l: var(--lit-edge), 0 4px 8px color-mix(in oklab, var(--shade) 8%, transparent), 0 16px 32px color-mix(in oklab, var(--shade) 16%, transparent);
-  --shadow-inset: inset 0 2px 3px color-mix(in oklab, var(--shade) 12%, transparent), inset 0 -1px 0 hsl(0 0% 100% / 0.6);
+  /* Neumorphic shadows (Tailwind's shadow-s, shadow-m, shadow-l, shadow-inset). The light is
+     straight above: a soft glow of --neu-light on top, a soft --neu-shade below. s for cards and
+     buttons, m for bars and docks, l for anything floating over the page. Inset is pressed in. */
+  --shadow-s: inset 0 1px 0 var(--neu-edge), 0 -2px 5px var(--neu-light), 0 4px 10px var(--neu-shade);
+  --shadow-m: inset 0 1px 0 var(--neu-edge), 0 -4px 10px var(--neu-light), 0 8px 20px var(--neu-shade);
+  --shadow-l: inset 0 1px 0 var(--neu-edge), 0 -6px 16px var(--neu-light), 0 18px 40px var(--neu-shade);
+  --shadow-inset: inset 0 3px 7px var(--neu-shade), inset 0 -2px 4px var(--neu-light);
+
+  /* Magazine type: one display face for headlines, the system font for reading */
+  --font-display: 'Manrope Variable', ui-sans-serif, system-ui, sans-serif;
+  --radius-chapter: 2rem;
 }
 
-/* The app's one palette (Aggarwal Kart's teal and burgundy). Change the values to rebrand; screens only ever use the names above
-   (AGENTS.md). Light only: there is no dark mode.
+/* The app's one palette: Aggarwal Kart's teal and burgundy, with warm magazine "chapters". Change
+   the values to rebrand; screens only ever use the names (AGENTS.md, docs/10-ui.md). Light only.
 
-   The look is soft layers (dictated 2026-11-08, after Sajid's technique): depth comes from the
-   layers, from gradients that mix them, and from soft shadows, never from dark borders. The light
-   is straight above, so shadows fall straight down, raised things are lit at the top and recessed
-   things are shaded at the top. */
+   The look (dictated 2026-11-08): a magazine of full-width rounded chapters, each its own colour,
+   with neumorphic surfaces: a card is the colour of the page it sits on, raised by light from
+   straight above and shade below, or pressed into it. Never a dark outline.
+
+   Every palette sets the same names. The page is paper; `chapter-ink` and the other chapter-*
+   utilities in app.css switch a section to another palette, and everything inside follows. */
 :root {
   color-scheme: light;
+  @apply palette-paper;
 
-  /* Layers: background is the darkest, foreground the lightest. Never reorder them. A whisper of
-     the brand teal keeps them from looking flat */
-  --background:   hsl(173 8% 90%);
-  --midground:    hsl(173 8% 95%);
-  --foreground:   hsl(173 8% 99%);
+  /* Kept for the template's components */
+  --gradient-raised: linear-gradient(to bottom, var(--midground), var(--background));
+  --gradient-raised-hover: linear-gradient(to bottom, var(--foreground), var(--background));
+  --gradient-sunken: linear-gradient(to bottom, color-mix(in oklab, var(--background), black 3%), var(--background));
+}
 
-  --text:         hsl(173 10% 6%);
-  --text-muted:   hsl(173 6% 30%);
+/* Warm cream: the page itself */
+@utility palette-paper {
+  /* Layers: background (the page) is the darkest, foreground the lightest. Raised and sunken
+     things take the page's own colour; foreground is for things floating over it */
+  --background:   hsl(38 30% 90%);
+  --midground:    hsl(38 32% 93%);
+  --foreground:   hsl(40 45% 97%);
+
+  --text:         hsl(173 35% 9%);
+  --text-muted:   hsl(30 9% 34%);
 
   /* Lines are only thin dividers inside a surface, never an outline around one */
   --highlight:    hsl(0 0% 100%);
-  --border:       hsl(173 6% 80%);
-  --border-muted: hsl(173 8% 88%);
+  --border:       hsl(35 18% 78%);
+  --border-muted: hsl(36 22% 85%);
 
-  /* Primary is for actions; secondary is an accent, and text on it uses on-secondary */
-  --primary:      hsl(173 100% 9%);
+  /* Primary is for actions (text on it: --foreground); secondary is a coloured accent (text on
+     it: --on-secondary); accent colours the second line of a headline */
+  --primary:      hsl(173 70% 14%);
   --secondary:    hsl(338 43% 31%);
-  --on-secondary: hsl(0 0% 100%);
+  --on-secondary: hsl(40 45% 97%);
+  --accent:       hsl(338 43% 36%);
 
-  --danger:       hsl(9 21% 41%);
-  --warning:      hsl(52 23% 34%);
-  --success:      hsl(147 19% 36%);
-  --info:         hsl(217 22% 41%);
+  --danger:       hsl(9 45% 40%);
+  --warning:      hsl(36 70% 34%);
+  --success:      hsl(147 30% 32%);
+  --info:         hsl(217 30% 40%);
 
-  /* Solid washes of a colour on the lightest layer, for alerts, toasts and highlights. Never a
-     see-through colour: those let the page show through a toast */
-  --primary-tint:   color-mix(in oklab, var(--primary) 12%, var(--foreground));
-  --secondary-tint: color-mix(in oklab, var(--secondary) 30%, var(--foreground));
-  --danger-tint:    color-mix(in oklab, var(--danger) 12%, var(--foreground));
-  --success-tint:   color-mix(in oklab, var(--success) 15%, var(--foreground));
+  /* Neumorphism: the glow above, the shade below, and a lit top edge */
+  --neu-light:    hsl(40 60% 99% / 0.85);
+  --neu-shade:    hsl(30 30% 35% / 0.22);
+  --neu-edge:     hsl(0 0% 100% / 0.6);
+}
 
-  /* Depth from mixing the layers. Raised: lit at the top. Sunken: a recess, shaded at the top */
-  --gradient-raised: linear-gradient(to bottom, var(--foreground), var(--midground));
-  --gradient-raised-hover: linear-gradient(to bottom, var(--foreground), color-mix(in oklab, var(--midground) 40%, var(--foreground)));
-  --gradient-sunken: linear-gradient(to bottom, var(--background), var(--midground));
+/* Deep brand teal */
+@utility palette-ink {
+  --background:   hsl(173 48% 14%);
+  --midground:    hsl(173 42% 17%);
+  --foreground:   hsl(173 36% 21%);
+  --text:         hsl(40 45% 95%);
+  --text-muted:   hsl(165 18% 74%);
+  --highlight:    hsl(173 30% 40%);
+  --border:       hsl(173 28% 30%);
+  --border-muted: hsl(173 32% 24%);
+  --primary:      hsl(40 45% 95%);
+  --secondary:    hsl(38 78% 64%);
+  --on-secondary: hsl(173 48% 12%);
+  --accent:       hsl(38 80% 68%);
+  --danger:       hsl(9 65% 72%);
+  --warning:      hsl(38 78% 64%);
+  --success:      hsl(147 38% 64%);
+  --info:         hsl(205 45% 72%);
+  --neu-light:    hsl(173 30% 32% / 0.55);
+  --neu-shade:    hsl(173 70% 3% / 0.55);
+  --neu-edge:     hsl(173 30% 60% / 0.18);
+}
 
-  /* Ingredients of the shadows above */
-  --shade:        hsl(173 40% 8%);
-  --lit-edge:     inset 0 1px 0 hsl(0 0% 100% / 0.7);
+/* Brand burgundy */
+@utility palette-wine {
+  --background:   hsl(338 40% 25%);
+  --midground:    hsl(338 36% 28%);
+  --foreground:   hsl(338 32% 32%);
+  --text:         hsl(30 50% 95%);
+  --text-muted:   hsl(338 18% 80%);
+  --highlight:    hsl(338 30% 45%);
+  --border:       hsl(338 25% 38%);
+  --border-muted: hsl(338 30% 31%);
+  --primary:      hsl(30 50% 95%);
+  --secondary:    hsl(38 78% 64%);
+  --on-secondary: hsl(338 45% 18%);
+  --accent:       hsl(38 80% 70%);
+  --danger:       hsl(9 70% 75%);
+  --warning:      hsl(38 78% 64%);
+  --success:      hsl(147 38% 66%);
+  --info:         hsl(205 45% 75%);
+  --neu-light:    hsl(338 30% 40% / 0.5);
+  --neu-shade:    hsl(338 70% 6% / 0.55);
+  --neu-edge:     hsl(338 40% 75% / 0.18);
+}
+
+/* Warm amber */
+@utility palette-saffron {
+  --background:   hsl(38 78% 64%);
+  --midground:    hsl(38 80% 68%);
+  --foreground:   hsl(40 82% 74%);
+  --text:         hsl(25 45% 12%);
+  --text-muted:   hsl(28 35% 26%);
+  --highlight:    hsl(45 100% 92%);
+  --border:       hsl(34 55% 50%);
+  --border-muted: hsl(36 65% 58%);
+  --primary:      hsl(173 48% 14%);
+  --secondary:    hsl(338 43% 31%);
+  --on-secondary: hsl(40 45% 97%);
+  --accent:       hsl(338 50% 30%);
+  --danger:       hsl(9 55% 32%);
+  --warning:      hsl(25 70% 28%);
+  --success:      hsl(147 40% 24%);
+  --info:         hsl(217 40% 30%);
+  --neu-light:    hsl(42 90% 82% / 0.8);
+  --neu-shade:    hsl(28 70% 25% / 0.35);
+  --neu-edge:     hsl(45 100% 90% / 0.6);
 }

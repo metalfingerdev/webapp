@@ -11,19 +11,20 @@
 <style lang="postcss">
 	@reference 'src/app.css';
 
-	:global(.ui-tab) {
-		@apply inline-flex min-h-11 items-center justify-center gap-2 rounded-lg px-3 font-bold whitespace-nowrap text-text-muted;
-	}
-	:global(.ui-tab:hover) {
-		@apply bg-foreground text-text;
-	}
-	:global(.ui-tab[data-state='active']) {
-		@apply raised-primary text-foreground;
-	}
-	:global(.ui-tab:disabled) {
-		@apply pointer-events-none opacity-50;
-	}
-	:global([data-orientation='vertical'] .ui-tab) {
-		@apply w-full justify-start text-left;
+	:global button.ui-tab {
+		@apply inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-4 font-bold whitespace-nowrap text-text-muted;
+
+		&:hover {
+			@apply text-text;
+		}
+		&[data-state='active'] {
+			@apply raised text-text;
+		}
+		&:disabled {
+			@apply pointer-events-none opacity-50;
+		}
+		[data-orientation='vertical'] & {
+			@apply w-full justify-start text-left;
+		}
 	}
 </style>

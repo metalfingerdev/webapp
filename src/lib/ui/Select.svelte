@@ -17,7 +17,7 @@
 <Select.Root type="single" bind:value items={options}>
   <Select.Trigger class="ui-select-trigger" aria-label={label}>
     <span>{selected?.label ?? label}</span>
-    <ChevronDownIcon class="size-4" aria-hidden="true" />
+    <ChevronDownIcon size={16} aria-hidden="true" />
   </Select.Trigger>
   <Select.Portal>
     <Select.Content class="ui-select-menu" sideOffset={6} align="start">
@@ -26,7 +26,7 @@
           <Select.Item value={option.value} label={option.label} class="ui-select-option">
             {#snippet children({ selected })}
               <span>{option.label}</span>
-              {#if selected}<CheckIcon class="size-4" aria-hidden="true" />{/if}
+              {#if selected}<CheckIcon size={16} aria-hidden="true" />{/if}
             {/snippet}
           </Select.Item>
         {/each}
@@ -38,20 +38,23 @@
 <style lang="postcss">
   @reference 'src/app.css';
 
-  /* Bits renders these elements itself, so they are styled with :global */
-  :global(.ui-select-trigger) {
-    @apply inline-flex min-h-11 items-center justify-between gap-2 rounded-lg px-3 font-bold raised press;
-  }
-  :global(.ui-select-menu) {
-    @apply z-30 min-w-44 rounded-xl p-1 floating;
-  }
-  :global(.ui-select-option) {
-    @apply flex min-h-11 cursor-pointer items-center justify-between gap-3 rounded-lg px-3 font-semibold;
-  }
-  :global(.ui-select-option[data-highlighted]) {
-    @apply bg-midground;
-  }
-  :global(.ui-select-option[data-selected]) {
-    @apply text-primary;
+  /* Bits renders these elements itself, so they are styled as global */
+  :global {
+    button.ui-select-trigger {
+      @apply inline-flex min-h-11 items-center justify-between gap-2 rounded-full px-4 font-bold raised press;
+    }
+    div.ui-select-menu {
+      @apply z-30 min-w-44 rounded-2xl p-1.5 floating;
+    }
+    div.ui-select-option {
+      @apply flex min-h-11 cursor-pointer items-center justify-between gap-3 rounded-xl px-3 font-semibold;
+
+      &[data-highlighted] {
+        @apply sunken;
+      }
+      &[data-selected] {
+        @apply text-primary;
+      }
+    }
   }
 </style>

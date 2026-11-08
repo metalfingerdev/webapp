@@ -11,6 +11,7 @@
 	import LayoutGridIcon from '@lucide/svelte/icons/layout-grid';
 	import BookOpenIcon from '@lucide/svelte/icons/book-open';
 	import { api } from '#convex/_generated/api.js';
+	import Media from '#lib/ui/Media.svelte';
 	import { formatPrice } from './format.js';
 	import { strings } from './strings.js';
 
@@ -142,7 +143,7 @@
 >
 	<div class="inner" bind:this={content}>
 		<form class="field" onsubmit={submit}>
-			<SearchIcon class="size-5 shrink-0" aria-hidden="true" />
+			<SearchIcon size={20} aria-hidden="true" />
 			<input
 				bind:this={field}
 				bind:value={text}
@@ -155,12 +156,12 @@
 			<!-- Always there, hidden while empty, so the field never changes size as you type -->
 			<button
 				class="clear"
-				class:invisible={!text}
+				class:hidden-while-empty={!text}
 				type="button"
 				aria-label={strings.search.clear}
 				onclick={clear}
 			>
-				<XIcon class="size-4" aria-hidden="true" />
+				<XIcon size={16} aria-hidden="true" />
 			</button>
 		</form>
 
@@ -182,7 +183,7 @@
 										data-item
 										href={`${resolve('/(shop)/shop')}?q=${encodeURIComponent(past)}`}
 									>
-										<ClockIcon class="size-4 text-text-muted" aria-hidden="true" />
+										<ClockIcon size={16} aria-hidden="true" />
 										{past}
 									</a>
 								</li>
@@ -198,7 +199,7 @@
 									data-item
 									href={resolve('/(shop)/shop/[category]', { category: category.slug })}
 								>
-									<ArrowRightIcon class="size-4 text-text-muted" aria-hidden="true" />
+									<ArrowRightIcon size={16} aria-hidden="true" />
 									{category.name}
 								</a>
 							</li>
@@ -215,7 +216,7 @@
 										onclick={remember}
 										href={resolve('/(shop)/shop/[category]', { category: category.slug })}
 									>
-										<LayoutGridIcon class="size-4 text-text-muted" aria-hidden="true" />
+										<LayoutGridIcon size={16} aria-hidden="true" />
 										<span>
 											{#each parts(category.name) as { part, match }, i (i)}{#if match}<mark
 														>{part}</mark
@@ -231,7 +232,7 @@
 						<ul class="list" aria-hidden="true">
 							{#each [0, 1, 2] as n (n)}
 								<li class="hit">
-									<span class="cover bone"></span>
+									<span class="cover"><span class="bone cover-bone"></span></span>
 									<span class="hit-text"
 										><span class="bone">{strings.search.loadingTitle}</span></span
 									>
@@ -254,11 +255,15 @@
 										})}
 									>
 										<span class="cover">
-											{#if hit.imageUrl}
-												<img src={hit.imageUrl} alt="" width="36" height="48" loading="lazy" />
-											{:else}
-												<BookOpenIcon class="size-4 text-text-muted" aria-hidden="true" />
-											{/if}
+											<Media
+												src={hit.imageUrl}
+												ratio="3 / 4"
+												slot="product-thumb"
+												icon={BookOpenIcon}
+												iconSize={14}
+												width={36}
+												height={48}
+											/>
 										</span>
 										<span class="hit-text">
 											<span class="hit-title">
@@ -277,7 +282,7 @@
 
 					<a class="row strong" data-item onclick={remember} href={allResults}>
 						{strings.search.seeAllFor(typed)}
-						<ArrowRightIcon class="size-4" aria-hidden="true" />
+						<ArrowRightIcon size={16} aria-hidden="true" />
 					</a>
 				{/if}
 			</div>
@@ -288,90 +293,109 @@
 <style lang="postcss">
 	@reference 'src/app.css';
 
-	/* w-0 min-w-full: as wide as the bar, never wider. Its height is set from .inner, so the padding
-	   lives on .inner too. */
-	.search-panel {
+	/* w-0 min-w-full: as wide as the bar, never wider. Its height is set from div.inner, so the
+	   padding lives there too. */
+	div.search-panel {
 		@apply w-0 min-w-full overflow-hidden;
 		transition: height 240ms cubic-bezier(0.16, 1, 0.3, 1);
-	}
-	.inner {
-		@apply flex flex-col px-1 pb-2 md:px-3;
-	}
-	.field {
-		@apply flex items-center gap-3 border-b border-border-muted px-2 text-text-muted;
 
-		input {
-			@apply min-h-13 w-full bg-transparent text-lg text-text outline-none placeholder:text-text-muted md:text-xl;
+		@media (prefers-reduced-motion: reduce) {
+			transition: none;
+		}
+	}
 
-			/* the field has its own clear button */
-			&::-webkit-search-cancel-button {
-				appearance: none;
+	div.inner {
+		@apply flex flex-col px-1 pt-2 pb-2 md:px-3;
+
+		form.field {
+			@apply flex items-center gap-3 rounded-full sunken px-4 text-text-muted;
+
+			input {
+				@apply min-h-13 w-full border-0 bg-transparent text-lg text-text outline-none placeholder:text-text-muted focus:ring-0 md:text-xl;
+
+				/* the field has its own clear button */
+				&::-webkit-search-cancel-button {
+					appearance: none;
+				}
+			}
+			button.clear {
+				@apply grid size-9 shrink-0 press place-items-center rounded-full raised text-text;
+
+				&.hidden-while-empty {
+					@apply invisible;
+				}
 			}
 		}
-	}
-	.clear {
-		@apply grid size-9 shrink-0 place-items-center rounded-full bg-midground text-text;
-	}
-	.results {
-		@apply max-h-[min(65dvh,34rem)] overflow-y-auto overscroll-contain;
-	}
-	.results {
-		> div {
-			@apply flex flex-col gap-1 pt-2;
-		}
-	}
-	.heading {
-		@apply flex items-center justify-between px-2 pt-2;
 
-		h2 {
-			@apply text-xs font-bold text-text-muted;
-		}
-	}
-	.text-button {
-		@apply min-h-9 px-2 text-xs font-bold text-primary;
-	}
-	.list {
-		@apply flex flex-col;
-	}
-	.row,
-	.hit {
-		@apply flex min-h-11 items-center gap-3 rounded-xl px-2 transition-colors outline-none hover:bg-midground focus-visible:bg-midground;
-	}
-	.hit {
-		@apply min-h-15 py-1.5;
-	}
-	.cover {
-		@apply grid h-12 w-9 shrink-0 place-items-center overflow-hidden rounded-md bg-midground;
+		div.results {
+			@apply max-h-[min(65dvh,34rem)] overflow-y-auto overscroll-contain;
 
-		img {
-			@apply size-full object-cover;
+			> div {
+				@apply flex flex-col gap-1 pt-3;
+			}
 		}
-	}
-	.hit-text {
-		@apply flex min-w-0 flex-1 flex-col;
-	}
-	.hit-title {
-		@apply line-clamp-1 font-bold;
-	}
-	.hit-price {
-		@apply shrink-0 font-bold tabular-nums;
-	}
-	mark {
-		@apply rounded-sm bg-primary-tint text-inherit;
-	}
-	.strong {
-		@apply font-bold text-primary;
-	}
-	.quiet {
-		@apply line-clamp-1 text-sm text-text-muted;
 
-		&:is(p) {
-			@apply px-2 py-3;
+		div.heading {
+			@apply flex items-center justify-between px-2 pt-2;
+
+			h2 {
+				@apply kicker;
+			}
+			button.text-button {
+				@apply min-h-9 px-2 text-xs font-bold text-accent;
+			}
 		}
-	}
-	@media (prefers-reduced-motion: reduce) {
-		.search-panel {
-			transition: none;
+
+		ul.list {
+			@apply flex flex-col;
+		}
+
+		:is(a.row, a.hit, li.hit) {
+			@apply flex min-h-11 items-center gap-3 rounded-2xl px-3 outline-none;
+
+			&:is(a):is(:hover, :focus-visible) {
+				@apply sunken;
+			}
+			> :global(svg) {
+				@apply shrink-0 text-text-muted;
+			}
+		}
+		:is(a.hit, li.hit) {
+			@apply min-h-15 py-1.5;
+		}
+		span.cover {
+			@apply w-9 shrink-0;
+			--media-radius: 0.5rem;
+
+			span.cover-bone {
+				@apply block h-12;
+			}
+		}
+		span.hit-text {
+			@apply flex min-w-0 flex-1 flex-col;
+		}
+		span.hit-title {
+			@apply line-clamp-1 font-bold;
+		}
+		span.hit-price {
+			@apply shrink-0 font-bold tabular-nums;
+		}
+		mark {
+			@apply rounded-sm bg-secondary-tint text-inherit;
+		}
+		a.row.strong {
+			@apply font-bold text-accent;
+
+			> :global(svg) {
+				@apply text-accent;
+			}
+		}
+		.quiet {
+			@apply line-clamp-1 text-sm text-text-muted;
+
+			&:is(p) {
+				@apply px-2 py-3;
+			}
 		}
 	}
 </style>

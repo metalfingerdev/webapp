@@ -29,16 +29,17 @@
 <style lang="postcss">
 	@reference 'src/app.css';
 
-	:global(.ui-menu-item) {
-		@apply flex min-h-10 cursor-pointer items-center gap-2 rounded-lg px-2 text-sm font-semibold outline-none select-none;
-	}
-	:global(.ui-menu-item[data-highlighted]) {
-		@apply bg-midground;
-	}
-	:global(.ui-menu-item[data-variant='destructive']) {
-		@apply text-danger;
-	}
-	:global(.ui-menu-item[data-disabled]) {
-		@apply pointer-events-none opacity-50;
+	:global div.ui-menu-item {
+		@apply flex min-h-10 cursor-pointer items-center gap-2 rounded-xl px-3 text-sm font-semibold outline-none select-none;
+
+		&[data-highlighted] {
+			@apply sunken;
+		}
+		&[data-variant='destructive'] {
+			@apply text-danger;
+		}
+		&[data-disabled] {
+			@apply pointer-events-none opacity-50;
+		}
 	}
 </style>

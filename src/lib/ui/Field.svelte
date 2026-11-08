@@ -34,34 +34,33 @@
 <style lang="postcss">
   @reference 'src/app.css';
 
-  .field {
-    @apply flex flex-col gap-1;
-  }
-  label {
-    @apply flex flex-col gap-1;
-  }
-  .caption {
-    @apply text-sm font-bold;
-  }
-  .hint {
-    @apply text-xs text-text-muted;
-  }
-  .problem {
-    @apply text-sm font-semibold text-danger;
-  }
-  .field :global(input:not([type="radio"], [type="checkbox"])),
-  .field :global(select),
-  .field :global(textarea) {
-    @apply min-h-11 w-full rounded-lg px-3 py-2 text-text sunken;
-  }
-  .field :global(textarea) {
-    @apply min-h-20;
-  }
-  .field :global(input::placeholder),
-  .field :global(textarea::placeholder) {
-    @apply text-text-muted;
-  }
-  .field :global(:is(input, select, textarea):focus-visible) {
-    @apply outline-2 outline-offset-2 outline-primary;
+  div.field {
+    @apply flex flex-col gap-1.5;
+
+    label {
+      @apply flex flex-col gap-1.5;
+    }
+    span.caption {
+      @apply text-sm font-bold;
+    }
+    p.hint {
+      @apply text-xs text-text-muted;
+    }
+    p.problem {
+      @apply text-sm font-semibold text-danger;
+    }
+    /* The control is passed in, so it is reached with :global */
+    :global(:is(input:not([type="radio"], [type="checkbox"]), select, textarea)) {
+      @apply min-h-11 w-full rounded-xl border-0 px-4 py-2 text-text sunken;
+    }
+    :global(textarea) {
+      @apply min-h-24;
+    }
+    :global(:is(input, textarea)::placeholder) {
+      @apply text-text-muted;
+    }
+    :global(:is(input, select, textarea):focus-visible) {
+      @apply outline-2 outline-offset-2 outline-primary;
+    }
   }
 </style>
