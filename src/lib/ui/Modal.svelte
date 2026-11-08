@@ -24,7 +24,7 @@
     <Dialog.Content class="ui-modal">
       <Dialog.Title class="sr-only">{title}</Dialog.Title>
       <Dialog.Close class="ui-modal-close" aria-label={closeLabel}>
-        <XIcon class="size-5" aria-hidden="true" />
+        <XIcon size={20} aria-hidden="true" />
       </Dialog.Close>
       <div class="ui-modal-body">{@render children()}</div>
     </Dialog.Content>
@@ -34,25 +34,27 @@
 <style lang="postcss">
   @reference 'src/app.css';
 
-  /* Bits renders these elements itself, so they are styled with :global */
-  :global(.ui-modal-overlay) {
-    @apply fixed inset-0 z-40 bg-black/45;
-  }
-  :global(.ui-modal) {
-    @apply fixed inset-0 z-50 flex flex-col overflow-y-auto bg-foreground text-text;
-  }
-  :global(.ui-modal-close) {
-    @apply absolute top-2 right-2 z-10 grid size-11 place-items-center rounded-lg;
-  }
-  :global(.ui-modal-body) {
-    @apply flex flex-1 flex-col justify-center p-2;
-  }
-  @media (min-width: 640px) {
-    :global(.ui-modal) {
-      @apply inset-auto top-1/2 left-1/2 max-h-[90dvh] w-[28rem] max-w-[calc(100vw-2rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl floating;
+  /* Bits renders these elements itself, so they are styled as global */
+  :global {
+    div.ui-modal-overlay {
+      @apply fixed inset-0 z-40 bg-black/40 backdrop-blur-[2px];
     }
-    :global(.ui-modal-body) {
-      @apply p-6;
+    div.ui-modal {
+      @apply fixed inset-0 z-50 flex flex-col overflow-y-auto text-text floating;
+
+      button.ui-modal-close {
+        @apply absolute top-3 right-3 z-10 grid size-11 place-items-center rounded-full raised press;
+      }
+      div.ui-modal-body {
+        @apply flex flex-1 flex-col justify-center p-4 pt-16;
+      }
+      @media (min-width: 640px) {
+        @apply inset-auto top-1/2 left-1/2 max-h-[90dvh] w-[30rem] max-w-[calc(100vw-2rem)] -translate-x-1/2 -translate-y-1/2 rounded-3xl;
+
+        div.ui-modal-body {
+          @apply p-8 pt-16;
+        }
+      }
     }
   }
 </style>

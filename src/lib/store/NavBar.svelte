@@ -150,7 +150,7 @@
 						onpointerenter={(event) => hover(i, event)}
 					>
 						{trigger.label}
-						<ChevronDownIcon class="caret size-4" aria-hidden="true" />
+						<ChevronDownIcon class="caret" size={16} aria-hidden="true" />
 					</button>
 				</li>
 			{/each}
@@ -172,9 +172,9 @@
 					onclick={toggleSearch}
 				>
 					{#if searchOpen}
-						<XIcon class="size-5" aria-hidden="true" />
+						<XIcon size={20} aria-hidden="true" />
 					{:else}
-						<SearchIcon class="size-5" aria-hidden="true" />
+						<SearchIcon size={20} aria-hidden="true" />
 					{/if}
 				</button>
 			</li>
@@ -185,7 +185,7 @@
 					aria-label={strings.cart.open(cart.count)}
 					onclick={() => openDrawer('cart')}
 				>
-					<ShoppingBagIcon class="size-5" aria-hidden="true" />
+					<ShoppingBagIcon size={20} aria-hidden="true" />
 					{#if cart.count > 0}<span class="badge" aria-hidden="true">{cart.count}</span>{/if}
 				</button>
 			</li>
@@ -196,7 +196,7 @@
 					aria-label={strings.nav.menu}
 					onclick={() => openDrawer('root')}
 				>
-					<MenuIcon class="size-5" aria-hidden="true" />
+					<MenuIcon size={20} aria-hidden="true" />
 				</button>
 			</li>
 		</menu>
@@ -233,144 +233,116 @@
 <style lang="postcss">
 	@reference 'src/app.css';
 
-	/* The old floating bar, softer: a rounded card, lit at the top, with a soft shadow straight down and no outline. The panels
-	   position against the header, which is the same width as the bar. The header keeps the collapsed
-	   bar's height (top gap + row + padding); the bar floats in it, so when the search grows
-	   the bar it covers the page instead of pushing it down. */
-	.bar-wrap {
+	/* A floating neumorphic bar. The header keeps the collapsed bar's height (top gap + row +
+	   padding); the bar floats in it, so when the search grows the bar it covers the page instead
+	   of pushing it down. The dropdown box positions against the header, the bar's width. */
+	header.bar-wrap {
 		@apply sticky top-0 z-30 mx-auto max-w-6xl px-3 pt-3;
-		height: calc(0.75rem + 2.75rem + 0.75rem);
+		height: calc(0.75rem + 2.75rem + 0.75rem + 0.75rem);
 		container-type: inline-size;
-	}
 
-	.bar {
-		@apply absolute inset-x-3 top-3 rounded-3xl raised p-1.5;
-		box-shadow: var(--shadow-m);
-	}
-
-	.row {
-		@apply flex h-11 items-center gap-0.5;
-	}
-
-	.brand {
-		@apply mr-2 flex-1 text-lg font-extrabold text-primary lg:flex-none;
-
-		a {
-			@apply flex min-h-11 items-center px-3;
+		nav.bar {
+			@apply absolute inset-x-3 top-3 rounded-[1.75rem] floating p-1.5;
 		}
-	}
+		menu.row {
+			@apply flex h-11 items-center gap-1;
+		}
+		li.brand {
+			@apply mr-2 flex-1 lg:flex-none;
 
-	.spacer {
-		@apply hidden lg:block lg:flex-1;
-	}
-
-	.wide {
-		@apply hidden lg:block;
-	}
-
-	.trigger,
-	.link {
-		@apply inline-flex min-h-11 items-center gap-1.5 squircle-4xl px-4 font-bold transition-colors;
-	}
-
-	.trigger {
-		:global(.caret) {
-			@apply transition-transform;
+			a {
+				@apply flex min-h-11 items-center px-3 font-display text-xl font-extrabold tracking-tight text-primary;
+			}
+		}
+		li.spacer {
+			@apply hidden lg:block lg:flex-1;
+		}
+		li.wide {
+			@apply hidden lg:block;
 		}
 
-		&.active :global(.caret) {
-			@apply rotate-180;
+		:is(button.trigger, a.link) {
+			@apply inline-flex min-h-11 items-center gap-1.5 rounded-full px-4 font-bold transition-shadow;
+
+			&:hover,
+			&.active {
+				@apply sunken;
+			}
 		}
-	}
-
-	.action {
-		@apply grid size-11 place-items-center rounded-full transition-colors;
-
-		&.active {
-			@apply bg-midground;
-		}
-	}
-
-	/* The count sits over the icon's corner, so it never changes the button's size */
-	.cart {
-		@apply relative;
-
-		.badge {
-			@apply absolute top-0.5 right-0.5 grid min-w-5 place-items-center rounded-full bg-primary px-1 text-xs leading-5 font-bold text-foreground tabular-nums;
-		}
-	}
-
-	.trigger,
-	.link,
-	.action {
-		&:hover {
-			@apply bg-midground;
-		}
-	}
-
-	.trigger.active {
-		@apply bg-midground;
-	}
-
-	/* The sliding box, desktop only. Its position follows the active trigger; nothing else is measured. */
-	/* One duration and curve for every moving part (the wrapper, box, arrow and panels), so the
-	   dropdown moves as one card instead of layers out of step */
-	.box-wrap {
-		@apply pointer-events-none invisible absolute inset-x-3 top-full z-10 mt-2 -translate-y-2 opacity-0 max-lg:hidden;
-		--dur: 320ms;
-		--ease: cubic-bezier(0.16, 1, 0.3, 1);
-		transition:
-			opacity var(--dur) var(--ease),
-			translate var(--dur) var(--ease),
-			visibility var(--dur);
-
-		&.open {
-			@apply pointer-events-auto visible translate-y-0 opacity-100;
+		button.trigger {
+			:global(.caret) {
+				@apply transition-transform;
+			}
+			&.active :global(.caret) {
+				@apply rotate-180;
+			}
 		}
 
-		/* Jump instead of slide, e.g. on first open */
-		&.snap .box,
-		&.snap .arrow {
-			transition: none;
+		button.action {
+			@apply grid size-11 press place-items-center rounded-full raised;
+
+			&.active {
+				@apply sunken;
+			}
+			/* The count sits over the icon's corner, so it never changes the button's size */
+			&.cart {
+				@apply relative;
+			}
+			span.badge {
+				@apply absolute -top-1 -right-1 grid min-w-5 place-items-center rounded-full raised-primary px-1 text-xs leading-5 font-bold text-foreground tabular-nums;
+			}
 		}
-	}
 
-	.box {
-		@apply relative grid w-136 max-w-full rounded-3xl raised;
-		box-shadow: var(--shadow-m);
-		/* centred under the trigger, never past the bar's edges (100cqw is the bar's width) */
-		transform: translateX(clamp(0px, calc(var(--centre) - 17rem), calc(100cqw - 34rem)));
-		transition: transform var(--dur) var(--ease);
-	}
+		/* The sliding box, desktop only. Its position follows the active trigger; nothing else is
+		   measured. One duration and curve for every moving part, so it moves as one card */
+		div.box-wrap {
+			@apply pointer-events-none invisible absolute inset-x-3 top-full z-10 -mt-1 -translate-y-2 opacity-0 max-lg:hidden;
+			--dur: 320ms;
+			--ease: cubic-bezier(0.16, 1, 0.3, 1);
+			transition:
+				opacity var(--dur) var(--ease),
+				translate var(--dur) var(--ease),
+				visibility var(--dur);
 
-	.arrow {
-		@apply absolute -top-1.5 left-0 z-10 size-3 bg-foreground;
-		transform: translateX(calc(var(--centre) - 6px)) rotate(45deg);
-		transition: transform var(--dur) var(--ease);
-	}
-
-	/* Every panel sits in the same grid cell with no surface of its own (the box is the card); the
-	   others wait a few pixels to one side and fade, on the box's curve */
-	.slot {
-		@apply pointer-events-none invisible col-start-1 row-start-1 opacity-0;
-		transform: translateX(calc(var(--side) * 12px));
-		transition:
-			opacity var(--dur) var(--ease),
-			transform var(--dur) var(--ease),
-			visibility var(--dur);
-
-		&.current {
-			@apply pointer-events-auto visible opacity-100;
-			transform: none;
+			&.open {
+				@apply pointer-events-auto visible translate-y-0 opacity-100;
+			}
+			/* Jump instead of slide, e.g. on first open */
+			&.snap :is(div.box, div.arrow) {
+				transition: none;
+			}
 		}
-	}
+		div.box {
+			@apply relative grid w-136 max-w-full rounded-3xl floating;
+			/* centred under the trigger, never past the bar's edges (100cqw is the bar's width) */
+			transform: translateX(clamp(0px, calc(var(--centre) - 17rem), calc(100cqw - 34rem)));
+			transition: transform var(--dur) var(--ease);
+		}
+		div.arrow {
+			@apply absolute -top-1.5 left-0 z-10 size-3 bg-foreground;
+			transform: translateX(calc(var(--centre) - 6px)) rotate(45deg);
+			transition: transform var(--dur) var(--ease);
+		}
+		/* Every panel sits in the same grid cell (the box is the card); the others wait a few
+		   pixels to one side and fade */
+		div.slot {
+			@apply pointer-events-none invisible col-start-1 row-start-1 opacity-0;
+			transform: translateX(calc(var(--side) * 12px));
+			transition:
+				opacity var(--dur) var(--ease),
+				transform var(--dur) var(--ease),
+				visibility var(--dur);
 
-	@media (prefers-reduced-motion: reduce) {
-		.box-wrap,
-		.box,
-		.arrow,
-		.slot {
-			transition: none;
+			&.current {
+				@apply pointer-events-auto visible opacity-100;
+				transform: none;
+			}
+		}
+
+		@media (prefers-reduced-motion: reduce) {
+			:is(div.box-wrap, div.box, div.arrow, div.slot) {
+				transition: none;
+			}
 		}
 	}
 </style>

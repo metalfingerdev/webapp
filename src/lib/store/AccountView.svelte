@@ -76,244 +76,245 @@
 	};
 </script>
 
-{#if auth.isLoading}
-	<h2 class="hello"><span class="bone">{text.hello('')}</span></h2>
-{:else if !signedIn}
-	<h2 class="hello">{text.signInTitle}</h2>
-	<p class="note">{strings.menu.signInHint}</p>
-	<!-- Off the /signin page it stays here once signed in, and this view turns into the account -->
-	<SignIn />
-{:else}
-	<!-- Same height loading or loaded, so nothing below moves -->
-	<header class="who" aria-busy={me === undefined}>
-		{#if me === undefined}
-			<span class="photo bone" aria-hidden="true"></span>
-		{:else}
-			<Avatar.Root class="account-photo">
-				{#if me?.image}<Avatar.Image src={me.image} alt="" class="account-photo-img" />{/if}
-				<Avatar.Fallback class="account-photo-fallback">
-					{#if initials}{initials}{:else}<UserIcon class="size-7" aria-hidden="true" />{/if}
-				</Avatar.Fallback>
-			</Avatar.Root>
-		{/if}
-		<div class="names">
-			<h2 class="hello">
-				{#if me === undefined}<span class="bone">{text.hello('')}</span>{:else}{text.hello(
-						firstName
-					)}{/if}
-			</h2>
-			<p class="note">
-				{#if me === undefined}<span class="bone">+91 00000 00000</span>{:else}{contact}{/if}
-			</p>
-		</div>
-	</header>
-
-	<section class="group">
-		<div class="group-head">
-			<h3>{text.recentOrders}</h3>
-			<a class="more" href={resolve('/(shop)/orders')}>{text.allOrders}</a>
-		</div>
-		{#if orders.data === undefined}
-			<span class="order bone" aria-hidden="true"></span>
-		{:else if orders.data.length === 0}
-			<p class="note">{strings.orders.empty}</p>
-		{:else}
-			<ul class="list">
-				{#each orders.data.slice(0, RECENT_ORDERS) as order (order.number)}
-					<li>
-						<a class="order" href={resolve('/(shop)/orders/[number]', { number: order.number })}>
-							<span class="top">
-								<strong>{order.number}</strong>
-								<Pill tone={tone(order.status)}>{strings.orders.status[order.status]}</Pill>
-							</span>
-							<span class="note">
-								{formatDate(order.placedAt)} · {formatPrice(order.total)}
-							</span>
-						</a>
-					</li>
-				{/each}
-			</ul>
-		{/if}
-	</section>
-
-	<section class="group">
-		<div class="group-head">
-			<h3>{text.addresses}</h3>
-			{#if editing === null && (addresses.data?.length ?? 0) < 10}
-				<button class="more" type="button" onclick={() => (editing = 'new')}>
-					{strings.checkout.addAddress}
-				</button>
+<div class="account-view">
+	{#if auth.isLoading}
+		<h2 class="hello"><span class="bone">{text.hello('')}</span></h2>
+	{:else if !signedIn}
+		<h2 class="hello">{text.signInTitle}</h2>
+		<p class="note">{strings.menu.signInHint}</p>
+		<!-- Off the /signin page it stays here once signed in, and this view turns into the account -->
+		<SignIn />
+	{:else}
+		<!-- Same height loading or loaded, so nothing below moves -->
+		<header class="who" aria-busy={me === undefined}>
+			{#if me === undefined}
+				<span class="photo bone" aria-hidden="true"></span>
+			{:else}
+				<Avatar.Root class="account-photo">
+					{#if me?.image}<Avatar.Image src={me.image} alt="" class="account-photo-img" />{/if}
+					<Avatar.Fallback class="account-photo-fallback">
+						{#if initials}{initials}{:else}<UserIcon size={28} aria-hidden="true" />{/if}
+					</Avatar.Fallback>
+				</Avatar.Root>
 			{/if}
-		</div>
-		{#if editing === 'new'}
-			<AddressForm
-				first={addresses.data?.length === 0}
-				onsaved={() => (editing = null)}
-				oncancel={() => (editing = null)}
-			/>
-		{/if}
-		{#if addresses.data === undefined}
-			<span class="address bone" aria-hidden="true"></span>
-		{:else if addresses.data.length === 0 && editing !== 'new'}
-			<p class="note">{text.noAddresses}</p>
-		{:else}
-			<ul class="list">
-				{#each addresses.data as address (address.id)}
-					<li>
-						{#if editing === address.id}
-							<AddressForm
-								existing={address}
-								onsaved={() => (editing = null)}
-								oncancel={() => (editing = null)}
-							/>
-						{:else}
-							<div class="address">
+			<div class="names">
+				<h2 class="hello">
+					{#if me === undefined}<span class="bone">{text.hello('')}</span>{:else}{text.hello(
+							firstName
+						)}{/if}
+				</h2>
+				<p class="note">
+					{#if me === undefined}<span class="bone">+91 00000 00000</span>{:else}{contact}{/if}
+				</p>
+			</div>
+		</header>
+
+		<section class="group">
+			<div class="group-head">
+				<h3>{text.recentOrders}</h3>
+				<a class="more" href={resolve('/(shop)/orders')}>{text.allOrders}</a>
+			</div>
+			{#if orders.data === undefined}
+				<span class="order bone" aria-hidden="true"></span>
+			{:else if orders.data.length === 0}
+				<p class="note">{strings.orders.empty}</p>
+			{:else}
+				<ul class="list">
+					{#each orders.data.slice(0, RECENT_ORDERS) as order (order.number)}
+						<li>
+							<a class="order" href={resolve('/(shop)/orders/[number]', { number: order.number })}>
 								<span class="top">
-									<strong>{address.name}</strong>
-									{#if address.isDefault}<Pill>{text.default}</Pill>{/if}
+									<strong>{order.number}</strong>
+									<Pill tone={tone(order.status)}>{strings.orders.status[order.status]}</Pill>
 								</span>
 								<span class="note">
-									{address.line1}{address.line2 ? `, ${address.line2}` : ''}, {address.city},
-									{address.state}
-									{address.pincode}
+									{formatDate(order.placedAt)} · {formatPrice(order.total)}
 								</span>
-								<span class="actions">
-									<button type="button" onclick={() => (editing = address.id)}>
-										{strings.checkout.edit}
-									</button>
-									<button class="danger" type="button" onclick={() => removeAddress(address.id)}>
-										{strings.checkout.remove}
-									</button>
-								</span>
-							</div>
-						{/if}
-					</li>
-				{/each}
-			</ul>
-		{/if}
-	</section>
+							</a>
+						</li>
+					{/each}
+				</ul>
+			{/if}
+		</section>
 
-	<ul class="rows">
-		<li>
-			<a href={resolve('/account/profile')}>
-				<span class="row-text">
-					{text.settings}
-					<small>{text.settingsHint}</small>
-				</span>
-				<ChevronRightIcon class="size-6" aria-hidden="true" />
-			</a>
-		</li>
-		{#if admin.isAppAdmin}
+		<section class="group">
+			<div class="group-head">
+				<h3>{text.addresses}</h3>
+				{#if editing === null && (addresses.data?.length ?? 0) < 10}
+					<button class="more" type="button" onclick={() => (editing = 'new')}>
+						{strings.checkout.addAddress}
+					</button>
+				{/if}
+			</div>
+			{#if editing === 'new'}
+				<AddressForm
+					first={addresses.data?.length === 0}
+					onsaved={() => (editing = null)}
+					oncancel={() => (editing = null)}
+				/>
+			{/if}
+			{#if addresses.data === undefined}
+				<span class="address bone" aria-hidden="true"></span>
+			{:else if addresses.data.length === 0 && editing !== 'new'}
+				<p class="note">{text.noAddresses}</p>
+			{:else}
+				<ul class="list">
+					{#each addresses.data as address (address.id)}
+						<li>
+							{#if editing === address.id}
+								<AddressForm
+									existing={address}
+									onsaved={() => (editing = null)}
+									oncancel={() => (editing = null)}
+								/>
+							{:else}
+								<div class="address">
+									<span class="top">
+										<strong>{address.name}</strong>
+										{#if address.isDefault}<Pill>{text.default}</Pill>{/if}
+									</span>
+									<span class="note">
+										{address.line1}{address.line2 ? `, ${address.line2}` : ''}, {address.city},
+										{address.state}
+										{address.pincode}
+									</span>
+									<span class="actions">
+										<button type="button" onclick={() => (editing = address.id)}>
+											{strings.checkout.edit}
+										</button>
+										<button class="danger" type="button" onclick={() => removeAddress(address.id)}>
+											{strings.checkout.remove}
+										</button>
+									</span>
+								</div>
+							{/if}
+						</li>
+					{/each}
+				</ul>
+			{/if}
+		</section>
+
+		<ul class="rows">
 			<li>
-				<a href={resolve(ADMIN_ROUTE)}>
-					{strings.nav.dashboard}
-					<ChevronRightIcon class="size-6" aria-hidden="true" />
+				<a href={resolve('/account/profile')}>
+					<span class="row-text">
+						{text.settings}
+						<small>{text.settingsHint}</small>
+					</span>
+					<ChevronRightIcon size={24} aria-hidden="true" />
 				</a>
 			</li>
-		{/if}
-	</ul>
+			{#if admin.isAppAdmin}
+				<li>
+					<a href={resolve(ADMIN_ROUTE)}>
+						{strings.nav.dashboard}
+						<ChevronRightIcon size={24} aria-hidden="true" />
+					</a>
+				</li>
+			{/if}
+		</ul>
 
-	<Button disabled={signingOut} onclick={signOut}>
-		<LogOutIcon class="size-5" aria-hidden="true" />
-		{text.signOut}
-	</Button>
-{/if}
+		<Button disabled={signingOut} onclick={signOut}>
+			<LogOutIcon size={20} aria-hidden="true" />
+			{text.signOut}
+		</Button>
+	{/if}
+</div>
 
 <style lang="postcss">
 	@reference 'src/app.css';
 
-	.hello {
-		@apply text-3xl font-extrabold;
-	}
+	/* Sits in the drawer's view, so it keeps the view's spacing */
+	div.account-view {
+		@apply flex flex-col gap-6;
 
-	/* Photo beside the greeting; the placeholder is the same size, so loading never moves it */
-	.who {
-		@apply flex items-center gap-4;
-	}
-
-	.photo,
-	.who :global(.account-photo) {
-		@apply grid size-16 shrink-0 place-items-center overflow-hidden rounded-full;
-	}
-
-	.who :global(.account-photo) {
-		@apply bg-primary-tint text-xl font-extrabold text-primary;
-	}
-
-	.who :global(.account-photo-img) {
-		@apply size-full object-cover;
-	}
-
-	.who :global(.account-photo-fallback) {
-		@apply grid size-full place-items-center;
-	}
-
-	.names {
-		@apply flex min-w-0 flex-1 flex-col gap-0.5;
-
+		h2.hello {
+			@apply headline text-3xl;
+		}
 		.note {
-			@apply truncate;
-		}
-	}
-
-	.note {
-		@apply min-h-5 text-sm text-text-muted tabular-nums;
-	}
-
-	.group {
-		@apply flex flex-col gap-2;
-	}
-
-	.group-head {
-		@apply flex items-center justify-between gap-3;
-
-		h3 {
-			@apply text-xs font-extrabold tracking-wide text-text-muted uppercase;
-		}
-	}
-
-	.more {
-		@apply inline-flex min-h-11 items-center text-sm font-bold text-primary;
-	}
-
-	.list {
-		@apply flex flex-col gap-2;
-	}
-
-	.order,
-	.address {
-		@apply flex min-h-16 flex-col gap-1 rounded-2xl bg-midground p-3;
-	}
-
-	.top {
-		@apply flex items-center justify-between gap-2;
-	}
-
-	.actions {
-		@apply flex gap-4;
-
-		button {
-			@apply min-h-11 text-sm font-bold text-primary;
+			@apply min-h-5 text-sm text-text-muted tabular-nums;
 		}
 
-		.danger {
-			@apply text-danger;
+		/* Photo beside the greeting; the placeholder is the same size, so loading never moves it */
+		header.who {
+			@apply flex items-center gap-4;
+
+			span.photo {
+				@apply size-16 shrink-0 rounded-full;
+			}
+			:global(div.account-photo) {
+				@apply grid size-16 shrink-0 place-items-center overflow-hidden rounded-full raised font-display text-xl font-extrabold text-primary;
+			}
+			:global(img.account-photo-img) {
+				@apply size-full object-cover;
+			}
+			:global(span.account-photo-fallback) {
+				@apply grid size-full place-items-center;
+			}
+			div.names {
+				@apply flex min-w-0 flex-1 flex-col gap-0.5;
+
+				.note {
+					@apply truncate;
+				}
+			}
 		}
-	}
 
-	.rows {
-		@apply flex flex-col;
+		section.group {
+			@apply flex flex-col gap-3;
 
-		a {
-			@apply flex min-h-16 w-full items-center justify-between gap-3 border-b border-border-muted text-xl font-extrabold;
+			div.group-head {
+				@apply flex items-center justify-between gap-3;
+
+				h3 {
+					@apply kicker;
+				}
+			}
+			:is(a, button).more {
+				@apply inline-flex min-h-11 items-center text-sm font-bold text-accent;
+			}
+			ul.list {
+				@apply flex flex-col gap-3;
+			}
+			:is(a.order, span.order, div.address, span.address) {
+				@apply flex min-h-16 flex-col gap-1 rounded-2xl raised p-4;
+			}
+			a.order {
+				@apply press;
+
+				strong {
+					@apply font-display;
+				}
+			}
+			span.top {
+				@apply flex items-center justify-between gap-2;
+			}
+			span.actions {
+				@apply flex gap-4;
+
+				button {
+					@apply min-h-11 text-sm font-bold text-accent;
+
+					&.danger {
+						@apply text-danger;
+					}
+				}
+			}
 		}
-	}
 
-	.row-text {
-		@apply flex min-w-0 flex-col py-2;
+		ul.rows {
+			@apply flex flex-col;
 
-		small {
-			@apply truncate text-sm font-semibold text-text-muted;
+			a {
+				@apply flex min-h-16 w-full items-center justify-between gap-3 border-b border-border-muted headline text-xl;
+			}
+			span.row-text {
+				@apply flex min-w-0 flex-col py-2;
+
+				small {
+					@apply truncate font-sans text-sm font-semibold tracking-normal text-text-muted;
+				}
+			}
 		}
 	}
 </style>

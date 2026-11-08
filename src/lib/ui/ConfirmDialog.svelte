@@ -42,27 +42,29 @@
 <style lang="postcss">
   @reference 'src/app.css';
 
-  /* Bits renders these elements itself, so they are styled with :global */
-  :global(.ui-confirm-overlay) {
-    @apply fixed inset-0 z-40 bg-black/45;
-  }
-  :global(.ui-confirm) {
-    @apply fixed top-1/2 left-1/2 z-50 flex w-[min(24rem,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 flex-col gap-3 rounded-xl p-4 text-text floating;
-  }
-  :global(.ui-confirm-title) {
-    @apply text-lg font-extrabold;
-  }
-  :global(.ui-confirm-text) {
-    @apply text-sm text-text-muted;
-  }
-  :global(.ui-confirm-actions) {
-    @apply flex flex-col-reverse gap-2 sm:flex-row sm:justify-end;
-  }
-  :global(.ui-confirm-keep),
-  :global(.ui-confirm-go) {
-    @apply inline-flex min-h-11 items-center justify-center rounded-lg px-4 font-bold raised press;
-  }
-  :global(.ui-confirm-go) {
-    @apply raised-danger text-foreground;
+  /* Bits renders these elements itself, so they are styled as global */
+  :global {
+    div.ui-confirm-overlay {
+      @apply fixed inset-0 z-40 bg-black/40 backdrop-blur-[2px];
+    }
+    div.ui-confirm {
+      @apply fixed top-1/2 left-1/2 z-50 flex w-[min(24rem,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 flex-col gap-3 rounded-3xl p-6 text-text floating;
+
+      div.ui-confirm-title {
+        @apply title;
+      }
+      div.ui-confirm-text {
+        @apply text-sm text-text-muted;
+      }
+      div.ui-confirm-actions {
+        @apply mt-2 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end;
+      }
+      button:is(.ui-confirm-keep, .ui-confirm-go) {
+        @apply inline-flex min-h-11 items-center justify-center rounded-full px-5 font-bold raised press;
+      }
+      button.ui-confirm-go {
+        @apply raised-danger text-foreground;
+      }
+    }
   }
 </style>

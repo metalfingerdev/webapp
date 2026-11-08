@@ -33,12 +33,13 @@
   @reference 'src/app.css';
 
   .ui-card {
-    @apply block rounded-xl p-3 raised;
-  }
-  .dense {
-    @apply rounded-lg p-2.5;
-  }
-  .pressable {
-    @apply press;
+    @apply block rounded-3xl p-4 raised;
+
+    &.dense {
+      @apply rounded-2xl p-3;
+    }
+    &.pressable {
+      @apply press;
+    }
   }
 </style>

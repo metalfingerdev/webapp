@@ -19,13 +19,16 @@
 <style lang="postcss">
   @reference 'src/app.css';
 
-  .notice {
-    @apply flex flex-col items-start gap-2 rounded-xl bg-foreground p-3 text-sm shadow-s;
-  }
-  .warn {
-    @apply bg-secondary-tint;
-  }
-  .bad {
-    @apply bg-danger-tint;
+  div.notice {
+    @apply flex flex-col items-start gap-2 rounded-2xl p-4 text-sm raised;
+
+    &.warn {
+      @apply bg-secondary-tint;
+      background-image: none;
+    }
+    &.bad {
+      @apply bg-danger-tint;
+      background-image: none;
+    }
   }
 </style>

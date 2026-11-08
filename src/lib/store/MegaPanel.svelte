@@ -13,7 +13,7 @@
 	{#if category}
 		<a class="lead" href={resolve('/(shop)/shop/[category]', { category: category.slug })}>
 			<span>{strings.nav.viewAll(category.name)}</span>
-			<ArrowRightIcon class="size-6" aria-hidden="true" />
+			<ArrowRightIcon size={24} aria-hidden="true" />
 		</a>
 		{#if category.children.length}
 			<ul class="items">
@@ -27,7 +27,7 @@
 	{:else if schools}
 		<a class="lead" href={resolve('/(shop)/schools')}>
 			<span>{strings.nav.viewAll(strings.nav.schools)}</span>
-			<ArrowRightIcon class="size-6" aria-hidden="true" />
+			<ArrowRightIcon size={24} aria-hidden="true" />
 		</a>
 		<ul class="items">
 			{#each schools as school (school.slug)}
@@ -42,19 +42,23 @@
 <style lang="postcss">
 	@reference 'src/app.css';
 
-	.mega-panel {
-		@apply grid gap-3 p-6;
-	}
+	div.mega-panel {
+		@apply grid gap-4 p-6;
 
-	.lead {
-		@apply flex items-start justify-between gap-3 text-2xl leading-tight font-extrabold;
-	}
+		a.lead {
+			@apply flex items-start justify-between gap-3 headline text-2xl;
+		}
+		ul.items {
+			@apply grid gap-x-4 gap-y-1 sm:grid-cols-2;
 
-	.items {
-		@apply grid gap-x-6 sm:grid-cols-2;
+			a {
+				@apply flex min-h-12 items-center rounded-full px-4 text-lg font-bold transition-shadow;
 
-		a {
-			@apply flex min-h-12 items-center rounded-xl px-3 text-lg font-bold transition-colors hover:bg-midground focus-visible:bg-midground;
+				&:hover,
+				&:focus-visible {
+					@apply sunken;
+				}
+			}
 		}
 	}
 </style>

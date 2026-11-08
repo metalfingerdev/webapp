@@ -20,7 +20,7 @@
 <style lang="postcss">
 	@reference 'src/app.css';
 
-	:global(.ui-menu) {
-		@apply z-50 min-w-32 overflow-x-hidden overflow-y-auto rounded-xl p-1 text-text outline-none floating;
+	:global div.ui-menu {
+		@apply z-50 min-w-32 overflow-x-hidden overflow-y-auto rounded-2xl p-1.5 text-text outline-none floating;
 	}
 </style>

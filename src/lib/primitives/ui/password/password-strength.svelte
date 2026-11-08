@@ -28,19 +28,21 @@
 <style lang="postcss">
 	@reference 'src/app.css';
 
-	.ui-meter {
+	div.ui-meter {
 		@apply flex h-1.5 w-full gap-1;
-	}
-	.bar {
-		@apply h-full flex-1 rounded-full bg-background transition-colors duration-300;
-	}
-	.on.weak {
-		@apply bg-danger;
-	}
-	.on.fair {
-		@apply bg-warning;
-	}
-	.on.strong {
-		@apply bg-success;
+
+		span.bar {
+			@apply h-full flex-1 rounded-full transition-colors duration-300 sunken;
+
+			&.on.weak {
+				@apply bg-danger;
+			}
+			&.on.fair {
+				@apply bg-warning;
+			}
+			&.on.strong {
+				@apply bg-success;
+			}
+		}
 	}
 </style>

@@ -51,33 +51,37 @@
 <style lang="postcss">
 	@reference 'src/app.css';
 
-	:global(.sonner-loader) {
-		position: static !important;
-		transform: none !important;
-	}
-	/* A toast is a small floating card; success, error and warning tint it */
-	:global(.ui-toast) {
-		@apply pointer-events-auto flex w-full items-start gap-2 rounded-xl p-3 font-semibold text-text md:w-96 floating;
-	}
-	:global(.ui-toast-success) {
-		@apply bg-success-tint;
-		background-image: none;
-	}
-	:global(.ui-toast-error) {
-		@apply bg-danger-tint;
-		background-image: none;
-	}
-	:global(.ui-toast-warning) {
-		@apply bg-secondary-tint;
-		background-image: none;
-	}
-	:global(.ui-toast-title) {
-		@apply text-sm leading-tight font-bold break-words;
-	}
-	:global(.ui-toast-text) {
-		@apply mt-1 line-clamp-2 text-xs text-text-muted;
-	}
-	:global(.ui-toast-close) {
-		@apply order-last ml-auto p-1 text-xs;
+	/* Sonner renders the toasts itself, so they are styled as global */
+	:global {
+		.sonner-loader {
+			position: static !important;
+			transform: none !important;
+		}
+		/* A toast is a small floating card; success, error and warning tint it */
+		.ui-toast {
+			@apply pointer-events-auto flex w-full items-start gap-2 rounded-2xl p-4 font-semibold text-text md:w-96 floating;
+
+			&.ui-toast-success {
+				@apply bg-success-tint;
+				background-image: none;
+			}
+			&.ui-toast-error {
+				@apply bg-danger-tint;
+				background-image: none;
+			}
+			&.ui-toast-warning {
+				@apply bg-secondary-tint;
+				background-image: none;
+			}
+		}
+		.ui-toast-title {
+			@apply text-sm leading-tight font-bold break-words;
+		}
+		.ui-toast-text {
+			@apply mt-1 line-clamp-2 text-xs text-text-muted;
+		}
+		.ui-toast-close {
+			@apply order-last ml-auto p-1 text-xs;
+		}
 	}
 </style>

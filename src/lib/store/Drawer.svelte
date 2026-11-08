@@ -32,7 +32,7 @@
 			<div class="store-drawer-head">
 				<div class="store-drawer-lead">{@render head?.()}</div>
 				<Dialog.Close class="store-drawer-close" aria-label={closeLabel}>
-					<XIcon class="size-5" aria-hidden="true" />
+					<XIcon size={20} aria-hidden="true" />
 				</Dialog.Close>
 			</div>
 			<div class="store-drawer-body">{@render children()}</div>
@@ -46,8 +46,8 @@
 	/* Bits renders these elements itself, so they are styled globally. Bits waits for the closing
 	   animation before removing them. */
 	:global {
-		.store-drawer-dim {
-			@apply fixed inset-0 z-40 bg-text/40;
+		div.store-drawer-dim {
+			@apply fixed inset-0 z-40 bg-black/40 backdrop-blur-[2px];
 			animation: store-drawer-fade 240ms ease both;
 
 			&[data-state='closed'] {
@@ -55,39 +55,34 @@
 			}
 		}
 
-		.store-drawer {
-			@apply fixed inset-y-2 z-50 flex w-[calc(100%-1rem)] max-w-md flex-col overflow-hidden rounded-4xl floating text-text;
+		div.store-drawer {
+			@apply fixed inset-y-2 z-50 flex w-[calc(100%-1rem)] max-w-md flex-col overflow-hidden rounded-[2rem] floating text-text;
 			--from: -100%;
 			animation: store-drawer-in 320ms cubic-bezier(0.16, 1, 0.3, 1) both;
 
 			&.left {
 				@apply left-2;
 			}
-
 			&.right {
 				@apply right-2;
 				--from: 100%;
 			}
-
 			&[data-state='closed'] {
 				animation: store-drawer-in 200ms ease-in reverse both;
 			}
-		}
 
-		.store-drawer-head {
-			@apply flex h-16 shrink-0 items-center justify-between gap-2 px-3;
-		}
-
-		.store-drawer-lead {
-			@apply min-w-0 flex-1;
-		}
-
-		.store-drawer-close {
-			@apply grid size-11 shrink-0 place-items-center rounded-full bg-midground;
-		}
-
-		.store-drawer-body {
-			@apply relative flex-1 overflow-x-hidden overflow-y-auto overscroll-contain;
+			div.store-drawer-head {
+				@apply flex h-18 shrink-0 items-center justify-between gap-2 px-4;
+			}
+			div.store-drawer-lead {
+				@apply min-w-0 flex-1;
+			}
+			button.store-drawer-close {
+				@apply grid size-11 shrink-0 press place-items-center rounded-full raised;
+			}
+			div.store-drawer-body {
+				@apply relative flex-1 overflow-x-hidden overflow-y-auto overscroll-contain;
+			}
 		}
 	}
 
@@ -104,8 +99,7 @@
 	}
 
 	@media (prefers-reduced-motion: reduce) {
-		:global(.store-drawer),
-		:global(.store-drawer-dim) {
+		:global(div:is(.store-drawer, .store-drawer-dim)) {
 			animation-duration: 1ms !important;
 		}
 	}

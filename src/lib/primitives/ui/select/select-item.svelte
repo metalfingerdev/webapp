@@ -16,13 +16,14 @@
 <style lang="postcss">
 	@reference 'src/app.css';
 
-	:global(.ui-select-item) {
-		@apply flex min-h-10 cursor-pointer items-center justify-between gap-3 rounded-lg px-2 text-sm font-semibold outline-none;
-	}
-	:global(.ui-select-item[data-highlighted]) {
-		@apply bg-midground;
-	}
-	:global(.ui-select-item[data-disabled]) {
-		@apply pointer-events-none opacity-50;
+	:global div.ui-select-item {
+		@apply flex min-h-10 cursor-pointer items-center justify-between gap-3 rounded-xl px-3 text-sm font-semibold outline-none;
+
+		&[data-highlighted] {
+			@apply sunken;
+		}
+		&[data-disabled] {
+			@apply pointer-events-none opacity-50;
+		}
 	}
 </style>

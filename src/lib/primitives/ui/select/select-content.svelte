@@ -22,7 +22,7 @@
 <style lang="postcss">
 	@reference 'src/app.css';
 
-	:global(.ui-select-content) {
-		@apply z-50 max-h-72 min-w-(--bits-select-anchor-width) overflow-y-auto rounded-xl p-1 text-text floating;
+	:global div.ui-select-content {
+		@apply z-50 max-h-72 min-w-(--bits-select-anchor-width) overflow-y-auto rounded-2xl p-1.5 text-text floating;
 	}
 </style>

@@ -36,19 +36,21 @@
 <style lang="postcss">
 	@reference 'src/app.css';
 
-	:global(.ui-drawer) {
+	/* Bits renders this element itself, so it is styled as global */
+	:global div.ui-drawer {
 		@apply fixed z-50 flex h-auto flex-col gap-4 overflow-y-auto p-6 text-text floating;
-	}
-	:global(.ui-drawer[data-side='bottom']) {
-		@apply inset-x-0 bottom-0 max-h-[85dvh] rounded-t-xl;
-	}
-	:global(.ui-drawer[data-side='top']) {
-		@apply inset-x-0 top-0 max-h-[85dvh] rounded-b-xl;
-	}
-	:global(.ui-drawer[data-side='right']) {
-		@apply inset-y-0 right-0 w-3/4 sm:max-w-sm;
-	}
-	:global(.ui-drawer[data-side='left']) {
-		@apply inset-y-0 left-0 w-3/4 sm:max-w-sm;
+
+		&[data-side='bottom'] {
+			@apply inset-x-0 bottom-0 max-h-[85dvh] rounded-t-3xl;
+		}
+		&[data-side='top'] {
+			@apply inset-x-0 top-0 max-h-[85dvh] rounded-b-3xl;
+		}
+		&[data-side='right'] {
+			@apply inset-y-0 right-0 w-3/4 rounded-l-3xl sm:max-w-sm;
+		}
+		&[data-side='left'] {
+			@apply inset-y-0 left-0 w-3/4 rounded-r-3xl sm:max-w-sm;
+		}
 	}
 </style>

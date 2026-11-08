@@ -11,10 +11,11 @@
 <style lang="postcss">
 	@reference 'src/app.css';
 
-	:global(.ui-tab-list) {
-		@apply inline-flex w-fit items-center justify-center gap-1;
-	}
-	:global([data-orientation='vertical'] > .ui-tab-list) {
-		@apply w-full flex-col items-start justify-start;
+	:global div.ui-tab-list {
+		@apply inline-flex w-fit items-center justify-center gap-1 rounded-full p-1 sunken;
+
+		[data-orientation='vertical'] > & {
+			@apply w-full flex-col items-start justify-start rounded-2xl;
+		}
 	}
 </style>

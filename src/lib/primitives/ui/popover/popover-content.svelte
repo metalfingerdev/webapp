@@ -34,7 +34,7 @@
 <style lang="postcss">
 	@reference 'src/app.css';
 
-	:global(.ui-popover) {
-		@apply z-50 w-80 max-w-[90svw] rounded-xl p-1 text-text outline-hidden floating;
+	:global div.ui-popover {
+		@apply z-50 w-80 max-w-[90svw] rounded-2xl p-1.5 text-text outline-hidden floating;
 	}
 </style>

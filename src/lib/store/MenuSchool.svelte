@@ -123,71 +123,61 @@
 <style lang="postcss">
 	@reference 'src/app.css';
 
-	.school {
+	div.school {
 		@apply flex flex-col gap-4;
-	}
 
-	.head {
-		@apply flex flex-col items-start gap-2;
-	}
+		header.head {
+			@apply flex flex-col items-start gap-2;
 
-	.title {
-		@apply text-3xl leading-tight font-extrabold;
-	}
-
-	.tabs {
-		@apply grid grid-cols-2 gap-1 rounded-full sunken p-1;
-
-		button {
-			@apply min-h-11 rounded-full font-bold text-text-muted;
-
-			&[aria-pressed='true'] {
-				@apply raised text-text;
+			h2.title {
+				@apply headline text-3xl;
 			}
 		}
-	}
 
-	.chips {
-		@apply flex flex-wrap gap-2;
+		div.tabs {
+			@apply grid grid-cols-2 gap-1 rounded-full sunken p-1;
 
-		button {
-			@apply min-h-11 rounded-full bg-midground px-4 font-bold;
+			button {
+				@apply min-h-11 rounded-full font-bold text-text-muted;
 
-			&[aria-pressed='true'] {
-				@apply bg-primary text-foreground;
+				&[aria-pressed='true'] {
+					@apply raised text-text;
+				}
 			}
 		}
-	}
 
-	.step {
-		@apply text-sm font-bold text-text-muted;
-	}
+		div.chips {
+			@apply flex flex-wrap gap-2;
 
-	.grid {
-		@apply grid grid-cols-2 gap-2;
-	}
+			button {
+				@apply min-h-11 press rounded-full raised px-4 font-bold;
 
-	.tile {
-		@apply flex min-h-18 flex-col justify-center gap-0.5 rounded-2xl bg-midground px-4 py-3;
-
-		strong {
-			@apply font-extrabold;
+				&[aria-pressed='true'] {
+					@apply raised-primary text-foreground;
+				}
+			}
 		}
 
-		span {
-			@apply text-xs text-text-muted;
+		p.step {
+			@apply kicker;
+		}
+		p.note {
+			@apply text-sm text-text-muted;
 		}
 
-		&:active {
-			@apply bg-primary text-foreground;
+		:is(div, ul).grid {
+			@apply grid grid-cols-2 gap-3;
+		}
 
+		:is(a, span).tile {
+			@apply flex min-h-18 press flex-col justify-center gap-0.5 rounded-2xl raised px-4 py-3;
+
+			strong {
+				@apply font-display font-extrabold;
+			}
 			span {
-				@apply text-foreground;
+				@apply text-xs text-text-muted;
 			}
 		}
-	}
-
-	.note {
-		@apply text-sm text-text-muted;
 	}
 </style>

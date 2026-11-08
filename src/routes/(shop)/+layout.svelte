@@ -9,13 +9,14 @@
 </script>
 
 <NavBar categories={data.categories} schools={data.schools} whatsapp={data.contact.whatsapp} />
-<div class="page">{@render children()}</div>
+<main class="page">{@render children()}</main>
 <Footer name={data.contact.businessName} gstin={data.contact.gstin} />
 
 <style lang="postcss">
 	@reference 'src/app.css';
 
-	.page {
-		@apply mx-auto min-h-[60dvh] max-w-6xl px-4 pt-6;
+	/* The magazine's page: chapters inside it run the full width of this column */
+	main.page {
+		@apply mx-auto min-h-[60dvh] max-w-6xl px-3 pt-6 sm:px-4;
 	}
 </style>

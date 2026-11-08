@@ -80,12 +80,12 @@
 		<div class="head">
 			{#if previous}
 				<button class="back-button" type="button" onclick={back}>
-					<ChevronLeftIcon class="size-5" aria-hidden="true" />
+					<ChevronLeftIcon size={20} aria-hidden="true" />
 					<span>{titleOf(previous)}</span>
 				</button>
 			{:else if view.kind === 'cart' || view.kind === 'account'}
 				<button class="back-button" type="button" onclick={() => drawer.show('root')}>
-					<ChevronLeftIcon class="size-5" aria-hidden="true" />
+					<ChevronLeftIcon size={20} aria-hidden="true" />
 					<span>{strings.nav.menu}</span>
 				</button>
 			{:else}
@@ -93,7 +93,7 @@
 			{/if}
 			<span class="icons">
 				<button class="icon" type="button" aria-label={strings.nav.search} onclick={onsearch}>
-					<SearchIcon class="size-5" aria-hidden="true" />
+					<SearchIcon size={20} aria-hidden="true" />
 				</button>
 				<button
 					class="icon"
@@ -103,9 +103,9 @@
 					onclick={() => drawer.show('account')}
 				>
 					{#if auth.isAuthenticated}
-						<UserIcon class="size-5" aria-hidden="true" />
+						<UserIcon size={20} aria-hidden="true" />
 					{:else}
-						<LogInIcon class="size-5" aria-hidden="true" />
+						<LogInIcon size={20} aria-hidden="true" />
 					{/if}
 				</button>
 				<button
@@ -115,7 +115,7 @@
 					aria-label={strings.cart.open(cart.count)}
 					onclick={() => drawer.show('cart')}
 				>
-					<ShoppingBagIcon class="size-5" aria-hidden="true" />
+					<ShoppingBagIcon size={20} aria-hidden="true" />
 					{#if cart.count > 0}<span class="badge" aria-hidden="true">{cart.count}</span>{/if}
 				</button>
 			</span>
@@ -157,7 +157,7 @@
 							<strong>{set.label}</strong>
 							<span>{set.schoolName}</span>
 						</span>
-						<ArrowRightIcon class="size-5 shrink-0" aria-hidden="true" />
+						<ArrowRightIcon size={20} aria-hidden="true" />
 					</a>
 				{/each}
 
@@ -165,14 +165,14 @@
 					<li>
 						<button type="button" onclick={() => go({ kind: 'schools' })}>
 							{strings.nav.schools}
-							<ChevronRightIcon class="size-6" aria-hidden="true" />
+							<ChevronRightIcon size={24} aria-hidden="true" />
 						</button>
 					</li>
 					{#each categories as category (category.slug)}
 						<li>
 							<button type="button" onclick={() => go({ kind: 'category', category })}>
 								{category.name}
-								<ChevronRightIcon class="size-6" aria-hidden="true" />
+								<ChevronRightIcon size={24} aria-hidden="true" />
 							</button>
 						</li>
 					{/each}
@@ -180,7 +180,7 @@
 						<li>
 							<button type="button" onclick={() => go({ kind: 'account' })}>
 								{strings.account.title}
-								<ChevronRightIcon class="size-6" aria-hidden="true" />
+								<ChevronRightIcon size={24} aria-hidden="true" />
 							</button>
 						</li>
 					{/if}
@@ -193,7 +193,7 @@
 						{#if whatsappLink}
 							<li>
 								<a href={whatsappLink} target="_blank" rel="noopener">
-									<MessageCircleIcon class="size-5" aria-hidden="true" />
+									<MessageCircleIcon size={20} aria-hidden="true" />
 									{strings.menu.whatsapp}
 								</a>
 							</li>
@@ -224,7 +224,7 @@
 								onclick={() => go({ kind: 'school', slug: school.slug, name: school.name })}
 							>
 								{school.name}
-								<ChevronRightIcon class="size-5" aria-hidden="true" />
+								<ChevronRightIcon size={20} aria-hidden="true" />
 							</button>
 						</li>
 					{/each}
@@ -240,7 +240,7 @@
 						<li>
 							<a href={resolve('/(shop)/shop/[category]', { category: child.slug })}>
 								{child.name}
-								<ChevronRightIcon class="size-5" aria-hidden="true" />
+								<ChevronRightIcon size={20} aria-hidden="true" />
 							</a>
 						</li>
 					{/each}
@@ -256,59 +256,116 @@
 <style lang="postcss">
 	@reference 'src/app.css';
 
-	.head {
+	div.head {
 		@apply flex items-center justify-between gap-2;
-	}
 
-	.head-title {
-		@apply px-3 text-lg font-extrabold;
-	}
-
-	/* The icon row stays put while the views slide under it */
-	.icons {
-		@apply flex shrink-0 items-center;
-	}
-
-	.icon {
-		@apply relative grid size-11 place-items-center rounded-full transition-colors;
-
-		&:hover,
-		&.active {
-			@apply bg-midground;
+		span.head-title {
+			@apply px-2 title;
 		}
-	}
+		button.back-button {
+			@apply flex min-h-11 max-w-full items-center gap-0.5 rounded-full pr-3 pl-1 font-semibold text-text-muted;
 
-	/* The count sits over the icon's corner, so it never changes the button's size */
-	.badge {
-		@apply absolute top-0.5 right-0.5 grid min-w-5 place-items-center rounded-full bg-primary px-1 text-xs leading-5 font-bold text-foreground tabular-nums;
-	}
+			span {
+				@apply truncate;
+			}
+		}
+		/* The icon row stays put while the views slide under it */
+		span.icons {
+			@apply flex shrink-0 items-center gap-1.5;
+		}
+		button.icon {
+			@apply relative grid size-11 press place-items-center rounded-full raised;
 
-	.note {
-		@apply text-text-muted;
-	}
-
-	.cart-foot {
-		@apply flex flex-col gap-2 border-t border-border-muted pt-3;
-	}
-
-	.back-button {
-		@apply flex min-h-11 max-w-full items-center gap-0.5 rounded-full pr-3 pl-1 font-semibold text-text-muted;
-
-		span {
-			@apply truncate;
+			&.active {
+				@apply sunken;
+			}
+		}
+		/* The count sits over the icon's corner, so it never changes the button's size */
+		span.badge {
+			@apply absolute -top-1 -right-1 grid min-w-5 place-items-center rounded-full raised-primary px-1 text-xs leading-5 font-bold text-foreground tabular-nums;
 		}
 	}
 
 	/* Each view slides in from the side it came from */
-	.view {
+	div.view {
 		@apply flex flex-col gap-6 px-6 pt-1 pb-8;
 
 		&.slide-fwd {
 			animation: view-fwd 280ms cubic-bezier(0.16, 1, 0.3, 1) both;
 		}
-
 		&.slide-back {
 			animation: view-back 280ms cubic-bezier(0.16, 1, 0.3, 1) both;
+		}
+		@media (prefers-reduced-motion: reduce) {
+			animation: none !important;
+		}
+
+		h2.title {
+			@apply headline text-3xl;
+		}
+		p.note {
+			@apply text-text-muted;
+		}
+		div.cart-foot {
+			@apply flex flex-col gap-3 rounded-3xl sunken p-4;
+		}
+
+		a.continue {
+			@apply flex press items-center gap-3 rounded-3xl raised-primary p-4 text-foreground;
+
+			span.continue-text {
+				@apply flex min-w-0 flex-1 flex-col;
+
+				small {
+					@apply kicker text-foreground/80;
+				}
+				strong {
+					@apply truncate font-display text-lg font-extrabold;
+				}
+				span {
+					@apply truncate text-sm opacity-80;
+				}
+			}
+		}
+
+		ul.big {
+			@apply flex flex-col;
+
+			:is(button, a) {
+				@apply flex min-h-14 w-full items-center justify-between headline text-3xl;
+			}
+			a {
+				@apply text-xl text-text-muted;
+			}
+		}
+
+		section.group h2 {
+			@apply mb-1 kicker;
+		}
+		ul.small a {
+			@apply flex min-h-11 items-center gap-3 font-semibold;
+		}
+
+		a.sign-in {
+			@apply flex press flex-col gap-0.5 rounded-3xl raised p-4;
+
+			strong {
+				@apply font-display;
+			}
+			span {
+				@apply text-sm text-text-muted;
+			}
+		}
+
+		ul.list {
+			@apply flex flex-col;
+
+			:is(button, a) {
+				@apply flex min-h-13 w-full items-center justify-between gap-3 border-b border-border-muted text-left text-lg font-bold;
+			}
+		}
+		a.all {
+			@apply inline-flex min-h-11 items-center font-bold text-accent;
 		}
 	}
 
@@ -318,84 +375,10 @@
 			transform: translateX(2.5rem);
 		}
 	}
-
 	@keyframes view-back {
 		from {
 			opacity: 0;
 			transform: translateX(-2.5rem);
 		}
-	}
-
-	@media (prefers-reduced-motion: reduce) {
-		.view.slide-fwd,
-		.view.slide-back {
-			animation: none;
-		}
-	}
-
-	.continue {
-		@apply flex items-center gap-3 rounded-3xl bg-primary-tint p-4 text-primary;
-	}
-
-	.continue-text {
-		@apply flex min-w-0 flex-1 flex-col;
-
-		small {
-			@apply text-xs font-bold;
-		}
-
-		strong {
-			@apply truncate text-lg font-extrabold text-text;
-		}
-
-		span {
-			@apply truncate text-sm text-text-muted;
-		}
-	}
-
-	.big {
-		@apply flex flex-col;
-
-		button,
-		a {
-			@apply flex min-h-14 w-full items-center justify-between text-3xl font-extrabold;
-		}
-
-		a {
-			@apply text-xl text-text-muted;
-		}
-	}
-
-	.group h2 {
-		@apply mb-1 text-xs font-extrabold tracking-wide text-text-muted uppercase;
-	}
-
-	.small a {
-		@apply flex min-h-11 items-center gap-3 font-semibold;
-	}
-
-	.sign-in {
-		@apply flex flex-col gap-0.5 rounded-3xl bg-midground p-4;
-
-		span {
-			@apply text-sm text-text-muted;
-		}
-	}
-
-	.title {
-		@apply text-3xl font-extrabold;
-	}
-
-	.list {
-		@apply flex flex-col;
-
-		button,
-		a {
-			@apply flex min-h-13 w-full items-center justify-between gap-3 border-b border-border-muted text-left text-lg font-bold;
-		}
-	}
-
-	.all {
-		@apply inline-flex min-h-11 items-center font-bold text-primary;
 	}
 </style>

@@ -24,11 +24,12 @@
 <style lang="postcss">
 	@reference 'src/app.css';
 
-	:global(.ui-select-trigger) {
-		@apply flex min-h-9 w-fit items-center justify-between gap-2 rounded-lg px-3 text-sm whitespace-nowrap text-text select-none sunken;
-	}
-	:global(.ui-select-trigger:disabled) {
-		@apply cursor-not-allowed opacity-50;
+	:global button.ui-select-trigger {
+		@apply flex min-h-10 w-fit items-center justify-between gap-2 rounded-full px-4 text-sm whitespace-nowrap text-text select-none sunken;
+
+		&:disabled {
+			@apply cursor-not-allowed opacity-50;
+		}
 	}
 	.muted {
 		@apply text-text-muted;

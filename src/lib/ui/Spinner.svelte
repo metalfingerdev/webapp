@@ -5,7 +5,7 @@
 <style lang="postcss">
   @reference 'src/app.css';
 
-  .spinner {
+  span.spinner {
     @apply inline-block size-4 animate-spin rounded-full border-2 border-current border-t-transparent;
   }
 </style>
