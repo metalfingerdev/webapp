@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
+	import BookOpenIcon from '@lucide/svelte/icons/book-open';
+	import Media from '#lib/ui/Media.svelte';
 	import type { FunctionReturnType } from 'convex/server';
 	import type { api } from '#convex/_generated/api.js';
 	import { formatPrice } from '#lib/store/format.js';
@@ -26,11 +28,17 @@
 
 <li>
 	<a class="row" href={resolve('/admin/products/[id]', { id: product._id })}>
-		{#if product.imageUrl}
-			<img src={product.imageUrl} alt="" width="48" height="64" loading="lazy" />
-		{:else}
-			<span class="thumb" aria-hidden="true"></span>
-		{/if}
+		<span class="thumb">
+			<Media
+				src={product.imageUrl}
+				ratio="3 / 4"
+				slot="product-thumb"
+				icon={BookOpenIcon}
+				iconSize={18}
+				width={48}
+				height={64}
+			/>
+		</span>
 		<span class="main">
 			<span class="title">{product.title}</span>
 			<span class="meta">
@@ -56,35 +64,35 @@
 <style lang="postcss">
 	@reference 'src/app.css';
 
-	.row {
-		@apply flex min-h-16 press items-center gap-3 rounded-xl raised p-2 pr-3;
-	}
-	img,
-	.thumb {
-		@apply h-16 w-12 shrink-0 rounded-md bg-midground object-cover;
-	}
-	.thumb {
-		@apply sunken;
-	}
-	.main {
-		@apply flex min-w-0 flex-1 flex-col;
-	}
-	.title {
-		@apply truncate text-sm font-bold;
-	}
-	.meta {
-		@apply truncate text-xs text-text-muted;
-	}
-	.side {
-		@apply flex shrink-0 flex-col items-end gap-1 text-right;
-	}
-	.price {
-		@apply text-sm font-bold;
-	}
-	.pills {
-		@apply flex items-center gap-1;
-	}
-	.count {
-		@apply text-xs text-text-muted;
+	a.row {
+		@apply flex min-h-20 press items-center gap-4 rounded-3xl raised p-3 pr-4;
+
+		span.thumb {
+			@apply w-12 shrink-0;
+			--media-radius: 0.625rem;
+		}
+		span.main {
+			@apply flex min-w-0 flex-1 flex-col;
+
+			span.title {
+				@apply truncate font-bold;
+			}
+			span.meta {
+				@apply truncate text-xs text-text-muted;
+			}
+		}
+		span.side {
+			@apply flex shrink-0 flex-col items-end gap-1 text-right;
+
+			span.price {
+				@apply font-display font-bold;
+			}
+			span.pills {
+				@apply flex items-center gap-1;
+			}
+			span.count {
+				@apply text-xs text-text-muted;
+			}
+		}
 	}
 </style>

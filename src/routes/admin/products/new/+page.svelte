@@ -12,10 +12,10 @@
 		toVariantInput
 	} from '#lib/store/admin/productForm.js';
 	import { errorText } from '#lib/store/format.js';
+	import PageHead from '#lib/store/PageHead.svelte';
 	import { strings } from '#lib/store/strings.js';
 	import Button from '#lib/ui/Button.svelte';
 	import Notice from '#lib/ui/Notice.svelte';
-	import ArrowLeftIcon from '@lucide/svelte/icons/arrow-left';
 
 	const text = strings.admin.product;
 	const client = useConvexClient();
@@ -52,14 +52,14 @@
 	<title>{text.newTitle} · {strings.admin.title}</title>
 </svelte:head>
 
-<a class="back" href={resolve('/admin/products')}>
-	<ArrowLeftIcon size={18} aria-hidden="true" />
-	{text.back}
-</a>
-<h1 class="mb-4 text-2xl font-extrabold">{text.newTitle}</h1>
+<PageHead
+	title={text.newTitle}
+	size="headline"
+	back={{ href: resolve('/admin/products'), label: text.back }}
+/>
 
 <form class="form" onsubmit={submit}>
-	<section class="panel p-4">
+	<section class="card">
 		<h2>{text.details}</h2>
 		<ProductFields
 			bind:form={product}
@@ -67,7 +67,7 @@
 			schools={options.data?.schools ?? []}
 		/>
 	</section>
-	<section class="panel p-4">
+	<section class="card">
 		<h2>{strings.admin.sizes.title}</h2>
 		<p class="hint">{text.hints.firstSize}</p>
 		<VariantFields bind:form={variant} sized={product.kind === 'uniform'} />
@@ -81,16 +81,18 @@
 <style lang="postcss">
 	@reference 'src/app.css';
 
-	.back {
-		@apply mb-2 inline-flex min-h-11 items-center gap-1 text-sm font-bold text-text-muted;
-	}
-	.form {
-		@apply flex max-w-3xl flex-col gap-4;
-	}
-	h2 {
-		@apply mb-3 text-lg font-extrabold;
-	}
-	.hint {
-		@apply -mt-2 mb-3 text-sm text-text-muted;
+	form.form {
+		@apply flex max-w-3xl flex-col gap-5;
+
+		section.card {
+			@apply flex flex-col gap-3 rounded-[1.75rem] raised p-5;
+
+			h2 {
+				@apply type-title;
+			}
+			p.hint {
+				@apply text-sm text-text-muted;
+			}
+		}
 	}
 </style>

@@ -76,12 +76,12 @@
 		</li>
 	{/each}
 </ul>
-<div class="mt-3">
+<div class="add">
 	<Button onclick={() => edit()}>{text.add}</Button>
 </div>
 
 <Modal bind:open title={editing ? text.editTitle : text.addTitle} closeLabel={text.close}>
-	<form class="flex flex-col gap-4" onsubmit={save}>
+	<form class="size-form" onsubmit={save}>
 		<VariantFields bind:form sized={product.kind === 'uniform'} />
 		{#if error}<Notice tone="bad" role="alert">{error}</Notice>{/if}
 		<Button type="submit" variant="primary" disabled={busy}>{text.save}</Button>
@@ -91,23 +91,30 @@
 <style lang="postcss">
 	@reference 'src/app.css';
 
-	.sizes {
+	ul.sizes {
 		@apply flex flex-col gap-2;
-	}
-	.size {
-		@apply flex items-center gap-2 rounded-xl sunken p-1 pr-2;
 
-		&.on {
-			@apply raised;
+		li.size {
+			@apply flex items-center gap-2 rounded-2xl sunken p-1.5 pr-2;
+
+			&.on {
+				@apply raised;
+			}
+			button.pick {
+				@apply flex min-h-11 min-w-0 flex-1 flex-col items-start justify-center rounded-xl px-3 text-left;
+			}
+			span.label {
+				@apply text-sm font-bold;
+			}
+			span.meta {
+				@apply truncate text-xs text-text-muted;
+			}
 		}
 	}
-	.pick {
-		@apply flex min-h-11 min-w-0 flex-1 flex-col items-start justify-center rounded-lg px-2 text-left;
+	div.add {
+		@apply mt-3;
 	}
-	.label {
-		@apply text-sm font-bold;
-	}
-	.meta {
-		@apply truncate text-xs text-text-muted;
+	form.size-form {
+		@apply flex flex-col gap-4;
 	}
 </style>

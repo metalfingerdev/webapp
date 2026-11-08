@@ -9,7 +9,7 @@
 	const text = strings.admin.sizes;
 </script>
 
-<div class="grid">
+<div class="fields">
 	<Field label={text.label} hint={text.labelHint}>
 		<input bind:value={form.label} required maxlength="60" />
 	</Field>
@@ -40,10 +40,11 @@
 <style lang="postcss">
 	@reference 'src/app.css';
 
-	.grid {
-		@apply grid gap-3 sm:grid-cols-2;
-	}
-	.wide {
-		@apply sm:col-span-2;
+	div.fields {
+		@apply grid gap-4 sm:grid-cols-2;
+
+		div.wide {
+			@apply sm:col-span-2;
+		}
 	}
 </style>
