@@ -245,7 +245,7 @@ until its screens follow `design.md`; the step's PR names any deliberate departu
    cancellation window, delivery estimate wording.
 6. **Razorpay** (**built**, 2026-11-08, branch `step-6-razorpay`; `payments.md`). _Needs_: the client's Razorpay account; test keys and the webhook secret
    on dev; KYC and live keys before launch.
-7. **Admin** (in four sub-steps, see Decisions; **7a built** 2026-11-08, branch `step-7-admin`). Products, stock and import (port `legacy/src/lib/products/import.ts`), then schools and
+7. **Admin** (**built**, 2026-11-08, branch `step-7-admin`, four sub-steps 7a to 7d in one PR; see Decisions). Products, stock and import (port `legacy/src/lib/products/import.ts`), then schools and
    sets (with "copy to next session"), then the order board and shipping (`shipping.md`), then
    `/admin/settings`. _Look from_: `legacy/src/components/dashboard/`, `legacy/src/routes/(app)/dashboard/`.
    _Needs_: who works the admin, the courier(s) used, the real store details typed
@@ -265,8 +265,8 @@ until its screens follow `design.md`; the step's PR names any deliberate departu
 
 ## Status (what exists)
 
-Steps 0 to 6 and 7a are built (7a: 2026-11-08, branch `step-7-admin`, one PR for all of step 7). **Next: step 7b (schools
-and sets)**, then 7c (orders and shipping) and 7d (settings).
+Steps 0 to 7 are built (step 7: 2026-11-08, branch `step-7-admin`, one PR). **Next: step 8 (invoices
+and packing slips)**; the packing-slip print was left for it.
 
 - **Old store**: in `legacy/` (not built, linted or type-checked); tag `old-store` runs it.
 - **Tables**: all of `data-model.md`. Every product has one or more `productVariants` holding price and
@@ -454,8 +454,33 @@ and sets)**, then 7c (orders and shipping) and 7d (settings).
   `orderItems.by_variantId`. Client: `src/lib/store/admin/*` (sheet parser ported from
   `legacy/src/lib/products/import.ts`, `xlsx` loaded only on the import page). `src/routes/admin`
   is no longer on the lint and Prettier ignore lists. Tests: `store/adminProducts.test.ts`.
-- **Not in yet**: no school or set editing (7b), no order board for staff (7c), no `/admin/settings`
-  (7d; the settings row holds placeholders).
+- **Step 7b, schools and sets** (2026-11-08). `store/admin/schools.ts` (`list` with set counts,
+  `get`, `create` hidden with a fixed slug, `update`, `move`) and `store/admin/sets.ts` (`sessions`,
+  `listForSchool`, `get`, `create` hidden, `update` (type never changes), `setActive` (publish refused
+  for an empty set or one with hidden lines), `addLine`/`updateLine`/`moveLine`/`removeLine` (book sets
+  take no uniform pieces; uniform sets only their own school's), `copyToSession` (copies hidden;
+  refused if the target session has sets)). Rules: `model/store/setRules.ts`. Routes:
+  `/admin/schools`, `/admin/schools/[id]`, `/admin/schools/[id]/sets/[setId]`. Tests:
+  `store/adminSets.test.ts`.
+- **Step 7c, orders and shipping** (2026-11-08). `/admin` is the live order board (awaiting payment,
+  to pack, packed, latest 50 shipped; today's orders and revenue in IST, computed on the client).
+  `store/admin/orders.ts`: `board`, `list` (paginated by status), `search` (exact order number, else
+  name or phone in the latest 300), `get`, `markPacked`, `markShipped` (a courier zone needs courier
+  and AWB; one shipment per order; sends the shipped email via `model/store/shippedEmail.ts`, skipped
+  for `.invalid` emails or without `EMAIL_SEND_FROM`), `markDelivered`, `cancel` (stock back once,
+  refund if paid online), `answerReturn` (the refund itself is done by hand for now). Couriers:
+  `model/store/couriers.ts`. Routes: `/admin`, `/admin/orders`, `/admin/orders/[number]`,
+  `/admin/shipping` (packed orders with the ship form). Tests: `store/adminOrders.test.ts`.
+- **Step 7d, settings** (2026-11-08). `/admin/settings`: shop details and rules
+  (`store/admin/settings.ts` `get`/`save`; format checks only: Indian mobile, email, GSTIN shape,
+  invoice prefix 1 to 3 letters, return window 0 to 30 days, session like 2026-27; a confirm before the
+  session changes), the "Taking orders" switch, delivery zones (`store/admin/zones.ts` `list`,
+  `pincodes`, `save` (making a zone the fallback takes it off the others; a confirm before leaving no
+  active fallback), `setPincodes` (refused if a pincode is in another zone)), and the Razorpay setup
+  check and recent payments (`store/admin/payments.ts`). The payment window stays a code constant.
+  Tests: `store/adminSettings.test.ts`, plus "taking orders off" in `store/orders.test.ts`.
+- **Not in yet**: invoices and the packing slip (step 8), Product On Demand (9), policies and launch
+  (10). The settings row still holds placeholders until the client types the real details in.
 
 When a step lands, mark it **built** in the roadmap with the date, write what was built here in a few
 lines (routes, main functions, anything surprising), and move "Next" on.

@@ -103,6 +103,20 @@ describe('orders', () => {
 		).rejects.toThrow();
 	});
 
+	it('takes no order while the admin has "taking orders" off, and holds no stock', async () => {
+		const world = await seed();
+		const addressId = await checkoutWith(world);
+		const settings = await world.admin.query(api.store.admin.settings.get, {});
+		await world.admin.mutation(api.store.admin.settings.save, {
+			...settings,
+			placedOrdersOpen: false
+		});
+		await expect(
+			world.customer.mutation(api.store.orders.placeOrder, { addressId, paymentMethod: 'cod' })
+		).rejects.toThrow(/not taking orders/);
+		expect(await world.stockOf(world.ids.plenty)).toBe(100);
+	});
+
 	it('charges the database price plus the zone fee, holds stock once and empties the cart', async () => {
 		const world = await seed();
 		const addressId = await checkoutWith(world);

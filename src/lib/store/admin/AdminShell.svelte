@@ -9,6 +9,7 @@
 	import FileUpIcon from '@lucide/svelte/icons/file-up';
 	import UsersIcon from '@lucide/svelte/icons/users';
 	import SchoolIcon from '@lucide/svelte/icons/school';
+	import SettingsIcon from '@lucide/svelte/icons/settings';
 	import ArrowUpLeftIcon from '@lucide/svelte/icons/arrow-up-left';
 	import { strings } from '#lib/store/strings.js';
 
@@ -23,7 +24,8 @@
 		{ href: resolve('/admin/products'), label: text.products, icon: PackageIcon, exact: false },
 		{ href: resolve('/admin/products/import'), label: text.import, icon: FileUpIcon, exact: true },
 		{ href: resolve('/admin/schools'), label: text.schools, icon: SchoolIcon, exact: false },
-		{ href: resolve('/admin/users'), label: text.users, icon: UsersIcon, exact: false }
+		{ href: resolve('/admin/users'), label: text.users, icon: UsersIcon, exact: false },
+		{ href: resolve('/admin/settings'), label: text.settings, icon: SettingsIcon, exact: false }
 	];
 	const isActive = (href: string, exact: boolean) => {
 		const path = page.url.pathname;
