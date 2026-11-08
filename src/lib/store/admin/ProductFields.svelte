@@ -8,6 +8,7 @@
 	import { strings } from '#lib/store/strings.js';
 	import Field from '#lib/ui/Field.svelte';
 	import { GST_RATES, type ProductState } from './productForm.js';
+	import Media from '#lib/ui/Media.svelte';
 
 	// The product's own fields (not its sizes). Native controls: best on cheap phones.
 	let {
@@ -54,7 +55,7 @@
 	};
 </script>
 
-<div class="grid">
+<div class="fields">
 	<div class="wide">
 		<Field label={f.title}>
 			<input bind:value={form.title} required maxlength="200" />
@@ -145,13 +146,18 @@
 	</Field>
 
 	<div class="wide photo">
-		{#if form.imageUrl}
-			<img src={form.imageUrl} alt="" width="72" height="96" />
-		{:else}
-			<span class="thumb" aria-hidden="true"></span>
-		{/if}
+		<span class="thumb">
+			<Media
+				src={form.imageUrl}
+				ratio="3 / 4"
+				slot="product-thumb"
+				iconSize={20}
+				width={72}
+				height={96}
+			/>
+		</span>
 		<div class="photo-actions">
-			<label class="button tone-raised">
+			<label class="upload">
 				{uploading ? f.uploading : form.imageId ? f.changePhoto : f.photo}
 				<input
 					class="sr-only"
@@ -164,14 +170,14 @@
 			{#if form.imageId && !uploading}
 				<button
 					type="button"
-					class="button"
+					class="remove"
 					onclick={() => {
 						form.imageId = undefined;
 						form.imageUrl = null;
 					}}>{f.removePhoto}</button
 				>
 			{/if}
-			{#if photoError}<p class="text-danger text-sm">{photoError}</p>{/if}
+			{#if photoError}<p class="problem">{photoError}</p>{/if}
 		</div>
 	</div>
 </div>
@@ -179,23 +185,29 @@
 <style lang="postcss">
 	@reference 'src/app.css';
 
-	.grid {
-		@apply grid gap-3 sm:grid-cols-2;
-	}
-	.wide {
-		@apply sm:col-span-2;
-	}
-	.photo {
-		@apply flex items-center gap-3;
-	}
-	img,
-	.thumb {
-		@apply h-24 w-18 shrink-0 rounded-lg object-cover;
-	}
-	.thumb {
-		@apply sunken;
-	}
-	.photo-actions {
-		@apply flex flex-wrap items-center gap-2;
+	div.fields {
+		@apply grid gap-4 sm:grid-cols-2;
+
+		div.wide {
+			@apply sm:col-span-2;
+		}
+		div.photo {
+			@apply flex items-center gap-4;
+
+			span.thumb {
+				@apply w-18 shrink-0;
+				--media-radius: 0.75rem;
+			}
+			div.photo-actions {
+				@apply flex flex-wrap items-center gap-2;
+
+				:is(label.upload, button.remove) {
+					@apply button min-h-11;
+				}
+				p.problem {
+					@apply text-sm text-danger;
+				}
+			}
+		}
 	}
 </style>

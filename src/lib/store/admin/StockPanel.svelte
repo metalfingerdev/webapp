@@ -99,7 +99,7 @@
 
 	<h3>{text.log}</h3>
 	{#if variant.log.length === 0}
-		<p class="text-text-muted text-sm">{text.noLog}</p>
+		<p class="empty">{text.noLog}</p>
 	{:else}
 		<ol class="log">
 			{#each variant.log as entry (entry._id)}
@@ -121,52 +121,62 @@
 <style lang="postcss">
 	@reference 'src/app.css';
 
-	.stock {
+	div.stock {
 		@apply flex flex-col gap-3;
-	}
-	.now {
-		@apply flex items-baseline gap-2;
-	}
-	.number {
-		@apply text-3xl font-extrabold;
-	}
-	.held {
-		@apply -mt-2 text-sm text-text-muted;
-	}
-	.modes {
-		@apply flex gap-1 rounded-xl sunken p-1;
-	}
-	.mode {
-		@apply min-h-10 flex-1 rounded-lg px-2 text-sm font-bold text-text-muted;
 
-		&.on {
-			@apply raised text-text;
-		}
-	}
-	.change {
-		@apply flex items-end gap-2;
+		p.now {
+			@apply flex items-baseline gap-2;
 
-		& > :first-child {
-			@apply flex-1;
+			span.number {
+				@apply font-display text-4xl font-semibold tracking-tight;
+			}
 		}
-	}
-	h3 {
-		@apply mt-2 text-sm font-extrabold;
-	}
-	.log li {
-		@apply grid grid-cols-[3rem_1fr_2.5rem] gap-x-2 border-b border-border-muted py-2 text-sm last:border-b-0;
-	}
-	.delta {
-		@apply font-extrabold text-success;
+		p.held {
+			@apply -mt-2 text-sm text-text-muted;
+		}
+		div.modes {
+			@apply flex gap-1 rounded-full sunken p-1;
 
-		&.minus {
-			@apply text-danger;
+			button.mode {
+				@apply min-h-10 flex-1 rounded-full px-2 text-sm font-bold text-text-muted;
+
+				&.on {
+					@apply raised text-text;
+				}
+			}
 		}
-	}
-	.after {
-		@apply text-right font-bold;
-	}
-	.when {
-		@apply col-span-3 text-xs text-text-muted;
+		form.change {
+			@apply flex items-end gap-2;
+
+			> :first-child {
+				@apply flex-1;
+			}
+		}
+		h3 {
+			@apply mt-2 type-kicker;
+		}
+		p.empty {
+			@apply text-sm text-text-muted;
+		}
+		ol.log {
+			@apply rounded-2xl sunken px-3;
+
+			li {
+				@apply grid grid-cols-[3rem_1fr_2.5rem] gap-x-2 border-b border-border-muted py-2 text-sm last:border-b-0;
+			}
+			span.delta {
+				@apply font-extrabold text-success;
+
+				&.minus {
+					@apply text-danger;
+				}
+			}
+			span.after {
+				@apply text-right font-bold;
+			}
+			span.when {
+				@apply col-span-3 text-xs text-text-muted;
+			}
+		}
 	}
 </style>
