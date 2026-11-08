@@ -57,6 +57,7 @@ in your report, and ask when it affects behaviour.
 | Legal name and address for invoices                        | **TODO (dictate)**                                                                                                                    | invoice header                           |
 | Store phone, WhatsApp, email                               | **TODO (dictate)**, entered in the admin                                                                                              | help text, footer                        |
 | Brand colours and logo                                     | **TODO (dictate)**                                                                                                                    | `src/themes/palette.css`                 |
+| Real figures and quotes for the home page: students served, years open, parent or principal quotes; and whether to show a "for schools" partner section | **TODO (dictate)**; the home page shows only true facts until then (decided 2026-11-08) | home page stats and testimonials |
 | Languages in the UI                                        | English, Hindi-ready (all text in `src/lib/store/strings.ts`)                                                                         | `strings.ts`                             |
 | Carry over WooCommerce customers, orders, products?        | **TODO (dictate)**                                                                                                                    | migration script                         |
 | Who works the admin; is a role narrower than admin needed? | **TODO (dictate)**                                                                                                                    | `roles-and-access.md`                    |
@@ -393,6 +394,12 @@ Steps 0 to 5 are built (step 5: 2026-11-07, branch `step-5-checkout`). **Next: s
   `MegaPanel`'s `.panel` picked up the global `panel` utility (a card inside the dropdown card); the
   dropdown's parts now share one duration and curve. Tests: `setSelection.test.ts`, school filter in
   `catalog.test.ts`.
+- **Home page** (2026-11-08, branch `home-page`, on top of `ui-soft-layers`). The live site's content
+  with inventre.in's layout ideas (nothing copied, no ratings or testimonials: none are known): a
+  ticker of true facts (`Ticker.svelte`), hero with two calls to action and a facts row, schools grid
+  with monograms and "Buy book set", How it works in three steps, what is in a set, categories ("Learn
+  from the best"), four trust badges, a closing band and the contact block. `getContact` also returns
+  `currentSession`. All text is in `strings.home`.
 - **Not in yet**: no payment gateway, no order board for staff (step 7), no `/admin/settings` (the settings row holds placeholders).
 
 When a step lands, mark it **built** in the roadmap with the date, write what was built here in a few
