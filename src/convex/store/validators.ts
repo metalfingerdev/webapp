@@ -107,12 +107,11 @@ export const stockReason = v.union(
 );
 export type StockReason = Infer<typeof stockReason>;
 
-/** The reasons an admin may give by hand; `order`, `cancel` and `import` come from code. */
-export const manualStockReason = v.union(
-	v.literal('received'),
-	v.literal('damaged'),
-	v.literal('count')
-);
+/**
+ * The reasons an admin may give for a change by hand. A shelf count has its own function
+ * (`store/admin/stock.ts#count`); `order`, `cancel` and `import` come from code.
+ */
+export const manualStockReason = v.union(v.literal('received'), v.literal('damaged'));
 
 export const enquiryStatus = v.union(v.literal('new'), v.literal('quoted'), v.literal('closed'));
 

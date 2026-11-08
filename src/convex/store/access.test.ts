@@ -75,7 +75,7 @@ describe('admin stock adjustment', () => {
 		const variantId = await seedVariant(t, 2);
 
 		await expect(
-			admin.mutation(api.store.admin.stock.adjust, { variantId, delta: -3, reason: 'count' })
+			admin.mutation(api.store.admin.stock.adjust, { variantId, delta: -3, reason: 'damaged' })
 		).rejects.toThrow(/Only 2 in stock/);
 		expect(await stockOf(t, variantId)).toEqual({ stock: 2, log: [] });
 	});

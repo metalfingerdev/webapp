@@ -107,13 +107,15 @@ export default defineSchema({
 		sku: v.optional(v.string()),
 		mrp: v.number(),
 		price: v.number(), // GST-inclusive selling price
+		purchasePrice: v.optional(v.number()), // what the shop paid; admin only, never public
 		stock: v.number(),
 		lowStockAt: v.number(),
 		sortOrder: v.number(),
 		isActive: v.boolean()
 	})
 		.index('by_productId_and_sortOrder', ['productId', 'sortOrder'])
-		.index('by_sku', ['sku']),
+		.index('by_sku', ['sku'])
+		.index('by_stock', ['stock']),
 
 	schools: defineTable({
 		name: v.string(),
@@ -204,7 +206,9 @@ export default defineSchema({
 		unitPrice: v.number(),
 		quantity: v.number(),
 		fromSetId: v.optional(v.id('schoolSets'))
-	}).index('by_orderId', ['orderId']),
+	})
+		.index('by_orderId', ['orderId'])
+		.index('by_variantId', ['variantId']),
 
 	stockAdjustments: defineTable({
 		variantId: v.id('productVariants'),
