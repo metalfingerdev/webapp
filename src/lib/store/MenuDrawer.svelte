@@ -9,9 +9,8 @@
 	import SearchIcon from '@lucide/svelte/icons/search';
 	import ShoppingBagIcon from '@lucide/svelte/icons/shopping-bag';
 	import UserIcon from '@lucide/svelte/icons/user';
-	import { useIsAppAdmin } from '#lib/admin/api/admin.svelte.js';
-	import { ADMIN_ROUTE } from '#lib/admin/utils/admin.constants.js';
 	import Button from '#lib/ui/Button.svelte';
+	import AccountView from './AccountView.svelte';
 	import CartList from './CartList.svelte';
 	import CartSummary from './CartSummary.svelte';
 	import Drawer from './Drawer.svelte';
@@ -39,7 +38,6 @@
 	} = $props();
 
 	const auth = useAuth();
-	const admin = useIsAppAdmin();
 	const cart = useCart();
 	const drawer = useDrawer();
 	const view = $derived(drawer.view);
@@ -58,11 +56,13 @@
 			? strings.nav.menu
 			: v.kind === 'cart'
 				? strings.cart.title
-				: v.kind === 'schools'
-					? strings.nav.schools
-					: v.kind === 'school'
-						? v.name
-						: v.category.name;
+				: v.kind === 'account'
+					? strings.account.title
+					: v.kind === 'schools'
+						? strings.nav.schools
+						: v.kind === 'school'
+							? v.name
+							: v.category.name;
 
 	// wa.me wants the number in digits with the country code; a 10-digit number is Indian
 	const whatsappLink = $derived.by(() => {
@@ -83,7 +83,7 @@
 					<ChevronLeftIcon class="size-5" aria-hidden="true" />
 					<span>{titleOf(previous)}</span>
 				</button>
-			{:else if view.kind === 'cart'}
+			{:else if view.kind === 'cart' || view.kind === 'account'}
 				<button class="back-button" type="button" onclick={() => drawer.show('root')}>
 					<ChevronLeftIcon class="size-5" aria-hidden="true" />
 					<span>{strings.nav.menu}</span>
@@ -95,15 +95,19 @@
 				<button class="icon" type="button" aria-label={strings.nav.search} onclick={onsearch}>
 					<SearchIcon class="size-5" aria-hidden="true" />
 				</button>
-				{#if auth.isAuthenticated}
-					<a class="icon" href={resolve('/account')} aria-label={strings.nav.account}>
+				<button
+					class="icon"
+					class:active={view.kind === 'account'}
+					type="button"
+					aria-label={auth.isAuthenticated ? strings.nav.account : strings.nav.signIn}
+					onclick={() => drawer.show('account')}
+				>
+					{#if auth.isAuthenticated}
 						<UserIcon class="size-5" aria-hidden="true" />
-					</a>
-				{:else}
-					<a class="icon" href={resolve('/(auth)/signin')} aria-label={strings.nav.signIn}>
+					{:else}
 						<LogInIcon class="size-5" aria-hidden="true" />
-					</a>
-				{/if}
+					{/if}
+				</button>
 				<button
 					class="icon cart"
 					class:active={view.kind === 'cart'}
@@ -120,7 +124,9 @@
 
 	{#key drawer.stack}
 		<div class="view slide-{drawer.direction}">
-			{#if view.kind === 'cart'}
+			{#if view.kind === 'account'}
+				<AccountView />
+			{:else if view.kind === 'cart'}
 				<h2 class="title">{strings.cart.title}</h2>
 				{#if cart.loading}
 					<p class="note">{strings.menu.loading}</p>
@@ -170,6 +176,14 @@
 							</button>
 						</li>
 					{/each}
+					{#if auth.isAuthenticated}
+						<li>
+							<button type="button" onclick={() => go({ kind: 'account' })}>
+								{strings.account.title}
+								<ChevronRightIcon class="size-6" aria-hidden="true" />
+							</button>
+						</li>
+					{/if}
 					<li><a href={resolve('/(shop)/shop')}>{strings.nav.allProducts}</a></li>
 				</ul>
 
@@ -194,20 +208,7 @@
 					</ul>
 				</section>
 
-				{#if auth.isAuthenticated}
-					<ul class="small">
-						<li>
-							<a href={resolve('/account')}>
-								<UserIcon class="size-5" aria-hidden="true" />
-								{strings.nav.account}
-							</a>
-						</li>
-						<li><a href={resolve('/(shop)/orders')}>{strings.nav.orders}</a></li>
-						{#if admin.isAppAdmin}
-							<li><a href={resolve(ADMIN_ROUTE)}>{strings.nav.dashboard}</a></li>
-						{/if}
-					</ul>
-				{:else if !auth.isLoading}
+				{#if !auth.isAuthenticated && !auth.isLoading}
 					<a class="sign-in" href={resolve('/(auth)/signin')}>
 						<strong>{strings.menu.signIn}</strong>
 						<span>{strings.menu.signInHint}</span>

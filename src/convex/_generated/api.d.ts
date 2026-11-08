@@ -33,6 +33,7 @@ import type * as model_store_orders from "../model/store/orders.js";
 import type * as model_store_pricing from "../model/store/pricing.js";
 import type * as model_store_publicProjection from "../model/store/publicProjection.js";
 import type * as model_store_rateLimits from "../model/store/rateLimits.js";
+import type * as model_store_schools from "../model/store/schools.js";
 import type * as model_store_setSelection from "../model/store/setSelection.js";
 import type * as model_store_stock from "../model/store/stock.js";
 import type * as model_store_storeProfile from "../model/store/storeProfile.js";
@@ -100,6 +101,7 @@ declare const fullApi: ApiFromModules<{
   "model/store/pricing": typeof model_store_pricing;
   "model/store/publicProjection": typeof model_store_publicProjection;
   "model/store/rateLimits": typeof model_store_rateLimits;
+  "model/store/schools": typeof model_store_schools;
   "model/store/setSelection": typeof model_store_setSelection;
   "model/store/stock": typeof model_store_stock;
   "model/store/storeProfile": typeof model_store_storeProfile;
