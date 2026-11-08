@@ -51,6 +51,7 @@ in your report, and ask when it affects behaviour.
 | What may be unticked from a set                                                                                                                         | **everything** (dictated 2026-11-07, see Decisions)                                                                                   | set page                                 |
 | Optional extras: covering, labelling                                                                                                                    | **none** (dictated 2026-11-06)                                                                                                        | set page                                 |
 | Current academic session and when the next opens                                                                                                        | 2026-27 now; next opens April 2027 (all Indian private schools run April to March)                                                    | `schoolSets.session`                     |
+| How long an unpaid online order holds its stock                                                                                                         | placeholder **30 minutes** + 5 minutes' grace (chosen 2026-11-08, `PAYMENT_WINDOW_MINUTES`); client to confirm                        | payment expiry                           |
 | Cancellation and return windows                                                                                                                         | cancel until the order ships; after delivery a return request (dictated 2026-11-07); return window days still placeholder 7           | order rules (from the live policy pages) |
 | GST: registered, GSTIN, composition scheme?                                                                                                             | **TODO (dictate)**, confirm with the CA                                                                                               | invoice tax columns                      |
 | Invoice prefix (3 letters or fewer)                                                                                                                     | **TODO (dictate)**                                                                                                                    | invoice numbers                          |
@@ -231,7 +232,7 @@ until its screens follow `design.md`; the step's PR names any deliberate departu
    (`docs/09-testing.md`). _Look from_: `legacy/src/components/checkout/`, `legacy/src/routes/(app)/user/`.
    _Needs_: shipping fee and free-shipping threshold, COD yes or no,
    cancellation window, delivery estimate wording.
-6. **Razorpay** (`payments.md`). _Needs_: the client's Razorpay account; test keys and the webhook secret
+6. **Razorpay** (**built**, 2026-11-08, branch `step-6-razorpay`; `payments.md`). _Needs_: the client's Razorpay account; test keys and the webhook secret
    on dev; KYC and live keys before launch.
 7. **Admin.** Products, stock and import (port `legacy/src/lib/products/import.ts`), then schools and
    sets (with "copy to next session"), then the order board and shipping (`shipping.md`), then
@@ -253,7 +254,7 @@ until its screens follow `design.md`; the step's PR names any deliberate departu
 
 ## Status (what exists)
 
-Steps 0 to 5 are built (step 5: 2026-11-07, branch `step-5-checkout`). **Next: step 6 (Razorpay)**.
+Steps 0 to 6 are built (step 6: 2026-11-08, branch `step-6-razorpay`). **Next: step 7 (Admin)**.
 
 - **Old store**: in `legacy/` (not built, linted or type-checked); tag `old-store` runs it.
 - **Tables**: all of `data-model.md`. Every product has one or more `productVariants` holding price and
@@ -400,7 +401,30 @@ Steps 0 to 5 are built (step 5: 2026-11-07, branch `step-5-checkout`). **Next: s
   with monograms and "Buy book set", How it works in three steps, what is in a set, categories ("Learn
   from the best"), four trust badges, a closing band and the contact block. `getContact` also returns
   `currentSession`. All text is in `strings.home`.
-- **Not in yet**: no payment gateway, no order board for staff (step 7), no `/admin/settings` (the settings row holds placeholders).
+- **Step 6, Razorpay** (2026-11-08). Online payment is offered wherever `RAZORPAY_KEY_ID` and
+  `RAZORPAY_KEY_SECRET` are set (`model/store/razorpay.ts#onlinePaymentReady`; it replaced the
+  `ONLINE_PAYMENT_ENABLED` constant). Dev has test keys; staging has none, so it stays cash on
+  delivery. Talks to Razorpay's REST API with `fetch` and Web Crypto (no Node action, the `razorpay`
+  npm package is unused). `store/payments.ts`: `start` (action; guard `requireCustomer` inside
+  `beginAttempt`; saves the `payments` row `creating`, then `created` with the gateway order id;
+  reuses an attempt for the same amount; at most 10 per order), `confirm` (public on purpose: needs
+  a signature made with our secret and a server-side status check that says `captured`),
+  `handleEvent` (webhook, deduplicated on the event id in `paymentEvents`), `expire` (scheduled by
+  `placeOrder` for 30 + 5 minutes), `sendRefund`. The webhook is `/razorpay-webhook` in `http.ts`
+  (`model/store/paymentWebhook.ts`). `model/store/payments.ts#settleCapture` is the one place money
+  turns an order paid; a capture for a cancelled or already paid order, or the wrong amount, never
+  does (late money is refunded, a wrong amount is logged). `model/store/refunds.ts#startRefund`
+  refunds a payment at most once; `transitionOrder` calls it on cancelling a paid online order. A
+  refund the gateway refuses is marked `failed` for the shop to settle by hand (no retry).
+  `store/admin/payments.ts`: `checkSetup` (missing env var names, webhook URL) and `list`; their
+  screens come in step 7. UI: checkout opens Razorpay Checkout (script loaded only then,
+  `src/lib/store/pay.ts`); the order page shows "Pay ₹X" with the deadline, the refund state and
+  "Online, not paid yet". Tests: `store/payments.test.ts`. **Dev webhook**: the user is to set
+  `RAZORPAY_WEBHOOK_SECRET` and add the webhook in Razorpay (docs/08); until then refunds stay
+  "started" and late captures are not seen.
+- **Plain buttons set their own text colour** (2026-11-08): `Button.svelte` plain variant had
+  inherited the parent's colour, so the home page closing band's buttons were invisible.
+- **Not in yet**: no order board for staff (step 7), no `/admin/settings` (the settings row holds placeholders).
 
 When a step lands, mark it **built** in the roadmap with the date, write what was built here in a few
 lines (routes, main functions, anything surprising), and move "Next" on.
