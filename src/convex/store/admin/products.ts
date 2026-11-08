@@ -104,11 +104,13 @@ export const list = query({
 					? await ctx.db
 							.query('productVariants')
 							.withIndex('by_stock', (q) => q.eq('stock', 0))
+							// eslint-disable-next-line @convex-dev/no-filter-in-query -- inside the index range; off-sale sizes are few
 							.filter((q) => q.eq(q.field('isActive'), true))
 							.paginate(args.paginationOpts)
 					: await ctx.db
 							.query('productVariants')
 							.withIndex('by_stock', (q) => q.lte('stock', LOW_STOCK_SCAN_MAX))
+							// eslint-disable-next-line @convex-dev/no-filter-in-query -- compares two fields of a row, which no index can
 							.filter((q) =>
 								q.and(
 									q.eq(q.field('isActive'), true),

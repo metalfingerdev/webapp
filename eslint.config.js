@@ -66,7 +66,6 @@ export default [
 			'src/convex/convex.config.ts',
 			'src/routes/(auth)/**',
 			'src/routes/account/**',
-			'src/routes/admin/**',
 			'src/routes/api/**',
 			'src/routes/+layout.server.ts',
 			'src/env.ts',
