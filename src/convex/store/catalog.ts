@@ -13,6 +13,7 @@ import {
 	type ProductCard
 } from '../model/store/publicProjection.js';
 import { loadActiveSchool, loadSetProductIds } from '../model/store/schools.js';
+import { PLACEHOLDER_SESSION } from '../model/store/storeProfile.js';
 
 const categoryNode = v.object({
 	name: v.string(),
@@ -175,7 +176,9 @@ export const getContact = query({
 		whatsapp: v.optional(v.string()),
 		email: v.optional(v.string()),
 		address: v.optional(v.string()),
-		gstin: v.optional(v.string())
+		gstin: v.optional(v.string()),
+		/** The academic session on sale, e.g. "2026-27", for the home page */
+		currentSession: v.string()
 	}),
 	handler: async (ctx) => {
 		const settings = await ctx.db.query('storeSettings').first();
@@ -185,7 +188,8 @@ export const getContact = query({
 			whatsapp: settings?.whatsapp,
 			email: settings?.email,
 			address: settings?.address,
-			gstin: settings?.gstin
+			gstin: settings?.gstin,
+			currentSession: settings?.currentSession ?? PLACEHOLDER_SESSION
 		};
 	}
 });

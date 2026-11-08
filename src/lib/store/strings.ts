@@ -42,22 +42,54 @@ export const strings = {
 	home: {
 		title: 'Aggarwal Kart',
 		headline: 'Your child’s school year, in one order.',
-		lead: 'School books and uniforms by school and class, plus stationery and general books.',
-		shopAll: 'Browse all books',
-		schoolsTitle: 'Find your school',
+		lead: 'Book sets and uniforms by school and class, plus textbooks, NCERT books, sample papers, entrance exam and language books.',
+		findSchool: 'Find your school',
+		howItWorks: 'How it works',
+		shopAll: 'Browse books',
+		ticker: (session: string) => [
+			`Book sets for session ${session}`,
+			'Cash on delivery',
+			'Prices include GST',
+			'Untick what you already have'
+		],
+		tickerLabel: 'Store news',
+		facts: (schools: number, session: string) => [
+			schools === 1 ? '1 school' : `${schools} schools`,
+			`Session ${session}`,
+			'Cash on delivery',
+			'Prices include GST'
+		],
+		schoolsTitle: 'Schools',
+		schoolsLead: 'Pick your child’s school to see the book set and uniform for each class.',
+		buySet: 'Buy book set',
 		allSchools: 'All schools',
+		stepsTitle: 'How it works',
+		stepsLead: 'Three steps, from your phone.',
+		steps: [
+			{ title: 'Pick the school and class', text: 'Every book on the school’s list, in one set.' },
+			{
+				title: 'Untick what you have',
+				text: 'Keep only what you need, change copies, choose uniform sizes.'
+			},
+			{ title: 'Receive it at home', text: 'Packed at our shop and delivered to your door.' }
+		],
+		insideTitle: 'Everything for the year',
+		inside: {
+			books: { title: 'Book set', text: 'The school’s full list for the class.' },
+			uniform: { title: 'Uniform', text: 'Regular, sports and winter wear, by size.' },
+			stationery: { title: 'Stationery', text: 'Notebooks and supplies to go with the set.' }
+		},
+		categoriesTitle: 'Learn from the best',
+		categoriesLead: 'Collections chosen by category, from bestsellers to new titles.',
 		promisesTitle: 'Why parents order here',
 		promises: [
 			{ title: 'High quality', text: 'Books and uniforms checked before they leave the shop.' },
-			{
-				title: 'Fast delivery',
-				text: 'Packed at our Faridabad shop and sent by courier across India.'
-			},
-			{ title: 'Fair prices', text: 'Prices include GST. What you see is what you pay.' }
+			{ title: 'Fast delivery', text: 'Packed at our Faridabad shop and sent out quickly.' },
+			{ title: 'Fair prices', text: 'Prices include GST. What you see is what you pay.' },
+			{ title: 'Cash on delivery', text: 'Pay when your order arrives.' }
 		],
-		careTitle: 'Chosen with care',
-		careText:
-			'We are a bookshop first. Every title on the shelf is one we would hand to a parent at the counter.',
+		closingTitle: 'Ready for the new session?',
+		closingText: 'Find your school, tick the list, and we will do the rest.',
 		contactTitle: 'Talk to us',
 		contactPhone: 'Phone',
 		contactWhatsapp: 'WhatsApp',
