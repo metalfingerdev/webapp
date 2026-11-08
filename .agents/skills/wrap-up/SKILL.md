@@ -1,6 +1,6 @@
 ---
 name: wrap-up
-description: Finish a work session on Aggarwal Kart. Runs the checks once, reviews the branch's diff against the store rules, records progress and decisions in the store profile, commits, and offers to push and open a draft PR, clears out stale branches, then tells the user how to try the work and what to ask the client. Use when the user says "wrap up", "we're done", "finish", "end the session", "open the PR", "save progress", or a roadmap step is complete.
+description: Finish a work session on Aggarwal Kart. Runs the checks once, reviews the branch's diff against the store rules, records progress and decisions in the store profile, commits, and offers to push and open a draft PR, syncs `main` and clears merged branches, then tells the user how to try the work and what to ask the client. Use when the user says "wrap up", "we're done", "finish", "end the session", "open the PR", "save progress", or a roadmap step is complete.
 ---
 
 # Wrap up
@@ -33,16 +33,21 @@ someone with no memory of today can carry on.
    nothing from this branch.
 5. **Ask before pushing.** If the user agrees: `git push -u origin <branch>`, then
    `gh pr create --draft` with `.github/pull_request_template.md` filled in.
-6. **Clear stale branches.** A branch is stale when its work is already on `main`.
-   - `git fetch --prune`, then list candidates: `git branch --merged main`, branches whose upstream is
-     `gone` (`git branch -vv`), and the head branches of merged PRs
-     (`gh pr list --state merged --json headRefName`). PRs merged by squash or rebase don't show as
-     merged to git, so the PR list is the check for those.
-   - Never touch `main`, the branch you are on, the `old-store` tag, or any branch with unmerged work or
-     an open PR. Show the user the list, say why each is stale, and wait for a yes.
-   - Delete local ones with `git branch -d` (it refuses unmerged work; if a squash-merged branch is
-     refused, confirm its PR is merged, then use `-D`). Delete the remote copy with
-     `git push origin --delete <branch>` only if the user says so: that is outward-facing.
+6. **Sync `main` and clear merged branches.** GitHub deletes a PR's branch on the remote by itself when
+   the PR is merged, and the merge is what updates `main` on GitHub. So nothing is pushed or deleted
+   remotely here; this step brings the local repo in line with GitHub.
+   - `git fetch --prune` (drops local references to branches GitHub already deleted).
+   - If a PR from this work has been merged: `git switch main && git pull`, so local `main` matches
+     GitHub's. If nothing is merged yet, stay on the branch and skip this.
+   - Delete the local copy of every branch whose PR is merged: check
+     `gh pr list --state merged --json headRefName` (squash- and rebase-merges don't look merged to
+     git), then `git branch -d <branch>`; if git refuses only because of a squash or rebase merge,
+     confirm the PR is merged and use `-D`. Also catch local branches left with no remote
+     (`git branch -vv` shows `gone`) and branches already contained in `main`
+     (`git branch --merged main`).
+   - Never touch `main`, the branch you are on while its PR is open, the `old-store` tag, or any branch
+     with unmerged work. Show the user the list first and wait for a yes. Don't run
+     `git push origin --delete`: the remote copy is already gone, and a delete error just means that.
    - Nothing under `legacy/` is a branch, so this never removes old code.
 7. **Report** to the user:
    - what was built, in plain words
@@ -50,4 +55,4 @@ someone with no memory of today can carry on.
    - which checks passed, and anything not checked
    - placeholders used and questions to send the client
    - what the next session will start with
-   - which stale branches were removed, or are waiting for a yes
+   - `main` synced and which merged branches were removed, or are waiting for a yes
