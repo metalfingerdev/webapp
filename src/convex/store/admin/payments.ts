@@ -34,7 +34,11 @@ export const list = query({
 	),
 	handler: async (ctx) => {
 		await requireAppAdmin(ctx);
-		const payments = await ctx.db.query('payments').withIndex('by_createdAt').order('desc').take(100);
+		const payments = await ctx.db
+			.query('payments')
+			.withIndex('by_createdAt')
+			.order('desc')
+			.take(100);
 		const rows = [];
 		for (const payment of payments) {
 			const order = await ctx.db.get('orders', payment.orderId);

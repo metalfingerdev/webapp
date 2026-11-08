@@ -222,7 +222,11 @@ export const handleEvent = internalMutation({
 			.withIndex('by_eventId', (q) => q.eq('eventId', args.eventId))
 			.first();
 		if (seen) return null;
-		await ctx.db.insert('paymentEvents', { eventId: args.eventId, type: args.type, at: Date.now() });
+		await ctx.db.insert('paymentEvents', {
+			eventId: args.eventId,
+			type: args.type,
+			at: Date.now()
+		});
 
 		const { gatewayOrderId, gatewayPaymentId, amount } = args;
 		if (args.type === 'payment.captured' || args.type === 'order.paid') {
@@ -312,7 +316,10 @@ const refundAtGateway = async (
 	try {
 		const refund = await razorpayApi<{ id: string; status: string }>(
 			`/payments/${encodeURIComponent(target.gatewayPaymentId)}/refund`,
-			{ method: 'POST', body: { amount: target.amount, notes: { orderNumber: target.orderNumber } } }
+			{
+				method: 'POST',
+				body: { amount: target.amount, notes: { orderNumber: target.orderNumber } }
+			}
 		);
 		await ctx.runMutation(internal.store.payments.recordRefund, {
 			paymentId,

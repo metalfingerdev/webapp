@@ -7,6 +7,7 @@
 	import { useRequireSignIn } from '#lib/auth/requireSignIn.svelte.js';
 	import AddressForm from '#lib/store/AddressForm.svelte';
 	import { errorText, formatPrice } from '#lib/store/format.js';
+	import { payForOrder } from '#lib/store/pay.js';
 	import { strings } from '#lib/store/strings.js';
 	import Button from '#lib/ui/Button.svelte';
 	import Notice from '#lib/ui/Notice.svelte';
@@ -29,6 +30,7 @@
 
 	let method = $state<'cod' | 'online'>('cod');
 	let placing = $state(false);
+	let paying = $state(false);
 	let error = $state('');
 	const view = $derived(preview.data);
 	const canPlace = $derived(
@@ -50,11 +52,20 @@
 				addressId,
 				paymentMethod: method
 			});
-			await goto(`${resolve('/(shop)/orders/[number]', { number })}?placed=1`);
+			const orderPage = resolve('/(shop)/orders/[number]', { number });
+			if (method === 'online') {
+				// The order exists now; if paying fails or is closed, its page offers "Pay" again
+				paying = true;
+				const outcome = await payForOrder(client, number).catch(() => 'closed' as const);
+				await goto(outcome === 'closed' ? orderPage : `${orderPage}?placed=1`);
+				return;
+			}
+			await goto(`${orderPage}?placed=1`);
 		} catch (e) {
 			error = errorText(e, 'We could not place your order. Please try again.');
 		} finally {
 			placing = false;
+			paying = false;
 		}
 	};
 
@@ -68,7 +79,7 @@
 
 <h1 class="title">{text.title}</h1>
 
-{#if view && view.lines.length === 0 && view.shortages.length === 0}
+{#if view && view.lines.length === 0 && view.shortages.length === 0 && !placing}
 	<p class="note">{text.emptyCart}</p>
 	<Button href={resolve('/(shop)/cart')}>{text.backToCart}</Button>
 {:else}
@@ -151,7 +162,7 @@
 					/>
 					<span>
 						<strong>{text.online}</strong>
-						{#if !view?.online}<span class="note">{text.onlineSoon}</span>{/if}
+						<span class="note">{view && !view.online ? text.onlineOff : text.onlineHint}</span>
 					</span>
 				</label>
 			</section>
@@ -208,7 +219,7 @@
 				</p>
 				{#if error}<Notice tone="bad" role="alert">{error}</Notice>{/if}
 				<Button variant="primary" large block disabled={!canPlace} onclick={place}>
-					{placing ? text.placing : text.placeOrder}
+					{paying ? text.paying : placing ? text.placing : text.placeOrder}
 				</Button>
 			{/if}
 		</aside>

@@ -26,6 +26,14 @@ const dateTime = new Intl.DateTimeFormat('en-IN', {
 /** "7 Nov 2026", in India time */
 export const formatDate = (ms: number) => dateTime.format(ms);
 
+const clock = new Intl.DateTimeFormat('en-IN', {
+	hour: 'numeric',
+	minute: '2-digit',
+	timeZone: 'Asia/Kolkata'
+});
+/** "3:45 pm", in India time */
+export const formatTime = (ms: number) => clock.format(ms);
+
 /** What a thrown Convex error says to the customer, without the server's wrapper text */
 export const errorText = (error: unknown, fallback: string) => {
 	const data = (error as { data?: unknown } | null)?.data;

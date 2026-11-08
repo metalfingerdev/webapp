@@ -255,8 +255,7 @@ export const getOrder = query({
 			cancelledAt: order.cancelledAt,
 			returnRequest: order.returnRequest,
 			refund: order.refund,
-			payBy:
-				order.status === 'awaiting_payment' ? order.placedAt + PAYMENT_WINDOW_MS : undefined,
+			payBy: order.status === 'awaiting_payment' ? order.placedAt + PAYMENT_WINDOW_MS : undefined,
 			canCancel: canCancel(order.status),
 			canRequestReturn: order.status === 'delivered' && order.returnRequest === undefined,
 			returnBy:
