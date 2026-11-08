@@ -52,8 +52,7 @@
   .field :global(input:not([type="radio"], [type="checkbox"])),
   .field :global(select),
   .field :global(textarea) {
-    --fill: var(--color-foreground);
-    @apply edge-flat min-h-11 w-full rounded-lg bg-foreground px-3 py-2 text-text;
+    @apply min-h-11 w-full rounded-lg px-3 py-2 text-text sunken;
   }
   .field :global(textarea) {
     @apply min-h-20;

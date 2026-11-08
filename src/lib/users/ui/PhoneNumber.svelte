@@ -236,8 +236,7 @@
 		@apply min-w-0 flex-1;
 	}
 	.prefix {
-		--fill: var(--color-foreground);
-		@apply edge-flat grid min-h-11 shrink-0 place-items-center rounded-lg bg-foreground px-3 text-text-muted;
+		@apply grid min-h-11 shrink-0 place-items-center rounded-lg px-3 text-text-muted sunken;
 	}
 	.code {
 		@apply tracking-[0.4em];

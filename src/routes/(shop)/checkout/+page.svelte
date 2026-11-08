@@ -247,10 +247,11 @@
 	}
 
 	.address {
-		@apply flex flex-col gap-1 rounded-lg border-2 border-border-muted p-3;
+		@apply flex flex-col gap-1 rounded-lg raised p-3;
 
 		&.picked {
-			@apply border-primary;
+			@apply bg-primary-tint outline-2 outline-primary;
+			background-image: none;
 		}
 	}
 

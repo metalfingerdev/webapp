@@ -233,18 +233,19 @@
 <style lang="postcss">
 	@reference 'src/app.css';
 
-	/* The old floating bar, softer: a rounded card with a light shadow and no hard edge. The panels
+	/* The old floating bar, softer: a rounded card, lit at the top, with a soft shadow straight down and no outline. The panels
 	   position against the header, which is the same width as the bar. The header keeps the collapsed
-	   bar's height (top gap + row + padding + border); the bar floats in it, so when the search grows
+	   bar's height (top gap + row + padding); the bar floats in it, so when the search grows
 	   the bar it covers the page instead of pushing it down. */
 	.bar-wrap {
 		@apply sticky top-0 z-30 mx-auto max-w-6xl px-3 pt-3;
-		height: calc(0.75rem + 2.75rem + 0.75rem + 2px);
+		height: calc(0.75rem + 2.75rem + 0.75rem);
 		container-type: inline-size;
 	}
 
 	.bar {
-		@apply absolute inset-x-3 top-3 rounded-3xl border border-border-muted bg-foreground p-1.5 shadow-lg;
+		@apply absolute inset-x-3 top-3 rounded-3xl raised p-1.5;
+		box-shadow: var(--shadow-m);
 	}
 
 	.row {
@@ -335,14 +336,15 @@
 	}
 
 	.box {
-		@apply relative grid w-136 max-w-full rounded-3xl border border-border-muted bg-foreground shadow-lg;
+		@apply relative grid w-136 max-w-full rounded-3xl raised;
+		box-shadow: var(--shadow-m);
 		/* centred under the trigger, never past the bar's edges (100cqw is the bar's width) */
 		transform: translateX(clamp(0px, calc(var(--centre) - 17rem), calc(100cqw - 34rem)));
 		transition: transform var(--dur) var(--ease);
 	}
 
 	.arrow {
-		@apply absolute -top-1.5 left-0 z-10 size-3 border-t border-l border-border-muted bg-foreground;
+		@apply absolute -top-1.5 left-0 z-10 size-3 bg-foreground;
 		transform: translateX(calc(var(--centre) - 6px)) rotate(45deg);
 		transition: transform var(--dur) var(--ease);
 	}

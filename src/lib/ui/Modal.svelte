@@ -39,7 +39,6 @@
     @apply fixed inset-0 z-40 bg-black/45;
   }
   :global(.ui-modal) {
-    --fill: var(--color-foreground);
     @apply fixed inset-0 z-50 flex flex-col overflow-y-auto bg-foreground text-text;
   }
   :global(.ui-modal-close) {
@@ -50,7 +49,7 @@
   }
   @media (min-width: 640px) {
     :global(.ui-modal) {
-      @apply edge inset-auto top-1/2 left-1/2 max-h-[90dvh] w-[28rem] max-w-[calc(100vw-2rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl;
+      @apply inset-auto top-1/2 left-1/2 max-h-[90dvh] w-[28rem] max-w-[calc(100vw-2rem)] -translate-x-1/2 -translate-y-1/2 rounded-xl floating;
     }
     :global(.ui-modal-body) {
       @apply p-6;

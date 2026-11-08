@@ -505,8 +505,7 @@
 		@apply flex flex-col gap-2;
 	}
 	.mail {
-		--fill: var(--color-background);
-		@apply edge-flat mb-2 grid size-16 place-items-center rounded-full bg-background text-text-muted;
+		@apply mb-2 grid size-16 place-items-center rounded-full text-text-muted sunken;
 	}
 	.actions {
 		@apply mt-4 flex flex-col gap-2;

@@ -46,17 +46,81 @@
 	}
 }
 
-/* Borders and hard shadows are a shade darker than the surface they sit on, never black (black is
-   for text). A component sets --fill to its own background; `edge` derives the tone from it. */
-@utility edge {
-	border: 2px solid color-mix(in oklch, var(--fill, var(--color-midground)), black 30%);
-	box-shadow: 3px 3px 0 0 color-mix(in oklch, var(--fill, var(--color-midground)), black 30%);
+/* Soft layers (dictated 2026-11-08, after Sajid's technique). Depth comes from the three layers,
+   from gradients that mix them, and from soft shadows; the light is straight above. Never a dark
+   border. See src/themes/palette.css for the gradients and shadows. */
+
+/* The default surface: lit at the top, a small shadow straight down */
+@utility raised {
+	background-color: var(--color-foreground);
+	background-image: var(--gradient-raised);
+	box-shadow: var(--shadow-s);
 }
-@utility edge-flat {
-	border: 2px solid color-mix(in oklch, var(--fill, var(--color-midground)), black 30%);
+/* A recess (inputs, tracks, wells): shaded at the top with an inner shadow */
+@utility sunken {
+	background-color: var(--color-background);
+	background-image: var(--gradient-sunken);
+	box-shadow: var(--shadow-inset);
 }
-@utility edge-press {
-	@apply transition-[translate,box-shadow] duration-100 active:translate-x-0.75 active:translate-y-0.75 active:shadow-none;
+/* A raised colour: the colour lit a little at the top. Text on it is set by the component */
+@utility raised-primary {
+	background-color: var(--color-primary);
+	background-image: linear-gradient(
+		to bottom,
+		color-mix(in oklab, var(--color-primary), var(--color-foreground) 14%),
+		var(--color-primary)
+	);
+	box-shadow: var(--shadow-s);
+}
+@utility raised-secondary {
+	background-color: var(--color-secondary);
+	background-image: linear-gradient(
+		to bottom,
+		color-mix(in oklab, var(--color-secondary), var(--color-foreground) 14%),
+		var(--color-secondary)
+	);
+	box-shadow: var(--shadow-s);
+}
+@utility raised-danger {
+	background-color: var(--color-danger);
+	background-image: linear-gradient(
+		to bottom,
+		color-mix(in oklab, var(--color-danger), var(--color-foreground) 14%),
+		var(--color-danger)
+	);
+	box-shadow: var(--shadow-s);
+}
+@utility raised-success {
+	background-color: var(--color-success);
+	background-image: linear-gradient(
+		to bottom,
+		color-mix(in oklab, var(--color-success), var(--color-foreground) 14%),
+		var(--color-success)
+	);
+	box-shadow: var(--shadow-s);
+}
+@utility raised-warning {
+	background-color: var(--color-warning);
+	background-image: linear-gradient(
+		to bottom,
+		color-mix(in oklab, var(--color-warning), var(--color-foreground) 14%),
+		var(--color-warning)
+	);
+	box-shadow: var(--shadow-s);
+}
+/* Pressing sinks the thing straight down and into its surface */
+@utility press {
+	@apply transition-[translate,box-shadow] duration-100;
+	&:active:not(:disabled) {
+		translate: 0 1px;
+		box-shadow: var(--shadow-inset);
+	}
+}
+/* Anything floating over the page (dialogs, drawers, menus, toasts) */
+@utility floating {
+	background-color: var(--color-foreground);
+	background-image: var(--gradient-raised);
+	box-shadow: var(--shadow-l);
 }
 
 /* A loading placeholder. Put it on the same element (and text) the real content uses, so the
@@ -70,8 +134,10 @@
 
 /* Buttons and button-like links and triggers (the Button component is the same look) */
 @utility button {
-	--fill: var(--color-foreground);
-	@apply inline-flex min-h-9 items-center justify-center gap-2 rounded-lg bg-foreground px-4 text-sm font-bold text-text transition-[translate] duration-100 edge-flat active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50;
+	@apply inline-flex min-h-9 press items-center justify-center gap-2 rounded-lg raised px-4 text-sm font-bold text-text disabled:cursor-not-allowed disabled:opacity-50;
+	&:hover:not(:disabled) {
+		background-image: var(--gradient-raised-hover);
+	}
 }
 @utility button-sm {
 	@apply min-h-7 px-2.5 text-[0.8125rem];
@@ -80,59 +146,53 @@
 	@apply min-w-9 px-0;
 }
 
-/* Colour tones, for buttons, tags and panels alike. Solid tones are a filled colour; soft tones
-   are a wash of the colour with a border of it */
+/* Colour tones, for buttons, tags and panels alike. Solid tones are a lit colour; soft tones are
+   a wash of the colour */
 @utility tone-raised {
-	--fill: var(--color-foreground);
-	@apply border-[color-mix(in_oklch,var(--fill),black_30%)] bg-foreground text-text;
+	@apply raised text-text;
 }
 @utility tone-sunken {
-	--fill: var(--color-background);
-	@apply border-[color-mix(in_oklch,var(--fill),black_30%)] bg-background text-text;
+	@apply sunken text-text;
 }
 @utility tone-primary {
-	--fill: var(--color-primary);
-	@apply border-[color-mix(in_oklch,var(--fill),black_30%)] bg-primary text-foreground;
+	@apply raised-primary text-foreground;
 }
 @utility tone-danger {
-	--fill: var(--color-danger);
-	@apply border-[color-mix(in_oklch,var(--fill),black_30%)] bg-danger text-foreground;
+	@apply raised-danger text-foreground;
 }
 @utility tone-warning {
-	--fill: var(--color-warning);
-	@apply border-[color-mix(in_oklch,var(--fill),black_30%)] bg-warning text-foreground;
+	@apply raised-warning text-foreground;
 }
 @utility tone-primary-soft {
-	@apply border-primary bg-primary-tint text-text;
+	@apply bg-primary-tint text-text;
 }
 @utility tone-danger-soft {
-	@apply border-danger bg-danger-tint text-text;
+	@apply bg-danger-tint text-text;
 }
 @utility tone-warning-soft {
-	@apply border-warning bg-secondary-tint text-text;
+	@apply bg-secondary-tint text-text;
 }
 @utility tone-success-soft {
-	@apply border-success bg-success-tint text-text;
+	@apply bg-success-tint text-text;
 }
 @utility tone-outline {
-	@apply border-2 border-border bg-transparent text-text;
+	@apply border border-border bg-transparent text-text;
 }
 @utility tone-outline-success {
-	@apply border-2 border-success bg-transparent text-success;
+	@apply border border-success bg-transparent text-success;
 }
 @utility tone-outline-danger {
-	@apply border-2 border-danger bg-transparent text-danger;
+	@apply border border-danger bg-transparent text-danger;
 }
 
 /* A small status label */
 @utility tag {
-	@apply inline-flex min-h-5 items-center gap-1 rounded-full border-2 border-border-muted bg-foreground px-2 text-xs font-bold;
+	@apply inline-flex min-h-5 items-center gap-1 rounded-full bg-midground px-2 text-xs font-bold;
 }
 
-/* A bordered surface */
+/* A raised surface */
 @utility panel {
-	--fill: var(--color-foreground);
-	@apply rounded-xl border-2 border-[color-mix(in_oklch,var(--fill),black_30%)] bg-foreground;
+	@apply rounded-xl raised;
 }
 
 /* Form: a label wrapping a caption and a native control */
@@ -143,8 +203,7 @@
 	@apply text-sm font-bold;
 }
 @utility control {
-	@apply min-h-9 w-full rounded-lg bg-foreground px-3 py-1.5 text-sm text-text edge-flat placeholder:text-text-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:bg-background disabled:text-text-muted;
-	--fill: var(--color-foreground);
+	@apply min-h-9 w-full rounded-lg sunken px-3 py-1.5 text-sm text-text placeholder:text-text-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:text-text-muted disabled:opacity-60;
 }
 
 /* A plain data table */
@@ -174,7 +233,9 @@
 		width: auto;
 	}
 	.rtable tr {
-		border: 1px solid #e5e7eb;
+		background-color: var(--color-foreground);
+		background-image: var(--gradient-raised);
+		box-shadow: var(--shadow-s);
 		border-radius: 0.75rem;
 		margin-bottom: 0.5rem;
 		overflow: hidden;
@@ -191,7 +252,7 @@
 	.rtable td[data-label]::before {
 		content: attr(data-label);
 		font-weight: 500;
-		color: #6b7280;
+		color: var(--color-text-muted);
 		text-align: left;
 	}
 	.rtable td.rtable-full {

@@ -23,24 +23,40 @@
   --color-secondary-tint: var(--secondary-tint);
   --color-danger-tint: var(--danger-tint);
   --color-success-tint: var(--success-tint);
+
+  /* Shadows (Tailwind's shadow-s, shadow-m, shadow-l, shadow-inset): a thin lit line along the top
+     edge, then two soft shadows straight down in a very dark teal (never black). s for cards and
+     buttons, m for the bar and docks, l for anything floating over the page (dialogs, drawers,
+     menus, toasts). Inset is for recesses. --shade and --lit-edge are in :root below. */
+  --shadow-s: var(--lit-edge), 0 1px 2px color-mix(in oklab, var(--shade) 14%, transparent), 0 2px 4px color-mix(in oklab, var(--shade) 6%, transparent);
+  --shadow-m: var(--lit-edge), 0 2px 4px color-mix(in oklab, var(--shade) 10%, transparent), 0 6px 14px color-mix(in oklab, var(--shade) 10%, transparent);
+  --shadow-l: var(--lit-edge), 0 4px 8px color-mix(in oklab, var(--shade) 8%, transparent), 0 16px 32px color-mix(in oklab, var(--shade) 16%, transparent);
+  --shadow-inset: inset 0 2px 3px color-mix(in oklab, var(--shade) 12%, transparent), inset 0 -1px 0 hsl(0 0% 100% / 0.6);
 }
 
 /* The app's one palette (Aggarwal Kart's teal and burgundy). Change the values to rebrand; screens only ever use the names above
-   (AGENTS.md). Light only: there is no dark mode. */
+   (AGENTS.md). Light only: there is no dark mode.
+
+   The look is soft layers (dictated 2026-11-08, after Sajid's technique): depth comes from the
+   layers, from gradients that mix them, and from soft shadows, never from dark borders. The light
+   is straight above, so shadows fall straight down, raised things are lit at the top and recessed
+   things are shaded at the top. */
 :root {
   color-scheme: light;
 
-  /* Layers: background is the darkest, foreground the lightest. Never reorder them */
-  --background:   hsl(0 0% 90%);
-  --midground:    hsl(0 0% 95%);
-  --foreground:   hsl(0 0% 100%);
+  /* Layers: background is the darkest, foreground the lightest. Never reorder them. A whisper of
+     the brand teal keeps them from looking flat */
+  --background:   hsl(173 8% 90%);
+  --midground:    hsl(173 8% 95%);
+  --foreground:   hsl(173 8% 99%);
 
-  --text:         hsl(300 0% 4%);
-  --text-muted:   hsl(0 0% 28%);
+  --text:         hsl(173 10% 6%);
+  --text-muted:   hsl(173 6% 30%);
 
+  /* Lines are only thin dividers inside a surface, never an outline around one */
   --highlight:    hsl(0 0% 100%);
-  --border:       hsl(0 0% 50%);
-  --border-muted: hsl(340 0% 62%);
+  --border:       hsl(173 6% 80%);
+  --border-muted: hsl(173 8% 88%);
 
   /* Primary is for actions; secondary is an accent, and text on it uses on-secondary */
   --primary:      hsl(173 100% 9%);
@@ -58,4 +74,13 @@
   --secondary-tint: color-mix(in oklab, var(--secondary) 30%, var(--foreground));
   --danger-tint:    color-mix(in oklab, var(--danger) 12%, var(--foreground));
   --success-tint:   color-mix(in oklab, var(--success) 15%, var(--foreground));
+
+  /* Depth from mixing the layers. Raised: lit at the top. Sunken: a recess, shaded at the top */
+  --gradient-raised: linear-gradient(to bottom, var(--foreground), var(--midground));
+  --gradient-raised-hover: linear-gradient(to bottom, var(--foreground), color-mix(in oklab, var(--midground) 40%, var(--foreground)));
+  --gradient-sunken: linear-gradient(to bottom, var(--background), var(--midground));
+
+  /* Ingredients of the shadows above */
+  --shade:        hsl(173 40% 8%);
+  --lit-edge:     inset 0 1px 0 hsl(0 0% 100% / 0.7);
 }

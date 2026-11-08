@@ -47,8 +47,7 @@
     @apply fixed inset-0 z-40 bg-black/45;
   }
   :global(.ui-confirm) {
-    --fill: var(--color-foreground);
-    @apply edge fixed top-1/2 left-1/2 z-50 flex w-[min(24rem,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 flex-col gap-3 rounded-xl bg-foreground p-4 text-text;
+    @apply fixed top-1/2 left-1/2 z-50 flex w-[min(24rem,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 flex-col gap-3 rounded-xl p-4 text-text floating;
   }
   :global(.ui-confirm-title) {
     @apply text-lg font-extrabold;
@@ -61,12 +60,9 @@
   }
   :global(.ui-confirm-keep),
   :global(.ui-confirm-go) {
-    @apply edge edge-press inline-flex min-h-11 items-center justify-center rounded-lg px-4 font-bold;
-    --fill: var(--color-foreground);
-    @apply bg-foreground;
+    @apply inline-flex min-h-11 items-center justify-center rounded-lg px-4 font-bold raised press;
   }
   :global(.ui-confirm-go) {
-    --fill: var(--color-danger);
-    @apply bg-danger text-foreground;
+    @apply raised-danger text-foreground;
   }
 </style>

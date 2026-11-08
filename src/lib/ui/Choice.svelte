@@ -29,12 +29,11 @@
   @reference 'src/app.css';
 
   .choice {
-    --fill: var(--color-foreground);
-    @apply edge-flat relative flex min-h-11 cursor-pointer items-start gap-3 rounded-xl bg-foreground p-3;
+    @apply relative flex min-h-11 cursor-pointer items-start gap-3 rounded-xl p-3 raised;
   }
   .on {
-    --fill: var(--color-primary);
     @apply bg-primary-tint outline-2 outline-primary;
+    background-image: none;
   }
   /* The real radio is visible in the card style, hidden in the pill style */
   .choice input {
@@ -50,6 +49,6 @@
     @apply sr-only;
   }
   .pill.on {
-    @apply bg-primary text-foreground;
+    @apply raised-primary text-foreground;
   }
 </style>

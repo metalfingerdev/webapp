@@ -37,9 +37,7 @@
 	@reference 'src/app.css';
 
 	:global(.ui-drawer) {
-		--fill: var(--color-midground);
-		@apply edge fixed z-50 flex h-auto flex-col gap-4 overflow-y-auto bg-midground p-6 text-text;
-		box-shadow: none;
+		@apply fixed z-50 flex h-auto flex-col gap-4 overflow-y-auto p-6 text-text floating;
 	}
 	:global(.ui-drawer[data-side='bottom']) {
 		@apply inset-x-0 bottom-0 max-h-[85dvh] rounded-t-xl;

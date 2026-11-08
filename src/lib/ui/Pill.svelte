@@ -13,19 +13,15 @@
   @reference 'src/app.css';
 
   .pill {
-    --fill: var(--color-foreground);
-    @apply edge-flat inline-flex items-center rounded-full bg-foreground px-2 text-xs font-bold;
+    @apply inline-flex items-center rounded-full px-2 text-xs font-bold raised;
   }
   .ok {
-    --fill: var(--color-success);
-    @apply bg-success text-foreground;
+    @apply raised-success text-foreground;
   }
   .warn {
-    --fill: var(--color-secondary);
-    @apply bg-secondary text-on-secondary;
+    @apply raised-secondary text-on-secondary;
   }
   .bad {
-    --fill: var(--color-danger);
-    @apply bg-danger text-foreground;
+    @apply raised-danger text-foreground;
   }
 </style>

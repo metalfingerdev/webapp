@@ -56,7 +56,7 @@
 		}
 
 		.store-drawer {
-			@apply fixed inset-y-2 z-50 flex w-[calc(100%-1rem)] max-w-md flex-col overflow-hidden rounded-4xl bg-foreground text-text shadow-2xl;
+			@apply fixed inset-y-2 z-50 flex w-[calc(100%-1rem)] max-w-md flex-col overflow-hidden rounded-4xl floating text-text;
 			--from: -100%;
 			animation: store-drawer-in 320ms cubic-bezier(0.16, 1, 0.3, 1) both;
 

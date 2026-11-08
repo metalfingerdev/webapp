@@ -49,8 +49,7 @@
 	@reference 'src/app.css';
 
 	.card {
-		--fill: var(--color-foreground);
-		@apply flex edge-press flex-col gap-1.5 rounded-xl bg-foreground p-2.5 edge;
+		@apply flex press flex-col gap-1.5 rounded-xl raised p-2.5;
 	}
 
 	.picture {

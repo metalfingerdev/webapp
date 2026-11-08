@@ -188,19 +188,19 @@
 											<div class="flex items-center">
 												{#if invitation.role === 'owner'}
 													<span
-														class="tag tone-primary-soft border-primary h-6 border px-2"
+														class="tag tone-primary-soft h-6 px-2"
 													>
 														Owner
 													</span>
 												{:else if invitation.role === 'admin'}
 													<span
-														class="tag tone-warning-soft border-warning h-6 border px-2"
+														class="tag tone-warning-soft h-6 px-2"
 													>
 														Admin
 													</span>
 												{:else}
 													<span
-														class="tag tone-sunken border-border h-6 border px-2"
+														class="tag tone-sunken h-6 px-2"
 													>
 														Member
 													</span>

@@ -55,24 +55,19 @@
   @reference 'src/app.css';
 
   .ui-button {
-    --fill: var(--color-foreground);
-    @apply edge edge-press inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-foreground px-4 font-bold disabled:opacity-50;
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-lg px-4 font-bold raised press hover:not-disabled:brightness-[1.04] disabled:opacity-50;
   }
   .primary {
-    --fill: var(--color-primary);
-    @apply bg-primary text-foreground;
+    @apply raised-primary text-foreground;
   }
   .accent {
-    --fill: var(--color-secondary);
-    @apply bg-secondary text-on-secondary;
+    @apply raised-secondary text-on-secondary;
   }
   .success {
-    --fill: var(--color-success);
-    @apply bg-success text-foreground;
+    @apply raised-success text-foreground;
   }
   .danger {
-    --fill: var(--color-danger);
-    @apply bg-danger text-foreground;
+    @apply raised-danger text-foreground;
   }
   .block {
     @apply flex w-full;

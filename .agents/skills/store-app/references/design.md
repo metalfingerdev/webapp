@@ -49,8 +49,8 @@ What hims + Apple add:
 
 - **Big, confident typography and lots of white space.** One idea per section, short headlines, and
   one clear call to action per screen.
-- **Large, clean product imagery** on light layers, in rounded cards. Few borders; depth from the
-  layers and soft shadows.
+- **Large, clean product imagery** on light layers, in rounded cards. No outlines; depth from the
+  layers, gradients that mix them and soft shadows (the soft-layers rule below).
 - **Guided choosing, as hims guides a visit.** For example: pick a school, then the class, then
   books or uniform, then sizes. Show one step at a time, with progress, and the total always visible.
   This is what the set and uniform flows (steps 3 to 5) should feel like.
@@ -66,8 +66,15 @@ What hims + Apple add:
   everything also opens by click, tap and keyboard; the phone UI has no hover at all. Nothing may
   need hover. Keep images small and lazy with fixed sizes, use skeletons, and use no heavy animation
   libraries.
-- Components from `src/lib/ui`; `edge` utilities for borders and shadows; short semantic classes with
-  Tailwind in `<style>` (AGENTS.md).
+- Components from `src/lib/ui`; **soft layers** (dictated 2026-11-08, after Sajid's technique):
+  `background` is the page and the darkest, `midground` sits above it, `foreground` is the lightest and
+  the most raised. Depth comes from the layers, from gradients that mix two of them (raised: foreground
+  at the top to midground at the bottom; sunken: background at the top to midground at the bottom)
+  and from soft two-part shadows. The light is **straight above**: shadows fall straight down, a thin
+  lit line runs along the top edge, a pressed thing sinks 1px, and recesses are shaded at the top. No
+  outlines; a divider inside a surface is 1px `border-border-muted`. Utilities: `raised`, `floating`,
+  `sunken`, `raised-primary` (and siblings), `press`; short semantic classes with Tailwind in
+  `<style>` (AGENTS.md).
 - All text in `src/lib/store/strings.ts`.
 - **Nothing shifts when its text changes** (dictated 2026-11-07). A button or label that swaps text
   ("Show more" and "Loading") keeps one size: stack both labels in one grid cell and hide the inactive

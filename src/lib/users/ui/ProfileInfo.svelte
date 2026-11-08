@@ -271,8 +271,7 @@
 		@apply relative block size-20 cursor-pointer;
 	}
 	.picture :global(.photo) {
-		--fill: var(--color-secondary);
-		@apply edge-flat relative grid size-20 place-items-center overflow-hidden rounded-full bg-secondary text-3xl font-extrabold text-on-secondary;
+		@apply relative grid size-20 place-items-center overflow-hidden rounded-full text-3xl font-extrabold text-on-secondary raised-secondary;
 	}
 	.picture :global(.fit) {
 		@apply size-full object-cover;
@@ -284,8 +283,7 @@
 		@apply absolute inset-0 grid place-items-center rounded-full bg-foreground/70;
 	}
 	.pencil {
-		--fill: var(--color-foreground);
-		@apply edge-flat absolute -right-1 -bottom-1 grid size-8 place-items-center rounded-full bg-foreground;
+		@apply absolute -right-1 -bottom-1 grid size-8 place-items-center rounded-full raised;
 	}
 	.hint {
 		@apply text-sm text-text-muted;

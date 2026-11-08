@@ -43,12 +43,10 @@
     @apply fixed inset-0 z-40 bg-black/45;
   }
   :global(.ui-sheet) {
-    --fill: var(--color-midground);
-    @apply edge fixed inset-x-0 bottom-0 z-50 flex max-h-[88dvh] flex-col rounded-t-xl bg-midground text-text;
-    box-shadow: none;
+    @apply fixed inset-x-0 bottom-0 z-50 flex max-h-[88dvh] flex-col rounded-t-xl text-text floating;
   }
   :global(.ui-sheet-head) {
-    @apply flex items-center justify-between gap-3 border-b-2 border-border-muted px-4 py-3;
+    @apply flex items-center justify-between gap-3 border-b border-border-muted px-4 py-3;
   }
   :global(.ui-sheet-title) {
     @apply text-lg font-extrabold;

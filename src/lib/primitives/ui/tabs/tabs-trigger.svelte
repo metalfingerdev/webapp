@@ -18,8 +18,7 @@
 		@apply bg-foreground text-text;
 	}
 	:global(.ui-tab[data-state='active']) {
-		--fill: var(--color-primary);
-		@apply bg-primary text-foreground;
+		@apply raised-primary text-foreground;
 	}
 	:global(.ui-tab:disabled) {
 		@apply pointer-events-none opacity-50;

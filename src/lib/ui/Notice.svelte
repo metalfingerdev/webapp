@@ -20,15 +20,12 @@
   @reference 'src/app.css';
 
   .notice {
-    --fill: var(--color-foreground);
-    @apply edge-flat flex flex-col items-start gap-2 rounded-xl bg-foreground p-3 text-sm;
+    @apply flex flex-col items-start gap-2 rounded-xl bg-foreground p-3 text-sm shadow-s;
   }
   .warn {
-    --fill: var(--color-secondary);
     @apply bg-secondary-tint;
   }
   .bad {
-    --fill: var(--color-danger);
     @apply bg-danger-tint;
   }
 </style>

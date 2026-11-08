@@ -35,7 +35,6 @@
 	@reference 'src/app.css';
 
 	:global(.ui-popover) {
-		--fill: var(--color-foreground);
-		@apply edge z-50 w-80 max-w-[90svw] rounded-xl bg-foreground p-1 text-text outline-hidden;
+		@apply z-50 w-80 max-w-[90svw] rounded-xl p-1 text-text outline-hidden floating;
 	}
 </style>

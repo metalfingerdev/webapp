@@ -3,7 +3,7 @@
   import type { HTMLAttributes } from "svelte/elements";
 
   // `as="a"` (with an href) makes a whole card a link; `pressable` adds the press feedback;
-  // `dense` is the calmer, tighter look used all day in admin (flat edge, less padding)
+  // `dense` is the calmer, tighter look used all day in admin (less padding)
   let {
     as = "div",
     pressable = false,
@@ -33,14 +33,12 @@
   @reference 'src/app.css';
 
   .ui-card {
-    --fill: var(--color-foreground);
-    @apply edge block rounded-xl bg-foreground p-3;
+    @apply block rounded-xl p-3 raised;
   }
   .dense {
-    @apply edge-flat rounded-lg p-2.5;
-    box-shadow: none;
+    @apply rounded-lg p-2.5;
   }
   .pressable {
-    @apply edge-press;
+    @apply press;
   }
 </style>

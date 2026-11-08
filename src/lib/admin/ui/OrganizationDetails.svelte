@@ -309,9 +309,9 @@
 
 {#snippet roleBadge(label: string, owner = false)}
 	<span
-		class="tag border capitalize {owner
-			? 'tone-primary-soft border-primary'
-			: 'tone-raised border-transparent'}"
+		class="tag capitalize {owner
+			? 'tone-primary-soft'
+			: 'tone-raised'}"
 	>
 		{label}
 	</span>
@@ -552,14 +552,14 @@
 												{/if}
 												{#if memberUser?.isAppAdmin}
 													<span
-														class="tag tone-warning-soft border-warning shrink-0 border"
+														class="tag tone-warning-soft shrink-0"
 													>
 														Admin
 													</span>
 												{/if}
 												{#if memberUser?.banned}
 													<span
-														class="tag tone-danger-soft border-danger shrink-0 border"
+														class="tag tone-danger-soft shrink-0"
 													>
 														Banned
 													</span>
