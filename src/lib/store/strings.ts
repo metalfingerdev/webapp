@@ -11,6 +11,7 @@ export const strings = {
 		schools: 'Schools',
 		allProducts: 'All products',
 		account: 'My account',
+		signIn: 'Sign in',
 		orders: 'My orders',
 		dashboard: 'Dashboard',
 		viewAll: (name: string) => `View all ${name}`
