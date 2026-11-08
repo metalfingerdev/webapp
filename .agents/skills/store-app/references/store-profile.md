@@ -176,10 +176,11 @@ Each entry has a date and the reason. When the user decides something new, add i
   brand teal. Why: a calmer, premium feel in the hims and Apple direction instead of the template's
   hard borders and offset shadows. How: `palette.css` (layers, gradients, shadows) and the `raised`,
   `floating`, `sunken`, `press` utilities in `app.css`; the old `edge` utilities and `--fill` are gone.
-- **Step 7 is four sub-steps** (2026-11-08, chosen by the user): 7a products, stock and import;
-  7b schools and sets; 7c order board, orders and shipping; 7d settings. One branch and draft PR
-  each (`step-7a-products`, …), in that order, all four the same day. Why: one admin PR would be
-  too big to review. `/admin` opens on Products until 7c puts the order board there.
+- **Step 7 is built in four sub-steps on one branch, one PR** (2026-11-08, dictated: "all sub
+  steps will be merged in a single pr"): 7a products, stock and import; 7b schools and sets; 7c order
+  board, orders and shipping; 7d settings, each in its own commits on `step-7-admin`. Why: the
+  user reviews and merges the admin as one piece. `/admin` opens on Products until 7c puts the
+  order board there.
 - **Couriers are a placeholder list** (2026-11-08, chosen by the user): India Post, DTDC,
   Delhivery, Blue Dart and Other (free text), with tracking-link templates in
   `model/store/couriers.ts` (7c). The client is to confirm which couriers the shop uses.
@@ -244,7 +245,7 @@ until its screens follow `design.md`; the step's PR names any deliberate departu
    cancellation window, delivery estimate wording.
 6. **Razorpay** (**built**, 2026-11-08, branch `step-6-razorpay`; `payments.md`). _Needs_: the client's Razorpay account; test keys and the webhook secret
    on dev; KYC and live keys before launch.
-7. **Admin** (in four sub-steps, see Decisions; **7a built** 2026-11-08, branch `step-7a-products`). Products, stock and import (port `legacy/src/lib/products/import.ts`), then schools and
+7. **Admin** (in four sub-steps, see Decisions; **7a built** 2026-11-08, branch `step-7-admin`). Products, stock and import (port `legacy/src/lib/products/import.ts`), then schools and
    sets (with "copy to next session"), then the order board and shipping (`shipping.md`), then
    `/admin/settings`. _Look from_: `legacy/src/components/dashboard/`, `legacy/src/routes/(app)/dashboard/`.
    _Needs_: who works the admin, the courier(s) used, the real store details typed
@@ -264,7 +265,7 @@ until its screens follow `design.md`; the step's PR names any deliberate departu
 
 ## Status (what exists)
 
-Steps 0 to 6 and 7a are built (7a: 2026-11-08, branch `step-7a-products`). **Next: step 7b (schools
+Steps 0 to 6 and 7a are built (7a: 2026-11-08, branch `step-7-admin`, one PR for all of step 7). **Next: step 7b (schools
 and sets)**, then 7c (orders and shipping) and 7d (settings).
 
 - **Old store**: in `legacy/` (not built, linted or type-checked); tag `old-store` runs it.
