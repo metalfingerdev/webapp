@@ -9,7 +9,6 @@
 	import HandCoinsIcon from '@lucide/svelte/icons/hand-coins';
 	import Button from '#lib/ui/Button.svelte';
 	import Card from '#lib/ui/Card.svelte';
-	import Ticker from '#lib/store/Ticker.svelte';
 	import { strings } from '#lib/store/strings.js';
 
 	let { data } = $props();
@@ -43,8 +42,6 @@
 	<title>{text.title}</title>
 	<meta name="description" content={strings.tagline} />
 </svelte:head>
-
-<Ticker lines={text.ticker(session)} />
 
 <section class="hero">
 	<h1 class="headline">{text.headline}</h1>
