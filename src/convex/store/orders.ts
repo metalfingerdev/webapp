@@ -2,6 +2,7 @@
 // (requireCustomer, no user argument). An order that is missing and an order that belongs to someone
 // else get the same answer, so order numbers cannot be probed.
 import { ConvexError, v } from 'convex/values';
+import { internal } from '../_generated/api.js';
 import { mutation, query } from '../_generated/server.js';
 import type { Doc } from '../_generated/dataModel.js';
 import type { MutationCtx, QueryCtx } from '../_generated/server.js';
@@ -12,7 +13,9 @@ import { canCancel, transitionOrder } from '../model/store/orders.js';
 import { priceCart } from '../model/store/pricing.js';
 import { orderRateLimiter } from '../model/store/rateLimits.js';
 import { adjustStock } from '../model/store/stock.js';
-import { ONLINE_PAYMENT_ENABLED, PLACEHOLDER_COD_ENABLED } from '../model/store/storeProfile.js';
+import { PAYMENT_EXPIRY_MS, PAYMENT_WINDOW_MS } from '../model/store/payments.js';
+import { onlinePaymentReady } from '../model/store/razorpay.js';
+import { PLACEHOLDER_COD_ENABLED } from '../model/store/storeProfile.js';
 import {
 	addressSnapshot,
 	deliveryMethod,
@@ -20,6 +23,7 @@ import {
 	orderStatus,
 	paymentMethod,
 	paymentStatus,
+	refund,
 	returnRequest
 } from './validators.js';
 
@@ -53,7 +57,7 @@ export const placeOrder = mutation({
 		if (args.paymentMethod === 'cod' && !(settings?.codEnabled ?? PLACEHOLDER_COD_ENABLED)) {
 			throw new ConvexError('Cash on delivery is not available');
 		}
-		if (args.paymentMethod === 'online' && !ONLINE_PAYMENT_ENABLED) {
+		if (args.paymentMethod === 'online' && !onlinePaymentReady()) {
 			throw new ConvexError('Online payment is not available yet');
 		}
 
@@ -131,6 +135,10 @@ export const placeOrder = mutation({
 			});
 		}
 		if (cart) await ctx.db.patch('carts', cart._id, { lines: [], updatedAt: now });
+		// An online order holds its stock only for the payment window (plus a short grace)
+		if (args.paymentMethod === 'online') {
+			await ctx.scheduler.runAfter(PAYMENT_EXPIRY_MS, internal.store.payments.expire, { orderId });
+		}
 		return { number };
 	}
 });
@@ -190,6 +198,9 @@ export const getOrder = query({
 		deliveredAt: v.optional(v.number()),
 		cancelledAt: v.optional(v.number()),
 		returnRequest: v.optional(returnRequest),
+		refund: v.optional(refund),
+		/** An unpaid online order is cancelled after this (plus a short grace) */
+		payBy: v.optional(v.number()),
 		/** What the customer may still do */
 		canCancel: v.boolean(),
 		/** Delivered and not yet asked about; the page also checks `returnBy` against its clock */
@@ -243,6 +254,9 @@ export const getOrder = query({
 			deliveredAt: order.deliveredAt,
 			cancelledAt: order.cancelledAt,
 			returnRequest: order.returnRequest,
+			refund: order.refund,
+			payBy:
+				order.status === 'awaiting_payment' ? order.placedAt + PAYMENT_WINDOW_MS : undefined,
 			canCancel: canCancel(order.status),
 			canRequestReturn: order.status === 'delivered' && order.returnRequest === undefined,
 			returnBy:

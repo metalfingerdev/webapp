@@ -159,7 +159,7 @@ describe('orders', () => {
 		expect(await world.t.run((ctx) => ctx.db.query('orders').first())).toBeNull();
 	});
 
-	it('refuses online payment until the gateway exists', async () => {
+	it('refuses online payment where the gateway keys are not set', async () => {
 		const world = await seed();
 		const addressId = await checkoutWith(world);
 		await expect(

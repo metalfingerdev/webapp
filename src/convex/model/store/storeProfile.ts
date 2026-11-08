@@ -48,7 +48,11 @@ export const PLACEHOLDER_COD_ENABLED = true;
 export const STORE_NAME = 'Aggarwal Kart';
 
 /**
- * Whether a customer may choose "Pay online" at checkout. Off until step 6 adds Razorpay: with no
- * gateway an online order could never be paid. Step 6 turns it on and adds the payment-window expiry.
+ * TODO (dictate): how long an unpaid online order holds its stock. Placeholder 30 minutes (chosen
+ * 2026-11-08, client to confirm). After it, plus the grace below, the order is cancelled and its
+ * stock released; money that still arrives is refunded.
  */
-export const ONLINE_PAYMENT_ENABLED = false;
+export const PAYMENT_WINDOW_MINUTES = 30;
+
+/** Extra minutes before the cancel, for a payment the bank finished at the last moment */
+export const PAYMENT_GRACE_MINUTES = 5;

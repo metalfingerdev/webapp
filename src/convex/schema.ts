@@ -228,17 +228,28 @@ export default defineSchema({
 		.index('by_orderId', ['orderId'])
 		.index('by_awb', ['awb']),
 
+	// One row per attempt to collect an order's total online. Saved as `creating` before the gateway
+	// is asked, so a crash between asking and saving leaves a visible row (store/payments.ts).
 	payments: defineTable({
 		orderId: v.id('orders'),
-		gatewayOrderId: v.string(),
+		gatewayOrderId: v.optional(v.string()), // unset while `creating`
 		gatewayPaymentId: v.optional(v.string()),
-		amount: v.number(),
+		amount: v.number(), // paise, copied from the order's total, never from the browser
 		status: gatewayPaymentStatus,
 		refund: v.optional(refund),
 		createdAt: v.number()
 	})
 		.index('by_orderId', ['orderId'])
-		.index('by_gatewayOrderId', ['gatewayOrderId']),
+		.index('by_gatewayOrderId', ['gatewayOrderId'])
+		.index('by_gatewayPaymentId', ['gatewayPaymentId'])
+		.index('by_createdAt', ['createdAt']),
+
+	// Webhook events already handled, keyed on the gateway's event id, so a resend changes nothing
+	paymentEvents: defineTable({
+		eventId: v.string(),
+		type: v.string(),
+		at: v.number()
+	}).index('by_eventId', ['eventId']),
 
 	enquiries: defineTable({
 		name: v.string(),
