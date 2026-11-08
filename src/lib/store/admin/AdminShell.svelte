@@ -3,6 +3,9 @@
 	import { page } from '$app/state';
 	import { resolve } from '$app/paths';
 	import PackageIcon from '@lucide/svelte/icons/package';
+	import LayoutGridIcon from '@lucide/svelte/icons/layout-grid';
+	import ReceiptIcon from '@lucide/svelte/icons/receipt';
+	import TruckIcon from '@lucide/svelte/icons/truck';
 	import FileUpIcon from '@lucide/svelte/icons/file-up';
 	import UsersIcon from '@lucide/svelte/icons/users';
 	import SchoolIcon from '@lucide/svelte/icons/school';
@@ -10,11 +13,13 @@
 	import { strings } from '#lib/store/strings.js';
 
 	// The admin's frame: a rail on the left from tablet width, a scrolling bar on top on phones.
-	// 7b to 7d add Schools, Orders, Shipping and Settings here.
 	let { children }: { children: Snippet } = $props();
 	const text = strings.admin.nav;
 
 	const items = [
+		{ href: resolve('/admin'), label: text.board, icon: LayoutGridIcon, exact: true },
+		{ href: resolve('/admin/orders'), label: text.orders, icon: ReceiptIcon, exact: false },
+		{ href: resolve('/admin/shipping'), label: text.shipping, icon: TruckIcon, exact: false },
 		{ href: resolve('/admin/products'), label: text.products, icon: PackageIcon, exact: false },
 		{ href: resolve('/admin/products/import'), label: text.import, icon: FileUpIcon, exact: true },
 		{ href: resolve('/admin/schools'), label: text.schools, icon: SchoolIcon, exact: false },
