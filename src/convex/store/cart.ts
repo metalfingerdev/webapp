@@ -41,8 +41,15 @@ const cartView = v.object({
 	subtotal: v.number(),
 	/** Copies in the cart (out-of-stock lines included) */
 	count: v.number(),
-	/** Set ids with their label, for grouping lines under "Class 1 books" */
-	sets: v.array(v.object({ id: v.id('schoolSets'), label: v.string(), schoolName: v.string() }))
+	/** Set ids with their label, for grouping lines under "Class 1 books" and linking back to the set */
+	sets: v.array(
+		v.object({
+			id: v.id('schoolSets'),
+			label: v.string(),
+			schoolName: v.string(),
+			schoolSlug: v.string()
+		})
+	)
 });
 
 /** Keeps the lines that still exist and can be shown; ids are checked, quantities made sane. */
@@ -76,7 +83,9 @@ const priceLines = async (ctx: QueryCtx, input: (typeof looseLine.type)[]) => {
 	for (const id of setIds) {
 		const set: Doc<'schoolSets'> | null = await ctx.db.get('schoolSets', id);
 		const school = set ? await ctx.db.get('schools', set.schoolId) : null;
-		if (set && school) sets.push({ id, label: set.label, schoolName: school.name });
+		if (set && school) {
+			sets.push({ id, label: set.label, schoolName: school.name, schoolSlug: school.slug });
+		}
 	}
 	return {
 		lines,

@@ -20,6 +20,7 @@
 		cursor: string | null;
 		args: {
 			categorySlug?: string;
+			schoolSlug?: string;
 			classLevel?: number;
 			minPrice?: number;
 			maxPrice?: number;
@@ -61,7 +62,10 @@
 
 	// Filters live in the URL, so a plain GET form works before any script has loaded
 	const sp = $derived(page.url.searchParams);
-	const filtersActive = $derived(['class', 'min', 'max', 'stock'].some((key) => sp.has(key)));
+	const FILTER_KEYS = ['school', 'class', 'min', 'max', 'stock'];
+	const filtersActive = $derived(FILTER_KEYS.some((key) => sp.has(key)));
+	// The schools come with the shop layout (the menu lists them too)
+	const schools = $derived((page.data.schools ?? []) as { name: string; slug: string }[]);
 	const clear = () => goto(page.url.pathname);
 
 	// Sorting applies to the products loaded so far: price lives on the variants, so the server
@@ -96,12 +100,25 @@
 
 	let filterOpen = $state(false);
 	let sortOpen = $state(false);
-	const activeCount = $derived(['class', 'min', 'max', 'stock'].filter((k) => sp.has(k)).length);
+	const activeCount = $derived(FILTER_KEYS.filter((k) => sp.has(k)).length);
 </script>
 
 {#snippet filterForm()}
 	<form method="GET" class="filter-form">
 		{#if sort !== 'new'}<input type="hidden" name="sort" value={sort} />{/if}
+		{#if schools.length}
+			<label class="field-label">
+				<span class="field-caption">{strings.shop.filterSchool}</span>
+				<select class="control" name="school">
+					<option value="">{strings.shop.filterAnySchool}</option>
+					{#each schools as school (school.slug)}
+						<option value={school.slug} selected={sp.get('school') === school.slug}>
+							{school.name}
+						</option>
+					{/each}
+				</select>
+			</label>
+		{/if}
 		<label class="field-label">
 			<span class="field-caption">{strings.shop.filterClass}</span>
 			<select class="control" name="class">

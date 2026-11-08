@@ -1,8 +1,12 @@
 <script lang="ts">
 	import BookOpenIcon from '@lucide/svelte/icons/book-open';
+	import MinusIcon from '@lucide/svelte/icons/minus';
+	import PlusIcon from '@lucide/svelte/icons/plus';
 	import Button from '#lib/ui/Button.svelte';
 	import Pill from '#lib/ui/Pill.svelte';
+	import { MAX_LINE_QUANTITY } from '#convex/model/store/cart.js';
 	import {
+		chosenQuantity,
 		defaultSelection,
 		summariseSelection,
 		type Selection
@@ -24,18 +28,44 @@
 		}[];
 	};
 
-	let { lines, setId }: { lines: Line[]; setId: string } = $props();
+	// `extras` are other things the parent may add with the set (the school's other products and
+	// stationery); they start unticked. Ticked extras go in with the set, like its own lines.
+	let { lines, extras = [], setId }: { lines: Line[]; extras?: Line[]; setId: string } = $props();
 	const cart = useCart();
 	const text = strings.schools;
+	const all = $derived([...lines, ...extras]);
 
-	// What the parent changed; everything else follows the defaults (all ticked, single sizes chosen)
+	// What the parent changed; everything else follows the defaults (set lines ticked, extras not,
+	// single sizes chosen, the set's own quantities)
 	let changes = $state<Selection>({});
-	const selection = $derived<Selection>(
-		Object.fromEntries(
-			Object.entries(defaultSelection(lines)).map(([id, base]) => [id, { ...base, ...changes[id] }])
-		)
-	);
-	const summary = $derived(summariseSelection(lines, selection));
+	const selection = $derived.by<Selection>(() => {
+		const base = defaultSelection(all);
+		for (const extra of extras) base[extra.id] = { ...base[extra.id], ticked: false };
+		return Object.fromEntries(
+			Object.entries(base).map(([id, pick]) => [id, { ...pick, ...changes[id] }])
+		);
+	});
+	const summary = $derived(summariseSelection(all, selection));
+
+	// When this set is already in the cart, start from what is there and offer "Update cart", so the
+	// cart's "Edit set" brings the parent back to their own choices. Once, when the cart has loaded.
+	let editing = $state(false);
+	let seeded = false;
+	$effect(() => {
+		if (seeded || cart.loading) return;
+		seeded = true;
+		const inCart = cart.linesOfSet(setId);
+		if (inCart.length === 0) return;
+		const next: Selection = {};
+		for (const line of all) {
+			const found = inCart.find((c) => line.options.some((o) => o.variantId === c.variantId));
+			next[line.id] = found
+				? { ticked: true, variantId: found.variantId, quantity: found.quantity }
+				: { ...selection[line.id], ticked: false };
+		}
+		changes = next;
+		editing = true;
+	});
 	const hasChoice = (line: Line) => line.options.length > 1;
 	const chosen = (line: Line) =>
 		line.options.find((o) => o.variantId === selection[line.id].variantId);
@@ -44,20 +74,29 @@
 		(changes[line.id] = { ...selection[line.id], ticked });
 	const setSize = (line: Line, variantId: string) =>
 		(changes[line.id] = { ...selection[line.id], variantId });
+	const quantityOf = (line: Line) => chosenQuantity(line, selection[line.id]);
+	const setQuantity = (line: Line, quantity: number) =>
+		(changes[line.id] = {
+			...selection[line.id],
+			quantity: Math.min(MAX_LINE_QUANTITY, Math.max(1, quantity))
+		});
 
-	// Each ticked, sized, in-stock line goes in with the set it came from
-	const addSet = () =>
-		cart.add(
-			lines.flatMap((line) => {
-				const pick = selection[line.id];
-				const option = pick.ticked ? chosen(line) : undefined;
-				return option && option.availability !== 'out'
-					? [{ variantId: option.variantId, quantity: line.quantity, fromSetId: setId }]
-					: [];
-			})
-		);
+	// Each ticked, sized, in-stock line goes in with the set it came from. The first press adds; once
+	// the set is in the cart, the button updates it instead, so pressing twice never doubles it.
+	const addSet = async () => {
+		const picked = all.flatMap((line) => {
+			const pick = selection[line.id];
+			const option = pick.ticked ? chosen(line) : undefined;
+			return option && option.availability !== 'out'
+				? [{ variantId: option.variantId, quantity: quantityOf(line), fromSetId: setId }]
+				: [];
+		});
+		if (editing) await cart.replaceSet(setId, picked);
+		else await cart.add(picked);
+		editing = true;
+	};
 
-	const ticked = $derived(lines.filter((line) => selection[line.id].ticked).length);
+	const ticked = $derived(all.filter((line) => selection[line.id].ticked).length);
 	const problem = $derived(
 		ticked === 0
 			? text.nothingTicked
@@ -69,70 +108,102 @@
 	);
 </script>
 
-<p class="note">{text.untick}</p>
-<ul class="lines">
-	{#each lines as line (line.id)}
-		{@const outOfStock = line.options.every((o) => o.availability === 'out')}
-		{@const option = chosen(line)}
-		<li class="line" class:off={!selection[line.id].ticked}>
-			<label class="tick">
-				<input
-					type="checkbox"
-					checked={selection[line.id].ticked}
-					disabled={outOfStock}
-					onchange={(event) => setTicked(line, event.currentTarget.checked)}
-				/>
-				<span class="picture">
-					{#if line.imageUrl}
-						<img
-							src={line.imageUrl}
-							alt=""
-							width="48"
-							height="64"
-							loading="lazy"
-							decoding="async"
-						/>
-					{:else}
-						<BookOpenIcon class="size-5 text-text-muted" aria-hidden="true" />
+{#snippet row(line: Line)}
+	{@const outOfStock = line.options.every((o) => o.availability === 'out')}
+	{@const option = chosen(line)}
+	<li class="line" class:off={!selection[line.id].ticked}>
+		<label class="tick">
+			<input
+				type="checkbox"
+				checked={selection[line.id].ticked}
+				disabled={outOfStock}
+				onchange={(event) => setTicked(line, event.currentTarget.checked)}
+			/>
+			<span class="picture">
+				{#if line.imageUrl}
+					<img src={line.imageUrl} alt="" width="48" height="64" loading="lazy" decoding="async" />
+				{:else}
+					<BookOpenIcon class="size-5 text-text-muted" aria-hidden="true" />
+				{/if}
+			</span>
+			<span class="name">
+				<strong>{line.title}</strong>
+				<span class="note">
+					{#if quantityOf(line) > 1}× {quantityOf(line)}{/if}
+					{#if option}
+						{formatPrice(option.price)}
+						{#if quantityOf(line) > 1}{text.each}{/if}
 					{/if}
 				</span>
-				<span class="name">
-					<strong>{line.title}</strong>
-					<span class="note">
-						{#if line.quantity > 1}× {line.quantity}{/if}
-						{#if option}
-							{formatPrice(option.price)}
-							{#if line.quantity > 1}{text.each}{/if}
-						{/if}
-					</span>
-				</span>
+			</span>
+		</label>
+		{#if outOfStock}
+			<Pill tone="bad">{strings.product.out}</Pill>
+		{:else if hasChoice(line)}
+			<label class="size">
+				<span class="field-label">{text.size}</span>
+				<select
+					class="control"
+					value={selection[line.id].variantId ?? ''}
+					onchange={(event) => setSize(line, event.currentTarget.value)}
+				>
+					<option value="" disabled>{text.chooseSize}</option>
+					{#each line.options as o (o.variantId)}
+						<option value={o.variantId} disabled={o.availability === 'out'}>
+							{o.label} · {formatPrice(o.price)}{o.availability === 'out'
+								? ` · ${strings.product.out}`
+								: ''}
+						</option>
+					{/each}
+				</select>
 			</label>
-			{#if outOfStock}
-				<Pill tone="bad">{strings.product.out}</Pill>
-			{:else if hasChoice(line)}
-				<label class="size">
-					<span class="field-label">{text.size}</span>
-					<select
-						class="control"
-						value={selection[line.id].variantId ?? ''}
-						onchange={(event) => setSize(line, event.currentTarget.value)}
-					>
-						<option value="" disabled>{text.chooseSize}</option>
-						{#each line.options as o (o.variantId)}
-							<option value={o.variantId} disabled={o.availability === 'out'}>
-								{o.label} · {formatPrice(o.price)}{o.availability === 'out'
-									? ` · ${strings.product.out}`
-									: ''}
-							</option>
-						{/each}
-					</select>
-				</label>
-			{:else if option?.availability === 'few_left'}
-				<Pill tone="warn">{strings.product.fewLeft}</Pill>
-			{/if}
-		</li>
+		{:else if option?.availability === 'few_left'}
+			<Pill tone="warn">{strings.product.fewLeft}</Pill>
+		{/if}
+		<!-- Always there (disabled while unticked), so ticking never changes the row's height -->
+		{#if !outOfStock}
+			<span class="stepper">
+				<span class="field-label">{text.quantity}</span>
+				<button
+					type="button"
+					aria-label={strings.cart.decrease(line.title)}
+					disabled={!selection[line.id].ticked || quantityOf(line) <= 1}
+					onclick={() => setQuantity(line, quantityOf(line) - 1)}
+				>
+					<MinusIcon class="size-4" aria-hidden="true" />
+				</button>
+				<output>{quantityOf(line)}</output>
+				<button
+					type="button"
+					aria-label={strings.cart.increase(line.title)}
+					disabled={!selection[line.id].ticked || quantityOf(line) >= MAX_LINE_QUANTITY}
+					onclick={() => setQuantity(line, quantityOf(line) + 1)}
+				>
+					<PlusIcon class="size-4" aria-hidden="true" />
+				</button>
+			</span>
+		{/if}
+	</li>
+{/snippet}
+
+<p class="note">{editing ? text.inCart : text.untick}</p>
+<ul class="lines">
+	{#each lines as line (line.id)}
+		{@render row(line)}
 	{/each}
 </ul>
+
+{#if extras.length}
+	<section class="more">
+		<h2 class="more-title">{text.more}</h2>
+		<p class="note">{text.moreHint}</p>
+		<ul class="lines">
+			{#each extras as line (line.id)}
+				{@render row(line)}
+			{/each}
+		</ul>
+	</section>
+{/if}
 
 <div class="bar">
 	<div class="sum">
@@ -141,7 +212,7 @@
 		{#if problem}<span class="problem">{problem}</span>{/if}
 	</div>
 	<Button variant="primary" large disabled={ticked === 0 || summary.needSize > 0} onclick={addSet}>
-		{text.addToCart}
+		{editing ? text.updateCart : text.addToCart}
 	</Button>
 </div>
 <p class="note">{strings.product.inclusiveOfTax}.</p>
@@ -191,6 +262,30 @@
 
 	.size {
 		@apply flex w-full flex-col sm:w-56;
+	}
+
+	.stepper {
+		@apply flex w-full items-center justify-end gap-1;
+
+		.field-label {
+			@apply mr-auto text-sm text-text-muted;
+		}
+
+		button {
+			@apply grid size-11 place-items-center rounded-full bg-midground disabled:opacity-40;
+		}
+
+		output {
+			@apply w-8 text-center font-bold tabular-nums;
+		}
+	}
+
+	.more {
+		@apply mt-8;
+	}
+
+	.more-title {
+		@apply text-xl font-extrabold;
 	}
 
 	/* Stays in view while the parent ticks and unticks, so the total is never off screen */

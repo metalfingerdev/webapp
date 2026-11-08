@@ -8,11 +8,7 @@
 	provideCart(provideDrawer());
 </script>
 
-<NavBar
-	categories={data.categories}
-	schools={data.schools}
-	whatsapp={data.contact.whatsapp}
-/>
+<NavBar categories={data.categories} schools={data.schools} whatsapp={data.contact.whatsapp} />
 <div class="page">{@render children()}</div>
 <Footer name={data.contact.businessName} gstin={data.contact.gstin} />
 

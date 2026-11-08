@@ -1,7 +1,8 @@
 // What a parent has picked on a set page, and what it costs. Pure, in integer paise, shared by the
 // set page (for display) and, from step 4, by the cart. Every line of a set is the parent's choice
 // (dictated 2026-11-07: "full freedom for the customer"), so a line counts only while it is ticked,
-// has a size chosen, and that size is in stock.
+// has a size chosen, and that size is in stock. The parent may also change how many copies of a line
+// they want (dictated 2026-11-08); until they do, the set's own quantity is used.
 
 export type SelectableOption = {
 	variantId: string;
@@ -16,10 +17,14 @@ export type SelectableLine = {
 	options: SelectableOption[];
 };
 
-export type Selection = Record<string, { ticked: boolean; variantId?: string }>;
+export type Selection = Record<string, { ticked: boolean; variantId?: string; quantity?: number }>;
+
+/** Copies wanted for a line: the parent's choice, else the set's own quantity */
+export const chosenQuantity = (line: SelectableLine, pick: Selection[string] | undefined) =>
+	pick?.quantity ?? line.quantity;
 
 export type SelectionSummary = {
-	/** Sum of price × quantity over the lines that count, in paise */
+	/** Sum of price × chosen quantity over the lines that count, in paise */
 	total: number;
 	/** Lines that count */
 	count: number;
@@ -53,7 +58,7 @@ export const summariseSelection = (
 		if (!option) summary.needSize += 1;
 		else if (!isBuyable(option)) summary.unavailable += 1;
 		else {
-			summary.total += option.price * line.quantity;
+			summary.total += option.price * chosenQuantity(line, pick);
 			summary.count += 1;
 		}
 	}

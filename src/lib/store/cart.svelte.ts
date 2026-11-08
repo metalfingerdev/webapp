@@ -116,6 +116,21 @@ export class Cart {
 			)
 		);
 
+	/**
+	 * The set page's "Update cart": the set's lines in the cart become exactly these (lines the parent
+	 * unticked go), and the drawer opens on the cart
+	 */
+	replaceSet = async (setId: string, lines: LooseLine[]) => {
+		const others = this.current().filter((line) => line.fromSetId !== setId);
+		await this.write(mergeLines([...others, ...lines]));
+		this.justAdded = true;
+		this.drawer.show('cart');
+	};
+
+	/** The cart's lines that came from this set, for starting the set page from them */
+	linesOfSet = (setId: string): LooseLine[] =>
+		this.current().filter((line) => line.fromSetId === setId);
+
 	remove = (variantId: string) => this.setQuantity(variantId, 0);
 	clear = () => this.write([]);
 }

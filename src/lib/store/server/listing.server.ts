@@ -15,6 +15,7 @@ export const parseFilters = (sp: URLSearchParams) => {
 	};
 	const classLevel = number('class');
 	return {
+		schoolSlug: sp.get('school') || undefined,
 		classLevel: classLevel !== undefined && Number.isInteger(classLevel) ? classLevel : undefined,
 		minPrice: rupeesToPaise('min'),
 		maxPrice: rupeesToPaise('max'),
