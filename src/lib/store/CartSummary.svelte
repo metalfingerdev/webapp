@@ -28,23 +28,21 @@
 <style lang="postcss">
 	@reference 'src/app.css';
 
-	.summary {
-		@apply flex flex-col gap-2;
-	}
+	div.summary {
+		@apply flex flex-col gap-3;
 
-	.row {
-		@apply flex items-baseline justify-between;
-	}
+		div.row {
+			@apply flex items-baseline justify-between;
 
-	.amount {
-		@apply text-2xl tabular-nums;
-	}
-
-	.note {
-		@apply text-sm text-text-muted;
-	}
-
-	.clear {
-		@apply min-h-11 self-start text-sm font-bold text-danger;
+			strong.amount {
+				@apply font-display text-3xl tabular-nums;
+			}
+		}
+		p.note {
+			@apply text-sm text-text-muted;
+		}
+		button.clear {
+			@apply min-h-11 self-start text-sm font-bold text-danger;
+		}
 	}
 </style>

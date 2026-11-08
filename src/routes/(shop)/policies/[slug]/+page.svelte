@@ -1,4 +1,5 @@
 <script lang="ts">
+	import PageHead from '#lib/store/PageHead.svelte';
 	import { strings } from '#lib/store/strings.js';
 
 	let { data } = $props();
@@ -9,16 +10,4 @@
 </svelte:head>
 
 <!-- The policy texts arrive in step 10, checked by the client. Nothing is invented here. -->
-<h1 class="title">{data.title}</h1>
-<p class="muted">{strings.policies.soon}</p>
-
-<style lang="postcss">
-	@reference 'src/app.css';
-
-	.title {
-		@apply mb-3 text-3xl font-extrabold;
-	}
-	.muted {
-		@apply text-text-muted;
-	}
-</style>
+<PageHead title={data.title} lead={strings.policies.soon} />
