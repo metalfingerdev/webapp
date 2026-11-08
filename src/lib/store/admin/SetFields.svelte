@@ -12,7 +12,7 @@
 	const classes = Array.from({ length: LAST_CLASS - FIRST_CLASS + 1 }, (_, i) => FIRST_CLASS + i);
 </script>
 
-<div class="grid">
+<div class="fields">
 	{#if !typeLocked}
 		<Field label={text.type}>
 			<select bind:value={form.type}>
@@ -59,10 +59,11 @@
 <style lang="postcss">
 	@reference 'src/app.css';
 
-	.grid {
-		@apply grid gap-3 sm:grid-cols-2;
-	}
-	.wide {
-		@apply sm:col-span-2;
+	div.fields {
+		@apply grid gap-4 sm:grid-cols-2;
+
+		div.wide {
+			@apply sm:col-span-2;
+		}
 	}
 </style>

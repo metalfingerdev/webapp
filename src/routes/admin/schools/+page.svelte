@@ -5,6 +5,7 @@
 	import type { Id } from '#convex/_generated/dataModel.js';
 	import { gotoApp } from '#lib/primitives/utils/navigation.js';
 	import { errorText } from '#lib/store/format.js';
+	import PageHead from '#lib/store/PageHead.svelte';
 	import { strings } from '#lib/store/strings.js';
 	import Button from '#lib/ui/Button.svelte';
 	import Field from '#lib/ui/Field.svelte';
@@ -54,8 +55,7 @@
 	<title>{text.title} · {strings.admin.title}</title>
 </svelte:head>
 
-<header class="head">
-	<h1>{text.title}</h1>
+<PageHead title={text.title} size="headline">
 	<Button
 		variant="primary"
 		onclick={() => {
@@ -65,85 +65,92 @@
 	>
 		<PlusIcon size={18} aria-hidden="true" />
 		{text.add}
-	</Button>
-</header>
+		</Button>
+		</PageHead>
 
-{#if error && !open}<Notice tone="bad" role="alert">{error}</Notice>{/if}
+<div class="schools">
+	{#if error && !open}<Notice tone="bad" role="alert">{error}</Notice>{/if}
 
-{#if result.isLoading}
-	<ul class="list" aria-busy="true">
-		{#each { length: 6 }, i (i)}<li class="bone h-16 rounded-xl"></li>{/each}
-	</ul>
-{:else if !result.data || result.data.schools.length === 0}
-	<p class="empty">{text.empty}</p>
-{:else}
-	{@const { schools, session } = result.data}
-	<ul class="list">
-		{#each schools as school, i (school._id)}
-			<li class="row">
-				<a class="main" href={resolve('/admin/schools/[id]', { id: school._id })}>
-					<span class="name">{school.name}</span>
-					<span class="meta">{text.sets(school.liveSets, school.sets, session)}</span>
-				</a>
-				{#if school.isActive}<Pill tone="ok">{text.live}</Pill>{:else}<Pill>{text.hidden}</Pill
-					>{/if}
-				<Button
-					icon
-					aria-label={text.up}
-					disabled={busy || i === 0}
-					onclick={() => move(school._id, 'up')}
-				>
-					<ArrowUpIcon size={18} aria-hidden="true" />
-				</Button>
-				<Button
-					icon
-					aria-label={text.down}
-					disabled={busy || i === schools.length - 1}
-					onclick={() => move(school._id, 'down')}
-				>
-					<ArrowDownIcon size={18} aria-hidden="true" />
-				</Button>
-			</li>
-		{/each}
-	</ul>
-{/if}
+	{#if result.isLoading}
+		<ul class="list" aria-busy="true">
+			{#each { length: 6 }, i (i)}<li class="bone"></li>{/each}
+		</ul>
+	{:else if !result.data || result.data.schools.length === 0}
+		<p class="empty">{text.empty}</p>
+	{:else}
+		{@const { schools, session } = result.data}
+		<ul class="list">
+			{#each schools as school, i (school._id)}
+				<li class="row">
+					<a class="main" href={resolve('/admin/schools/[id]', { id: school._id })}>
+						<span class="name">{school.name}</span>
+						<span class="meta">{text.sets(school.liveSets, school.sets, session)}</span>
+					</a>
+					{#if school.isActive}<Pill tone="ok">{text.live}</Pill>{:else}<Pill>{text.hidden}</Pill
+						>{/if}
+					<Button
+						icon
+						aria-label={text.up}
+						disabled={busy || i === 0}
+						onclick={() => move(school._id, 'up')}
+					>
+						<ArrowUpIcon size={18} aria-hidden="true" />
+					</Button>
+					<Button
+						icon
+						aria-label={text.down}
+						disabled={busy || i === schools.length - 1}
+						onclick={() => move(school._id, 'down')}
+					>
+						<ArrowDownIcon size={18} aria-hidden="true" />
+					</Button>
+				</li>
+			{/each}
+		</ul>
+	{/if}
 
-<Modal bind:open title={text.addTitle} closeLabel={text.close}>
-	<form class="flex flex-col gap-4" onsubmit={create}>
-		<Field label={text.name} hint={text.newHint}>
-			<input bind:value={name} required maxlength="80" />
-		</Field>
-		{#if error}<Notice tone="bad" role="alert">{error}</Notice>{/if}
-		<Button type="submit" variant="primary" disabled={busy}>{text.create}</Button>
-	</form>
-</Modal>
+	<Modal bind:open title={text.addTitle} closeLabel={text.close}>
+		<form class="new-school" onsubmit={create}>
+			<Field label={text.name} hint={text.newHint}>
+				<input bind:value={name} required maxlength="80" />
+			</Field>
+			{#if error}<Notice tone="bad" role="alert">{error}</Notice>{/if}
+			<Button type="submit" variant="primary" disabled={busy}>{text.create}</Button>
+		</form>
+	</Modal>
+</div>
 
 <style lang="postcss">
 	@reference 'src/app.css';
 
-	.head {
-		@apply mb-4 flex flex-wrap items-center justify-between gap-3;
+	div.schools {
+		@apply flex flex-col gap-4;
 
-		h1 {
-			@apply text-2xl font-extrabold;
+		ul.list {
+			@apply flex flex-col gap-3;
+
+			li.bone {
+				@apply h-18 rounded-3xl;
+			}
+			li.row {
+				@apply flex items-center gap-2 rounded-3xl p-2 pr-3 raised;
+
+				a.main {
+					@apply flex min-h-14 min-w-0 flex-1 flex-col justify-center rounded-2xl px-3;
+				}
+				span.name {
+					@apply truncate font-display text-lg font-bold;
+				}
+				span.meta {
+					@apply truncate text-xs text-text-muted;
+				}
+			}
+		}
+		p.empty {
+			@apply py-10 text-center text-text-muted;
 		}
 	}
-	.list {
-		@apply flex flex-col gap-2;
-	}
-	.row {
-		@apply flex items-center gap-2 rounded-xl raised p-2;
-	}
-	.main {
-		@apply flex min-h-12 min-w-0 flex-1 flex-col justify-center px-2;
-	}
-	.name {
-		@apply truncate font-bold;
-	}
-	.meta {
-		@apply truncate text-xs text-text-muted;
-	}
-	.empty {
-		@apply py-10 text-center text-text-muted;
+	form.new-school {
+		@apply flex flex-col gap-4;
 	}
 </style>
