@@ -53,6 +53,8 @@ and builds.
    | `RESEND_API_KEY`, `EMAIL_SEND_FROM` | see [07 – Email verification](./07-email-verification.md) |
    | `OTP_CHANNELS`, `TEXTBEE_API_KEY` | see [06 – Phone sign-in](./06-phone-otp.md). Use `textbee` once anyone besides you tests |
    | `ADMIN_USER_IDS` | your user id (after your first sign-in on staging) |
+   | `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET` | Razorpay → Test Mode → Account & Settings → API Keys. Without them checkout offers cash on delivery only |
+   | `RAZORPAY_WEBHOOK_SECRET` | a new secret (`openssl rand -hex 32`); in Razorpay → Webhooks add `https://<name>.convex.site/razorpay-webhook` with this secret and the events `payment.captured`, `payment.failed`, `refund.processed`, `refund.failed`. One webhook per deployment (dev has its own) |
 
    `OTP_ALLOW_CONSOLE` is acceptable on staging only while you're the sole tester, since codes go to
    logs only you can read. Never set it on real production.
