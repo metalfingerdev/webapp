@@ -46,13 +46,6 @@ export const strings = {
 		findSchool: 'Find your school',
 		howItWorks: 'How it works',
 		shopAll: 'Browse books',
-		ticker: (session: string) => [
-			`Book sets for session ${session}`,
-			'Cash on delivery',
-			'Prices include GST',
-			'Untick what you already have'
-		],
-		tickerLabel: 'Store news',
 		facts: (schools: number, session: string) => [
 			schools === 1 ? '1 school' : `${schools} schools`,
 			`Session ${session}`,

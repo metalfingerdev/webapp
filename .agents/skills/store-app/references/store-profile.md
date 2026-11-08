@@ -395,8 +395,8 @@ Steps 0 to 5 are built (step 5: 2026-11-07, branch `step-5-checkout`). **Next: s
   dropdown's parts now share one duration and curve. Tests: `setSelection.test.ts`, school filter in
   `catalog.test.ts`.
 - **Home page** (2026-11-08, branch `home-page`, on top of `ui-soft-layers`). The live site's content
-  with inventre.in's layout ideas (nothing copied, no ratings or testimonials: none are known): a
-  ticker of true facts (`Ticker.svelte`), hero with two calls to action and a facts row, schools grid
+  with inventre.in's layout ideas (nothing copied, no ratings or testimonials: none are known; a
+  scrolling ticker was tried and removed on request): hero with two calls to action and a facts row, schools grid
   with monograms and "Buy book set", How it works in three steps, what is in a set, categories ("Learn
   from the best"), four trust badges, a closing band and the contact block. `getContact` also returns
   `currentSession`. All text is in `strings.home`.
