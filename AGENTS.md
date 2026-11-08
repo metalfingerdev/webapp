@@ -101,20 +101,26 @@ Before step 1 the old store is still inside `src/` (`src/components`, `src/route
   template keep the template's style and are listed in `.prettierignore` and `eslint.config.js`. Never
   reformat files you aren't changing.
 - **The UI uses our palette and Bits UI.** Colours come from `src/themes/palette.css` only: layers
-  `background` (darkest) < `midground` < `foreground` (lightest), plus `text`, `text-muted`, `primary`,
-  `secondary`, `on-secondary`, `danger`, `warning`, `success`, `info`, `border`. Light only. Build
-  screens from `src/lib/ui` (Button, Card, Pill, Field, Choice, Notice, Select, Switch, Sheet, Modal,
-  ConfirmDialog, Spinner) and `src/lib/primitives/ui`. **The look is soft layers** (after Sajid's
-  technique): depth comes from the layers, from gradients that mix them, and from soft shadows, with
-  the light straight above. No outlines: a border is only a 1px `border-border-muted` divider inside a
-  surface. Use `raised` (lit at the top, small shadow), `floating` (dialogs, drawers, menus, toasts),
-  `sunken` (inputs, tracks: shaded at the top), `raised-primary` and its colour siblings, and `press`
-  (sinks 1px); `shadow-s`, `shadow-m`, `shadow-l` and `shadow-inset` come from `palette.css`. For
-  native elements `src/app.css` has `button`, `tone-*`, `tag`, `panel`, `control`, `field-label`,
-  `data-table`, `bone`.
-- **No long Tailwind class lists inline.** A short semantic class, and the Tailwind in the component's
-  `<style lang="postcss">` block (`@reference 'src/app.css';`, then `@apply`). One or two layout
-  utilities in markup are fine.
+  `background` (the page, darkest) < `midground` < `foreground` (lightest), plus `text`, `text-muted`,
+  `primary`, `secondary`, `on-secondary`, `accent`, `danger`, `warning`, `success`, `info`, `border`.
+  Light only. Build screens from `src/lib/ui` (Button, Card, Pill, Field, Choice, Notice, Select,
+  Switch, Sheet, Modal, ConfirmDialog, Spinner, **Media**), `src/lib/store/PageHead.svelte` and
+  `src/lib/primitives/ui`. **The look is a magazine with neumorphic surfaces** (dictated 2026-11-08,
+  `docs/10-ui.md`): full-width rounded **chapters** in their own palette (`chapter chapter-ink`,
+  `-wine`, `-saffron`, `-paper`), big editorial type (`type-display`, `type-headline`, `type-title`,
+  `type-kicker`; the coloured second line is `text-accent`), sideways `rail`s of cards, and surfaces
+  the colour of the page they sit on: `raised` (light above, shade below), `sunken` (pressed in),
+  `floating` (dialogs, drawers, menus), `raised-primary` and siblings, `press`. Everything takes its
+  colours from the palette it sits in, so it works inside any chapter. No outlines: a border is only a
+  1px `border-border-muted` divider. Every photo spot is a `Media` slot (a placeholder until a photo
+  exists). `src/app.css` also has `button`, `tone-*`, `tag`, `control`, `field-label`, `data-table`,
+  `bone` for use inside `@apply`.
+- **CSS is nested and readable** (dictated 2026-11-08). No Tailwind utilities in markup, only short
+  semantic class names. Each component's `<style lang="postcss">` (`@reference 'src/app.css';`) has
+  one root selector, written as element + class (`nav.bar`, `section.schools`), with everything else
+  nested inside it and short `@apply` lines for the declarations. Elements Bits UI renders go in a
+  `:global { div.ui-modal { ... } }` block. Never name a class after a utility (`title`, `rail`,
+  `panel`, `grid`, `block`): Tailwind would apply the utility to it.
 - **All store UI text in `src/lib/store/strings.ts`**, so Hindi can be added later.
 - **Design for a cheap Android phone on slow 4G**: small lazy images with fixed sizes, large tap
   targets, skeletons, nothing that needs hover, no heavy libraries on customer pages.

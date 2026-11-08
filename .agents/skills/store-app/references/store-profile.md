@@ -168,14 +168,19 @@ Each entry has a date and the reason. When the user decides something new, add i
   one child, already have some books, and want the notebooks with the set.
 - **Shop filters include School** (2026-11-08, dictated): the school's current set lines and its
   uniform pieces.
-- **Soft layers replace the neo-brutalist look** (2026-11-08, dictated: "neo morphism based on the
-  youtuber Sajid's design techniques"). Whole app, store and admin and the template's screens.
-  Background is the darkest layer and foreground the lightest; no borders (only 1px light dividers);
-  gradients mixing foreground and midground (raised) or background and midground (sunken); the
-  light source is straight above, so shadows fall straight down; the greys carry a whisper of the
-  brand teal. Why: a calmer, premium feel in the hims and Apple direction instead of the template's
-  hard borders and offset shadows. How: `palette.css` (layers, gradients, shadows) and the `raised`,
-  `floating`, `sunken`, `press` utilities in `app.css`; the old `edge` utilities and `--fill` are gone.
+- **A magazine with neumorphic surfaces replaces soft layers** (2026-11-08, dictated with reference
+  screenshots: "a magazine like neo morphism"; built on branch `ui-refresh` before step 8). Whole
+  app: store, admin, sign-in and account; the template's admin users and organizations screens only
+  pick it up through the shared utilities. Full-width rounded chapters in the brand's teal (ink) and
+  burgundy (wine) plus warm paper and saffron; editorial type in one self-hosted display font
+  (Manrope, about 25 KB, headlines only); surfaces the colour of the page, raised or pressed in, light
+  from straight above. No professional photos yet, so every photo spot is a `Media` placeholder slot
+  (`docs/10-ui.md` lists them). Why: a premium magazine feel, and photos can be dropped in later
+  without layout changes. How: `palette.css` (one palette per chapter), `app.css` (`chapter-*`,
+  `type-*`, `rail`, neumorphic `raised`/`sunken`/`floating`), `Media.svelte`, `PageHead.svelte`.
+- **CSS is nested, element.class, with short `@apply` lines** (2026-11-08, dictated: "modern nested
+  css ... for human readability"; the user chose to keep `@apply`). No utilities in markup. Why:
+  people read the styles. How: AGENTS.md conventions, `docs/10-ui.md`.
 - **Step 7 is built in four sub-steps on one branch, one PR** (2026-11-08, dictated: "all sub
   steps will be merged in a single pr"): 7a products, stock and import; 7b schools and sets; 7c order
   board, orders and shipping; 7d settings, each in its own commits on `step-7-admin`. Why: the
@@ -267,6 +272,11 @@ until its screens follow `design.md`; the step's PR names any deliberate departu
 
 Steps 0 to 7 are built (step 7: 2026-11-08, branch `step-7-admin`, one PR). **Next: step 8 (invoices
 and packing slips)**; the packing-slip print was left for it.
+
+**UI refresh** (2026-11-08/09, branch `ui-refresh`, before step 8): the magazine and neumorphism look
+and nested CSS across the store, admin, sign-in and account (Decisions). New: `Media.svelte` (photo
+slots), `PageHead.svelte`, chapter palettes and `type-*`/`rail` utilities, the Manrope display font.
+No functions or data changed.
 
 - **Old store**: in `legacy/` (not built, linted or type-checked); tag `old-store` runs it.
 - **Tables**: all of `data-model.md`. Every product has one or more `productVariants` holding price and

@@ -66,15 +66,15 @@ What hims + Apple add:
   everything also opens by click, tap and keyboard; the phone UI has no hover at all. Nothing may
   need hover. Keep images small and lazy with fixed sizes, use skeletons, and use no heavy animation
   libraries.
-- Components from `src/lib/ui`; **soft layers** (dictated 2026-11-08, after Sajid's technique):
-  `background` is the page and the darkest, `midground` sits above it, `foreground` is the lightest and
-  the most raised. Depth comes from the layers, from gradients that mix two of them (raised: foreground
-  at the top to midground at the bottom; sunken: background at the top to midground at the bottom)
-  and from soft two-part shadows. The light is **straight above**: shadows fall straight down, a thin
-  lit line runs along the top edge, a pressed thing sinks 1px, and recesses are shaded at the top. No
-  outlines; a divider inside a surface is 1px `border-border-muted`. Utilities: `raised`, `floating`,
-  `sunken`, `raised-primary` (and siblings), `press`; short semantic classes with Tailwind in
-  `<style>` (AGENTS.md).
+- Components from `src/lib/ui`; **a magazine with neumorphic surfaces** (dictated 2026-11-08,
+  replacing "soft layers"; details and the photo slots in `docs/10-ui.md`). Pages are built from
+  full-width rounded chapters, each in its own palette (paper, ink teal, wine, saffron), with big
+  editorial headlines (a coloured second line), sideways rails of cards and big photo slots. A surface
+  is the colour of the page it sits on: raised by a glow above and a shade below, or pressed in. The
+  light is **straight above**. No outlines; a divider inside a surface is 1px `border-border-muted`.
+  Utilities: `chapter` + `chapter-*`, `type-*`, `rail`, `raised`, `floating`, `sunken`,
+  `raised-primary` (and siblings), `press`; nested element.class CSS in `<style>` (AGENTS.md).
+  No real photos yet: every photo spot is a `Media` slot, a soft placeholder until one is added.
 - All text in `src/lib/store/strings.ts`.
 - **Nothing shifts when its text changes** (dictated 2026-11-07). A button or label that swaps text
   ("Show more" and "Loading") keeps one size: stack both labels in one grid cell and hide the inactive

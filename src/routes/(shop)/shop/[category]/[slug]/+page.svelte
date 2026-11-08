@@ -173,7 +173,7 @@
 					@apply flex min-h-12 cursor-pointer items-center gap-3 rounded-2xl sunken px-4 tabular-nums;
 
 					input {
-						@apply size-5 border-0 text-primary;
+						@apply size-5 border-0 text-primary shadow-inset;
 					}
 					strong {
 						@apply flex-1;
