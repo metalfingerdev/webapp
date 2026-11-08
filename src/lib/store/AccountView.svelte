@@ -3,8 +3,10 @@
 	import { refreshAll } from '$app/navigation';
 	import { useConvexClient, useQuery } from 'convex-svelte';
 	import { useAuth } from '@mmailaender/convex-better-auth-svelte/svelte';
+	import { Avatar } from 'bits-ui';
 	import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
 	import LogOutIcon from '@lucide/svelte/icons/log-out';
+	import UserIcon from '@lucide/svelte/icons/user';
 	import { api } from '#convex/_generated/api.js';
 	import type { Id } from '#convex/_generated/dataModel.js';
 	import { useIsAppAdmin } from '#lib/admin/api/admin.svelte.js';
@@ -37,8 +39,16 @@
 
 	const me = $derived(user.data);
 	// A phone-only sign-up has its number as its name and only a placeholder email
-	const firstName = $derived(
-		me?.name && !/^\+?\d[\d\s]*$/.test(me.name) ? me.name.split(/\s+/)[0] : ''
+	const realName = $derived(me?.name && !/^\+?\d[\d\s]*$/.test(me.name) ? me.name : '');
+	const firstName = $derived(realName.split(/\s+/)[0] ?? '');
+	// Shown until the photo loads, or instead of it: two initials, or a person icon for no name
+	const initials = $derived(
+		realName
+			.split(/\s+/)
+			.filter(Boolean)
+			.slice(0, 2)
+			.map((word) => word[0]?.toUpperCase())
+			.join('')
 	);
 	const contact = $derived(
 		me?.phoneNumber ?? (me?.email && !me.email.endsWith('.invalid') ? me.email : '')
@@ -76,14 +86,26 @@
 {:else}
 	<!-- Same height loading or loaded, so nothing below moves -->
 	<header class="who" aria-busy={me === undefined}>
-		<h2 class="hello">
-			{#if me === undefined}<span class="bone">{text.hello('')}</span>{:else}{text.hello(
-					firstName
-				)}{/if}
-		</h2>
-		<p class="note">
-			{#if me === undefined}<span class="bone">+91 00000 00000</span>{:else}{contact}{/if}
-		</p>
+		{#if me === undefined}
+			<span class="photo bone" aria-hidden="true"></span>
+		{:else}
+			<Avatar.Root class="account-photo">
+				{#if me?.image}<Avatar.Image src={me.image} alt="" class="account-photo-img" />{/if}
+				<Avatar.Fallback class="account-photo-fallback">
+					{#if initials}{initials}{:else}<UserIcon class="size-7" aria-hidden="true" />{/if}
+				</Avatar.Fallback>
+			</Avatar.Root>
+		{/if}
+		<div class="names">
+			<h2 class="hello">
+				{#if me === undefined}<span class="bone">{text.hello('')}</span>{:else}{text.hello(
+						firstName
+					)}{/if}
+			</h2>
+			<p class="note">
+				{#if me === undefined}<span class="bone">+91 00000 00000</span>{:else}{contact}{/if}
+			</p>
+		</div>
 	</header>
 
 	<section class="group">
@@ -204,8 +226,34 @@
 		@apply text-3xl font-extrabold;
 	}
 
+	/* Photo beside the greeting; the placeholder is the same size, so loading never moves it */
 	.who {
-		@apply flex flex-col gap-1;
+		@apply flex items-center gap-4;
+	}
+
+	.photo,
+	.who :global(.account-photo) {
+		@apply grid size-16 shrink-0 place-items-center overflow-hidden rounded-full;
+	}
+
+	.who :global(.account-photo) {
+		@apply bg-primary-tint text-xl font-extrabold text-primary;
+	}
+
+	.who :global(.account-photo-img) {
+		@apply size-full object-cover;
+	}
+
+	.who :global(.account-photo-fallback) {
+		@apply grid size-full place-items-center;
+	}
+
+	.names {
+		@apply flex min-w-0 flex-1 flex-col gap-0.5;
+
+		.note {
+			@apply truncate;
+		}
 	}
 
 	.note {
