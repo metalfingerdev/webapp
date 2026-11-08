@@ -107,9 +107,9 @@
 	<form method="GET" class="filter-form">
 		{#if sort !== 'new'}<input type="hidden" name="sort" value={sort} />{/if}
 		{#if schools.length}
-			<label class="field-label">
-				<span class="field-caption">{strings.shop.filterSchool}</span>
-				<select class="control" name="school">
+			<label class="field">
+				<span class="caption">{strings.shop.filterSchool}</span>
+				<select name="school">
 					<option value="">{strings.shop.filterAnySchool}</option>
 					{#each schools as school (school.slug)}
 						<option value={school.slug} selected={sp.get('school') === school.slug}>
@@ -119,9 +119,9 @@
 				</select>
 			</label>
 		{/if}
-		<label class="field-label">
-			<span class="field-caption">{strings.shop.filterClass}</span>
-			<select class="control" name="class">
+		<label class="field">
+			<span class="caption">{strings.shop.filterClass}</span>
+			<select name="class">
 				<option value="">{strings.shop.filterAnyClass}</option>
 				{#each classes as level (level)}
 					<option value={level} selected={sp.get('class') === String(level)}>
@@ -130,61 +130,49 @@
 				{/each}
 			</select>
 		</label>
-		<label class="field-label">
-			<span class="field-caption">{strings.shop.filterMin}</span>
-			<input
-				class="control"
-				name="min"
-				type="number"
-				min="0"
-				inputmode="numeric"
-				value={sp.get('min') ?? ''}
-			/>
+		<label class="field">
+			<span class="caption">{strings.shop.filterMin}</span>
+			<input name="min" type="number" min="0" inputmode="numeric" value={sp.get('min') ?? ''} />
 		</label>
-		<label class="field-label">
-			<span class="field-caption">{strings.shop.filterMax}</span>
-			<input
-				class="control"
-				name="max"
-				type="number"
-				min="0"
-				inputmode="numeric"
-				value={sp.get('max') ?? ''}
-			/>
+		<label class="field">
+			<span class="caption">{strings.shop.filterMax}</span>
+			<input name="max" type="number" min="0" inputmode="numeric" value={sp.get('max') ?? ''} />
 		</label>
 		<label class="check">
 			<input type="checkbox" name="stock" value="1" checked={sp.get('stock') === '1'} />
 			{strings.shop.filterInStock}
 		</label>
 		<div class="actions">
-			<button class="button tone-primary" type="submit">{strings.shop.apply}</button>
+			<button class="apply" type="submit">{strings.shop.apply}</button>
 			{#if filtersActive}
-				<button class="button" type="button" onclick={clear}>{strings.shop.clear}</button>
+				<button class="clear" type="button" onclick={clear}>{strings.shop.clear}</button>
 			{/if}
 		</div>
 	</form>
 {/snippet}
 
-{#if products.length === 0 && isDone}
-	<Notice tone="info">{strings.shop.empty}</Notice>
-{:else}
-	<ul class="grid">
-		{#each sorted as product (product.id)}
-			<li><ProductCard {product} /></li>
-		{/each}
-	</ul>
-	{#if !isDone}
-		<div class="more">
-			<Button onclick={showMore} disabled={loading} aria-busy={loading}>
-				<!-- Both labels share one cell, so the button never changes width -->
-				<span class="swap">
-					<span class:gone={loading}>{strings.shop.showMore}</span>
-					<span class:gone={!loading}>{strings.shop.loading}</span>
-				</span>
-			</Button>
-		</div>
+<div class="listing">
+	{#if products.length === 0 && isDone}
+		<Notice tone="info">{strings.shop.empty}</Notice>
+	{:else}
+		<ul class="grid">
+			{#each sorted as product (product.id)}
+				<li><ProductCard {product} /></li>
+			{/each}
+		</ul>
+		{#if !isDone}
+			<div class="more">
+				<Button onclick={showMore} disabled={loading} aria-busy={loading}>
+					<!-- Both labels share one cell, so the button never changes width -->
+					<span class="swap">
+						<span class:gone={loading}>{strings.shop.showMore}</span>
+						<span class:gone={!loading}>{strings.shop.loading}</span>
+					</span>
+				</Button>
+			</div>
+		{/if}
 	{/if}
-{/if}
+</div>
 
 <!-- Filter and sort stay at the bottom, in thumb reach. The page fades into the dock's background. -->
 <div class="dock-space" aria-hidden="true"></div>
@@ -198,7 +186,7 @@
 				aria-label={activeCount ? strings.shop.filtersActive(activeCount) : undefined}
 				onclick={() => (filterOpen = true)}
 			>
-				<ListFilterIcon class="size-5" aria-hidden="true" />
+				<ListFilterIcon size={20} aria-hidden="true" />
 				{strings.shop.filters}
 				{#if activeCount}<span class="dot" aria-hidden="true">{activeCount}</span>{/if}
 			</button>
@@ -209,7 +197,7 @@
 			aria-haspopup="dialog"
 			onclick={() => (sortOpen = true)}
 		>
-			<ArrowUpDownIcon class="size-5" aria-hidden="true" />
+			<ArrowUpDownIcon size={20} aria-hidden="true" />
 			{strings.shop.sort}
 			{#if sort !== 'new'}<span class="dot" aria-hidden="true">1</span>{/if}
 		</button>
@@ -241,84 +229,100 @@
 <style lang="postcss">
 	@reference 'src/app.css';
 
-	.filter-form {
-		@apply grid gap-3 sm:grid-cols-2;
-	}
+	div.listing {
+		ul.grid {
+			@apply grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5;
+		}
+		div.more {
+			@apply mt-8 flex justify-center;
+		}
+		/* Both labels share one cell, so the button never changes width */
+		span.swap {
+			@apply grid;
 
-	.check {
-		@apply flex min-h-11 items-center gap-2 text-sm font-bold;
+			> span {
+				@apply col-start-1 row-start-1;
 
-		input {
-			@apply size-5;
+				&.gone {
+					@apply invisible;
+				}
+			}
 		}
 	}
 
-	.actions {
-		@apply flex flex-wrap gap-2 sm:col-span-2;
-	}
-
 	/* Room for the dock, so the last row is never hidden behind it */
-	.dock-space {
+	div.dock-space {
 		@apply h-24;
 	}
 
 	/* Fixed to the bottom. The top edge fades from the page colour to nothing, so products slide
 	   under it softly; only the buttons take taps, the faded strip lets them through. */
-	.dock {
+	div.dock {
 		@apply pointer-events-none fixed inset-x-0 bottom-0 z-30 flex justify-center px-4 pt-10 pb-4;
-		background: linear-gradient(to top, var(--color-background) 40%, transparent);
-	}
+		background: linear-gradient(to top, var(--background) 40%, transparent);
 
-	.dock-bar {
-		@apply pointer-events-auto flex gap-2 rounded-full raised p-1;
-		box-shadow: var(--shadow-m);
-	}
+		div.dock-bar {
+			@apply pointer-events-auto flex gap-1.5 rounded-full floating p-1.5;
+		}
+		button.dock-button {
+			@apply flex min-h-11 items-center gap-2 rounded-full px-5 font-bold;
 
-	.dock-button {
-		@apply flex min-h-11 items-center gap-2 rounded-full px-5 font-bold;
-
-		&:hover {
-			@apply bg-midground;
+			&:hover {
+				@apply sunken;
+			}
+		}
+		span.dot {
+			@apply grid size-5 place-items-center rounded-full raised-primary text-xs leading-none text-foreground tabular-nums;
 		}
 	}
 
-	.dot {
-		@apply grid size-5 place-items-center rounded-full bg-primary text-xs leading-none text-foreground tabular-nums;
-	}
+	/* The filter form, inside its sheet */
+	form.filter-form {
+		@apply grid gap-4 sm:grid-cols-2;
 
-	.sorts {
-		@apply flex flex-col gap-1;
-	}
+		label.field {
+			@apply field-label;
 
-	.sort-option {
-		@apply min-h-11 w-full rounded-lg px-3 text-left font-bold;
+			span.caption {
+				@apply field-caption;
+			}
+			:is(select, input) {
+				@apply control min-h-11 rounded-xl border-0;
+			}
+		}
+		label.check {
+			@apply flex min-h-11 items-center gap-3 text-sm font-bold;
 
-		&.current {
-			@apply bg-primary-tint text-primary;
+			input {
+				@apply size-5 rounded-md border-0 sunken text-primary;
+			}
+		}
+		div.actions {
+			@apply flex flex-wrap gap-2 sm:col-span-2;
+
+			button {
+				@apply button min-h-11;
+
+				&.apply {
+					@apply tone-primary;
+				}
+			}
 		}
 	}
 
-	.note {
+	/* The sort choices, inside their sheet */
+	ul.sorts {
+		@apply flex flex-col gap-2;
+
+		button.sort-option {
+			@apply min-h-12 w-full press rounded-full raised px-5 text-left font-bold;
+
+			&.current {
+				@apply raised-primary text-foreground;
+			}
+		}
+	}
+	p.note {
 		@apply text-sm text-text-muted;
-	}
-
-	.grid {
-		@apply grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5;
-	}
-
-	.more {
-		@apply mt-6 flex justify-center;
-	}
-
-	.swap {
-		@apply grid;
-
-		> span {
-			@apply col-start-1 row-start-1;
-		}
-	}
-
-	.gone {
-		@apply invisible;
 	}
 </style>

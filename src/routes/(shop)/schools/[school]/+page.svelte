@@ -2,7 +2,7 @@
 	import { page } from '$app/state';
 	import { resolve } from '$app/paths';
 	import Card from '#lib/ui/Card.svelte';
-	import Pill from '#lib/ui/Pill.svelte';
+	import PageHead from '#lib/store/PageHead.svelte';
 	import { classRange } from '#lib/store/format.js';
 	import { forGender } from '#lib/store/schoolSets.js';
 	import { strings } from '#lib/store/strings.js';
@@ -69,127 +69,126 @@
 	<title>{data.school.name} · {strings.brand}</title>
 </svelte:head>
 
-<header class="head">
-	<h1 class="title">{data.school.name}</h1>
-	<Pill>{text.session(data.session)}</Pill>
-</header>
+<PageHead
+	tone="ink"
+	kicker={text.session(data.session)}
+	title={data.school.name}
+	back={{ href: resolve('/(shop)/schools'), label: text.title }}
+/>
 
-{#if data.sets.length === 0}
-	<p class="note">{text.none}</p>
-{:else}
-	<p class="progress">{text.stepOf(step, totalSteps)}</p>
-
-	{#if kind === null}
-		<h2 class="question">{text.whatFor}</h2>
-		<ul class="choices">
-			{#if bookSets.length}
-				<li>
-					<Card as="a" pressable href={link({ for: 'books' })}>
-						<strong>{text.books}</strong>
-						<span class="note">{text.booksHint}</span>
-					</Card>
-				</li>
-			{/if}
-			{#if uniformSets.length}
-				<li>
-					<Card as="a" pressable href={link({ for: 'uniform' })}>
-						<strong>{text.uniform}</strong>
-						<span class="note">{text.uniformHint}</span>
-					</Card>
-				</li>
-			{/if}
-		</ul>
-	{:else if kind === 'uniform' && gender === null}
-		<h2 class="question">{text.whoFor}</h2>
-		<ul class="choices">
-			{#each genders as who (who)}
-				<li>
-					<Card as="a" pressable href={link({ for: 'uniform', gender: who })}>
-						<strong>{label[who]}</strong>
-					</Card>
-				</li>
-			{/each}
-		</ul>
-	{:else if kind === 'uniform' && gender && type === null}
-		<h2 class="question">{text.whichKind}</h2>
-		<ul class="choices">
-			{#each types as kindOfUniform (kindOfUniform)}
-				<li>
-					<Card as="a" pressable href={link({ for: 'uniform', gender, type: kindOfUniform })}>
-						<strong>{label[kindOfUniform]}</strong>
-					</Card>
-				</li>
-			{/each}
-		</ul>
+<div class="steps">
+	{#if data.sets.length === 0}
+		<p class="note">{text.none}</p>
 	{:else}
-		<h2 class="question">{text.whichClass}</h2>
-		{#if classSets.length === 0}
-			<p class="note">{text.noneHere}</p>
-		{:else}
+		<p class="progress">{text.stepOf(step, totalSteps)}</p>
+
+		{#if kind === null}
+			<h2 class="question">{text.whatFor}</h2>
 			<ul class="choices">
-				{#each classSets as set (set.id)}
+				{#if bookSets.length}
 					<li>
-						<Card
-							as="a"
-							pressable
-							href={resolve('/(shop)/schools/[school]/[set]', {
-								school: data.school.slug,
-								set: set.id
-							})}
-						>
-							<strong>{set.label}</strong>
-							<span class="note">{classRange(set.classFrom, set.classTo)}</span>
+						<Card as="a" pressable href={link({ for: 'books' })}>
+							<strong>{text.books}</strong>
+							<span class="note">{text.booksHint}</span>
+						</Card>
+					</li>
+				{/if}
+				{#if uniformSets.length}
+					<li>
+						<Card as="a" pressable href={link({ for: 'uniform' })}>
+							<strong>{text.uniform}</strong>
+							<span class="note">{text.uniformHint}</span>
+						</Card>
+					</li>
+				{/if}
+			</ul>
+		{:else if kind === 'uniform' && gender === null}
+			<h2 class="question">{text.whoFor}</h2>
+			<ul class="choices">
+				{#each genders as who (who)}
+					<li>
+						<Card as="a" pressable href={link({ for: 'uniform', gender: who })}>
+							<strong>{label[who]}</strong>
 						</Card>
 					</li>
 				{/each}
 			</ul>
+		{:else if kind === 'uniform' && gender && type === null}
+			<h2 class="question">{text.whichKind}</h2>
+			<ul class="choices">
+				{#each types as kindOfUniform (kindOfUniform)}
+					<li>
+						<Card as="a" pressable href={link({ for: 'uniform', gender, type: kindOfUniform })}>
+							<strong>{label[kindOfUniform]}</strong>
+						</Card>
+					</li>
+				{/each}
+			</ul>
+		{:else}
+			<h2 class="question">{text.whichClass}</h2>
+			{#if classSets.length === 0}
+				<p class="note">{text.noneHere}</p>
+			{:else}
+				<ul class="choices">
+					{#each classSets as set (set.id)}
+						<li>
+							<Card
+								as="a"
+								pressable
+								href={resolve('/(shop)/schools/[school]/[set]', {
+									school: data.school.slug,
+									set: set.id
+								})}
+							>
+								<strong>{set.label}</strong>
+								<span class="note">{classRange(set.classFrom, set.classTo)}</span>
+							</Card>
+						</li>
+					{/each}
+				</ul>
+			{/if}
+		{/if}
+
+		{#if back}
+			<nav class="nav">
+				<a class="step-link" href={back}>{text.back}</a>
+				<a class="step-link" href={base}>{text.start}</a>
+			</nav>
 		{/if}
 	{/if}
-
-	{#if back}
-		<nav class="nav">
-			<a class="step-link" href={back}>{text.back}</a>
-			<a class="step-link" href={base}>{text.start}</a>
-		</nav>
-	{/if}
-{/if}
+</div>
 
 <style lang="postcss">
 	@reference 'src/app.css';
 
-	.head {
-		@apply mb-4 flex flex-wrap items-center gap-3;
-	}
+	div.steps {
+		@apply flex flex-col gap-4;
 
-	.title {
-		@apply text-3xl font-extrabold;
-	}
-
-	.progress {
-		@apply mb-1 text-sm font-bold text-text-muted;
-	}
-
-	.question {
-		@apply mb-3 text-2xl font-extrabold;
-	}
-
-	.choices {
-		@apply grid gap-3 sm:grid-cols-2;
-
-		strong {
-			@apply block text-lg;
+		p.progress {
+			@apply type-kicker;
 		}
-	}
+		h2.question {
+			@apply type-headline;
+		}
+		ul.choices {
+			@apply grid gap-4 sm:grid-cols-2 lg:grid-cols-3;
 
-	.note {
-		@apply text-sm text-text-muted;
-	}
+			:global(a.ui-card) {
+				@apply flex min-h-28 flex-col justify-center gap-1 rounded-[1.75rem] p-5;
+			}
+			strong {
+				@apply block type-title text-2xl;
+			}
+		}
+		.note {
+			@apply text-sm text-text-muted;
+		}
+		nav.nav {
+			@apply mt-4 flex gap-3;
 
-	.nav {
-		@apply mt-6 flex gap-4;
-	}
-
-	.step-link {
-		@apply inline-flex min-h-11 items-center font-bold text-primary;
+			a.step-link {
+				@apply inline-flex min-h-11 press items-center rounded-full raised px-4 font-bold;
+			}
+		}
 	}
 </style>
