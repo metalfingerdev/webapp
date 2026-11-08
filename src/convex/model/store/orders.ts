@@ -5,6 +5,7 @@ import { ConvexError } from 'convex/values';
 import type { Doc } from '../../_generated/dataModel.js';
 import type { MutationCtx } from '../../_generated/server.js';
 import type { OrderStatus } from '../../store/validators.js';
+import { startRefund } from './refunds.js';
 import { adjustStock } from './stock.js';
 
 const MOVES: Record<OrderStatus, OrderStatus[]> = {
@@ -45,6 +46,8 @@ export const transitionOrder = async (
 	const patch: Partial<Doc<'orders'>> = { status: to };
 	const stamp = STAMP[to];
 	if (stamp) (patch as Record<string, number>)[stamp] = now;
+	// Only the gateway's word moves an order to paid (model/store/payments.ts#settleCapture)
+	if (to === 'paid') patch.paymentStatus = 'paid';
 	// Cash on delivery is paid when it arrives
 	if (to === 'delivered' && order.paymentMethod === 'cod') {
 		patch.paymentStatus = 'paid';
@@ -66,6 +69,13 @@ export const transitionOrder = async (
 				orderId: order._id
 			});
 		}
-		// TODO (step 6): a paid online order is refunded here. Online orders cannot be placed yet.
+		// A paid online order gets its money back; startRefund refunds each payment at most once
+		if (order.paymentMethod === 'online' && order.paymentStatus === 'paid') {
+			const payments = await ctx.db
+				.query('payments')
+				.withIndex('by_orderId', (q) => q.eq('orderId', order._id))
+				.take(20);
+			for (const payment of payments) await startRefund(ctx, payment);
+		}
 	}
 };

@@ -6,7 +6,8 @@ import { requireCustomer } from '../model/store/access.js';
 import { loadCheckoutLines } from '../model/store/checkout.js';
 import { findZone } from '../model/store/delivery.js';
 import { priceCart } from '../model/store/pricing.js';
-import { ONLINE_PAYMENT_ENABLED, PLACEHOLDER_COD_ENABLED } from '../model/store/storeProfile.js';
+import { onlinePaymentReady } from '../model/store/razorpay.js';
+import { PLACEHOLDER_COD_ENABLED } from '../model/store/storeProfile.js';
 import { deliveryMethod } from './validators.js';
 
 export const preview = query({
@@ -66,7 +67,7 @@ export const preview = query({
 			zone: zone ? { name: zone.name, method: zone.method, estimate: zone.estimate } : null,
 			notDeliverable: owned !== null && zone === null,
 			cod: settings?.codEnabled ?? PLACEHOLDER_COD_ENABLED,
-			online: ONLINE_PAYMENT_ENABLED
+			online: onlinePaymentReady()
 		};
 	}
 });

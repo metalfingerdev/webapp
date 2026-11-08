@@ -116,9 +116,17 @@ export const manualStockReason = v.union(
 
 export const enquiryStatus = v.union(v.literal('new'), v.literal('quoted'), v.literal('closed'));
 
+/** Money going back to the customer: asked of the gateway (pending), then processed or failed */
+export const refundStatus = v.union(
+	v.literal('pending'),
+	v.literal('processed'),
+	v.literal('failed')
+);
+
 export const refund = v.object({
 	amount: v.number(), // paise
 	at: v.number(),
+	status: refundStatus,
 	gatewayRefundId: v.optional(v.string())
 });
 
