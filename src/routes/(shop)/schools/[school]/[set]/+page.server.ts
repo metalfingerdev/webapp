@@ -4,10 +4,12 @@ import { api } from '#convex/_generated/api.js';
 import { publicClient } from '#lib/store/server/client.server.js';
 
 export const load = (async ({ params }) => {
-	const result = await publicClient().query(api.store.sets.getSet, {
-		schoolSlug: params.school,
-		setId: params.set
-	});
+	const client = publicClient();
+	const args = { schoolSlug: params.school, setId: params.set };
+	const [result, extras] = await Promise.all([
+		client.query(api.store.sets.getSet, args),
+		client.query(api.store.sets.listExtras, args)
+	]);
 	if (!result) error(404, 'Set not found');
-	return result;
+	return { ...result, extras };
 }) satisfies PageServerLoad;

@@ -12,6 +12,7 @@ import {
 	toProductDetail,
 	type ProductCard
 } from '../model/store/publicProjection.js';
+import { loadActiveSchool, loadSetProductIds } from '../model/store/schools.js';
 
 const categoryNode = v.object({
 	name: v.string(),
@@ -53,7 +54,8 @@ export const listSchools = query({
 
 /**
  * Deliberately public: one page of products, newest first. `categorySlug` may name a parent
- * category, which includes its children. The class, price and stock filters apply to the page that
+ * category, which includes its children. `schoolSlug` keeps the products on that school's current
+ * sets and its uniform pieces. The school, class, price and stock filters apply to the page that
  * was read, so a page can come back short; the screen keeps offering "Show more" until `isDone`.
  * (Filtering the whole catalogue first needs price and stock on the product, which the data model
  * keeps on variants; revisit when the real catalogue is imported.)
@@ -61,6 +63,7 @@ export const listSchools = query({
 export const listProducts = query({
 	args: {
 		categorySlug: v.optional(v.string()),
+		schoolSlug: v.optional(v.string()),
 		classLevel: v.optional(v.number()),
 		minPrice: v.optional(v.number()),
 		maxPrice: v.optional(v.number()),
@@ -85,6 +88,13 @@ export const listProducts = query({
 			else allowed = new Set([category._id, ...children.map((c) => c._id)]);
 		}
 
+		let school: { id: Doc<'schools'>['_id']; products: Set<string> } | undefined;
+		if (args.schoolSlug) {
+			const found = await loadActiveSchool(ctx, args.schoolSlug);
+			if (!found) return empty;
+			school = { id: found._id, products: await loadSetProductIds(ctx, found._id) };
+		}
+
 		const result = leaf
 			? await ctx.db
 					.query('products')
@@ -102,6 +112,7 @@ export const listProducts = query({
 		const page: ProductCard[] = [];
 		for (const product of result.page) {
 			if (allowed && !allowed.has(product.categoryId)) continue;
+			if (school && product.schoolId !== school.id && !school.products.has(product._id)) continue;
 			const card = await toProductCard(ctx, product, active);
 			if (!card) continue;
 			if (args.classLevel !== undefined) {

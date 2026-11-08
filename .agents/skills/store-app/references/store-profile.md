@@ -151,6 +151,18 @@ Each entry has a date and the reason. When the user decides something new, add i
   new zone in the admin, not a code change. Cash on delivery **and** online payment are both offered. A
   customer can cancel until the order ships; after it arrives they can submit a return request.
   Delivery charges were left to Claude as "typical" (placeholders, to confirm with the client).
+- **One drawer, from the right; logo left, menu right** (2026-11-08, dictated; replaces the left
+  menu drawer plus separate cart drawer of steps 3b and 4). The bar reads logo, then (desktop) the
+  hover triggers, then search, cart and menu; no user icon. Menu and cart are views of one drawer
+  whose icon row (search, account or sign-in, cart, close) switches between them. Why: it is what
+  was meant from the start (the old sidebar and hims work this way); two drawers felt like two apps.
+- **Sets are customizable** (2026-11-08, dictated). On a set page the parent can change the copies
+  per line, tick extra items (the school's other products and the stationery, placeholder source
+  `EXTRAS_CATEGORY_SLUG` in `store/sets.ts`) that go in with the set, and come back from the cart's
+  "Edit set" to change it ("Update cart" replaces that set's lines). Why: parents buy for more than
+  one child, already have some books, and want the notebooks with the set.
+- **Shop filters include School** (2026-11-08, dictated): the school's current set lines and its
+  uniform pieces.
 - **Client questions go through the user** (2026-11-06). Ask the user when a step needs an answer;
   they get it from the client. Don't batch questions far ahead of the step that needs them.
 
@@ -362,6 +374,14 @@ Steps 0 to 5 are built (step 5: 2026-11-07, branch `step-5-checkout`). **Next: s
   window; a local zone reads "Out for delivery", a courier zone "Shipped" with courier and tracking
   number once step 7 writes a `shipments` row). Cart's Checkout button now links to `/checkout`; the
   menu drawer has "My orders". Tests: `store/orders.test.ts`, `model/store/pricing.test.ts`.
+- **Shop UI fixes** (2026-11-08, branch `fix-shop-ui`). One right-hand drawer
+  (`drawer.svelte.ts` context, `MenuDrawer.svelte`; `CartDrawer.svelte` removed), the new bar
+  order, the school filter (`listProducts` `schoolSlug`, `model/store/schools.ts`), set quantities,
+  extras (`store/sets.ts#listExtras`) and edit-from-cart (`cart.replaceSet`). Two bugs were class-name
+  collisions: the menu's `.back` button style also hit the view sliding `back` (items centred), and
+  `MegaPanel`'s `.panel` picked up the global `panel` utility (a card inside the dropdown card); the
+  dropdown's parts now share one duration and curve. Tests: `setSelection.test.ts`, school filter in
+  `catalog.test.ts`.
 - **Not in yet**: no payment gateway, no order board for staff (step 7), no `/admin/settings` (the settings row holds placeholders).
 
 When a step lands, mark it **built** in the roadmap with the date, write what was built here in a few

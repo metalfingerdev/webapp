@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import BookOpenIcon from '@lucide/svelte/icons/book-open';
 	import MinusIcon from '@lucide/svelte/icons/minus';
 	import PlusIcon from '@lucide/svelte/icons/plus';
@@ -19,20 +20,29 @@
 			.map((set) => ({
 				key: set.id as string,
 				heading: text.set(set.schoolName, set.label),
+				edit: resolve('/(shop)/schools/[school]/[set]', { school: set.schoolSlug, set: set.id }),
 				lines: view.lines.filter((line) => line.fromSetId === set.id)
 			}))
 			.filter((group) => group.lines.length > 0);
 		const known = new Set(view.sets.map((set) => set.id));
 		const loose = view.lines.filter((line) => !line.fromSetId || !known.has(line.fromSetId));
 		return loose.length
-			? [...sets, { key: 'loose', heading: sets.length ? text.otherItems : '', lines: loose }]
+			? [
+					...sets,
+					{ key: 'loose', heading: sets.length ? text.otherItems : '', edit: '', lines: loose }
+				]
 			: sets;
 	});
 </script>
 
 {#each groups as group (group.key)}
 	<section class="group">
-		{#if group.heading}<h3 class="heading">{group.heading}</h3>{/if}
+		{#if group.heading}
+			<div class="group-head">
+				<h3 class="heading">{group.heading}</h3>
+				{#if group.edit}<a class="edit" href={group.edit}>{text.editSet}</a>{/if}
+			</div>
+		{/if}
 		<ul class="lines">
 			{#each group.lines as line (line.variantId)}
 				<li class="line" class:off={line.availability === 'out'}>
@@ -101,8 +111,16 @@
 		@apply mb-4;
 	}
 
+	.group-head {
+		@apply mb-1 flex items-center justify-between gap-3;
+	}
+
 	.heading {
-		@apply mb-2 text-sm font-extrabold text-text-muted;
+		@apply text-sm font-extrabold text-text-muted;
+	}
+
+	.edit {
+		@apply inline-flex min-h-11 shrink-0 items-center text-sm font-bold text-primary;
 	}
 
 	.lines {

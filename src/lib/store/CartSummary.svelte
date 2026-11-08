@@ -17,12 +17,7 @@
 		<strong class="amount">{formatPrice(cart.view?.subtotal ?? 0)}</strong>
 	</div>
 	<p class="note">{text.shippingNote} {strings.product.inclusiveOfTax}.</p>
-	<Button
-		variant="primary"
-		large
-		block
-		href={resolve('/(shop)/checkout')}
-	>
+	<Button variant="primary" large block href={resolve('/(shop)/checkout')}>
 		{text.checkout}
 	</Button>
 	<button class="clear" type="button" onclick={() => (cart.clear(), onclear?.())}>

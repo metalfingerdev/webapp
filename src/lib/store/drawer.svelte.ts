@@ -3,7 +3,11 @@
 // `go` and `back` move through the menu's history.
 import { getContext, setContext } from 'svelte';
 
-export type MenuCategory = { name: string; slug: string; children: { name: string; slug: string }[] };
+export type MenuCategory = {
+	name: string;
+	slug: string;
+	children: { name: string; slug: string }[];
+};
 
 export type DrawerView =
 	| { kind: 'root' }

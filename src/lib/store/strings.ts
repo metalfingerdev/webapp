@@ -99,7 +99,12 @@ export const strings = {
 		unavailable: (n: number) =>
 			n === 1 ? '1 ticked item is out of stock' : `${n} ticked items are out of stock`,
 		nothingTicked: 'Tick at least one item',
-		addToCart: 'Add to cart'
+		addToCart: 'Add to cart',
+		updateCart: 'Update cart',
+		inCart: 'This set is in your cart. Change it here and update the cart.',
+		quantity: 'Copies',
+		more: 'Add more to this set',
+		moreHint: 'Anything you tick here goes in with the set.'
 	},
 	cart: {
 		title: 'Your cart',
@@ -112,6 +117,7 @@ export const strings = {
 		shippingNote: 'Shipping is worked out at checkout.',
 		checkout: 'Checkout',
 		otherItems: 'Other items',
+		editSet: 'Edit set',
 		set: (school: string, label: string) => `${school} · ${label}`,
 		increase: (title: string) => `One more ${title}`,
 		decrease: (title: string) => `One fewer ${title}`,
@@ -227,6 +233,8 @@ export const strings = {
 		sortPriceAsc: 'Price: low to high',
 		sortPriceDesc: 'Price: high to low',
 		sortTitleAz: 'Title: A to Z',
+		filterSchool: 'School',
+		filterAnySchool: 'Any school',
 		filterClass: 'Class',
 		filterAnyClass: 'Any class',
 		filterMin: 'Lowest price (₹)',

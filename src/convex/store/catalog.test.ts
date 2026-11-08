@@ -3,6 +3,7 @@
 import { describe, expect, it } from 'vitest';
 import { api } from '../_generated/api';
 import { setup } from './harness.testutils';
+import { PLACEHOLDER_SESSION } from '../model/store/storeProfile';
 
 const seedCatalogue = async () => {
 	const { t, signedOut } = await setup();
@@ -99,5 +100,57 @@ describe('public catalogue', () => {
 			paginationOpts: { numItems: 50, cursor: null }
 		});
 		expect(page.page).toEqual([]);
+	});
+
+	it("the school filter keeps only the school's current set lines, and a hidden school shows nothing", async () => {
+		const { t, signedOut } = await seedCatalogue();
+		await t.run(async (ctx) => {
+			const bySlug = async (slug: string) =>
+				(await ctx.db
+					.query('products')
+					.withIndex('by_slug', (q) => q.eq('slug', slug))
+					.unique())!._id;
+			const school = await ctx.db.insert('schools', {
+				name: 'Demo School',
+				slug: 'demo',
+				isActive: true,
+				sortOrder: 1
+			});
+			await ctx.db.insert('schools', {
+				name: 'Hidden School',
+				slug: 'hidden',
+				isActive: false,
+				sortOrder: 2
+			});
+			const set = async (session: string, productSlug: string) => {
+				const setId = await ctx.db.insert('schoolSets', {
+					schoolId: school,
+					type: 'books',
+					label: `Class 1 ${session}`,
+					classFrom: 1,
+					classTo: 1,
+					session,
+					sortOrder: 1,
+					isActive: true
+				});
+				await ctx.db.insert('setItems', {
+					setId,
+					productId: await bySlug(productSlug),
+					quantity: 1,
+					isOptional: false,
+					sortOrder: 1
+				});
+			};
+			await set(PLACEHOLDER_SESSION, 'visible-reader');
+			// Last year's list must not count
+			await set('2000-01', 'last-copies-reader');
+		});
+		const list = (schoolSlug: string) =>
+			signedOut.query(api.store.catalog.listProducts, {
+				schoolSlug,
+				paginationOpts: { numItems: 50, cursor: null }
+			});
+		expect((await list('demo')).page.map((p) => p.title)).toEqual(['Visible Reader']);
+		expect((await list('hidden')).page).toEqual([]);
 	});
 });
