@@ -9,7 +9,7 @@
 		$props();
 </script>
 
-<div class="panel">
+<div class="mega-panel">
 	{#if category}
 		<a class="lead" href={resolve('/(shop)/shop/[category]', { category: category.slug })}>
 			<span>{strings.nav.viewAll(category.name)}</span>
@@ -42,7 +42,7 @@
 <style lang="postcss">
 	@reference 'src/app.css';
 
-	.panel {
+	.mega-panel {
 		@apply grid gap-3 p-6;
 	}
 

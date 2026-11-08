@@ -8,28 +8,26 @@
 	import XIcon from '@lucide/svelte/icons/x';
 	import { useIsAppAdmin } from '#lib/admin/api/admin.svelte.js';
 	import { ADMIN_ROUTE } from '#lib/admin/utils/admin.constants.js';
-	import UserButton from '#lib/users/ui/UserButton.svelte';
 	import MegaPanel from './MegaPanel.svelte';
 	import MenuDrawer from './MenuDrawer.svelte';
 	import SearchPanel from './SearchPanel.svelte';
 	import { useCart } from './cart.svelte.js';
+	import { useDrawer, type MenuCategory } from './drawer.svelte.js';
 	import { strings } from './strings.js';
 
-	type Category = { name: string; slug: string; children: { name: string; slug: string }[] };
 	let {
 		categories,
 		schools,
-		whatsapp,
-		initialData
+		whatsapp
 	}: {
-		categories: Category[];
+		categories: MenuCategory[];
 		schools: { name: string; slug: string }[];
 		whatsapp?: string;
-		initialData?: Parameters<typeof UserButton>[1]['initialData'];
 	} = $props();
 
 	const admin = useIsAppAdmin();
 	const cart = useCart();
+	const drawer = useDrawer();
 
 	// The row: Schools first, then each top-level category (Books, Uniforms, Stationery)
 	const triggers = $derived([
@@ -41,7 +39,6 @@
 	// drawer on every screen size. One thing is open at a time: a panel, the search, or none.
 	let active = $state<number | null>(null);
 	let searchOpen = $state(false);
-	let menuOpen = $state(false);
 	// The bar, the box and the search results: what counts as "inside" for hover and taps
 	let header = $state<HTMLElement>();
 	let triggerEls = $state<HTMLElement[]>([]);
@@ -88,11 +85,26 @@
 		searchOpen = !searchOpen;
 	};
 
+	// The drawer's search button: close the drawer, then open the bar's search. A frame later, so the
+	// tap that closed the drawer is not taken for a tap outside the bar.
+	const searchFromDrawer = () => {
+		drawer.close();
+		requestAnimationFrame(() => {
+			active = null;
+			searchOpen = true;
+		});
+	};
+
+	const openDrawer = (kind: 'root' | 'cart') => {
+		dismiss();
+		drawer.show(kind);
+	};
+
 	// Close everything when the visitor moves to another page
 	$effect(() => {
 		void page.url.pathname;
 		dismiss();
-		menuOpen = false;
+		drawer.close();
 	});
 
 	// A tap outside the bar, or Escape, closes the panel
@@ -123,19 +135,6 @@
 >
 	<nav class="bar" aria-label={strings.nav.label}>
 		<menu class="row">
-			<li>
-				<button
-					class="action"
-					type="button"
-					aria-label={strings.nav.menu}
-					onclick={() => {
-						dismiss();
-						menuOpen = true;
-					}}
-				>
-					<MenuIcon class="size-5" aria-hidden="true" />
-				</button>
-			</li>
 			<li class="brand"><a href={resolve('/(shop)')}>{strings.brand}</a></li>
 
 			{#each triggers as trigger, i (trigger.id)}
@@ -184,16 +183,22 @@
 					class="action cart"
 					type="button"
 					aria-label={strings.cart.open(cart.count)}
-					onclick={() => {
-						dismiss();
-						cart.open = true;
-					}}
+					onclick={() => openDrawer('cart')}
 				>
 					<ShoppingBagIcon class="size-5" aria-hidden="true" />
 					{#if cart.count > 0}<span class="badge" aria-hidden="true">{cart.count}</span>{/if}
 				</button>
 			</li>
-			<li><UserButton {initialData} /></li>
+			<li>
+				<button
+					class="action"
+					type="button"
+					aria-label={strings.nav.menu}
+					onclick={() => openDrawer('root')}
+				>
+					<MenuIcon class="size-5" aria-hidden="true" />
+				</button>
+			</li>
 		</menu>
 		{#if searchOpen}
 			<SearchPanel {categories} onclose={dismiss} />
@@ -223,7 +228,7 @@
 	</div>
 </header>
 
-<MenuDrawer bind:open={menuOpen} {categories} {schools} {whatsapp} />
+<MenuDrawer {categories} {schools} {whatsapp} onsearch={searchFromDrawer} />
 
 <style lang="postcss">
 	@reference 'src/app.css';
@@ -307,12 +312,16 @@
 	}
 
 	/* The sliding box, desktop only. Its position follows the active trigger; nothing else is measured. */
+	/* One duration and curve for every moving part (the wrapper, box, arrow and panels), so the
+	   dropdown moves as one card instead of layers out of step */
 	.box-wrap {
 		@apply pointer-events-none invisible absolute inset-x-3 top-full z-10 mt-2 -translate-y-2 opacity-0 max-lg:hidden;
+		--dur: 320ms;
+		--ease: cubic-bezier(0.16, 1, 0.3, 1);
 		transition:
-			opacity 200ms ease,
-			translate 200ms ease,
-			visibility 200ms;
+			opacity var(--dur) var(--ease),
+			translate var(--dur) var(--ease),
+			visibility var(--dur);
 
 		&.open {
 			@apply pointer-events-auto visible translate-y-0 opacity-100;
@@ -329,23 +338,24 @@
 		@apply relative grid w-136 max-w-full rounded-3xl border border-border-muted bg-foreground shadow-lg;
 		/* centred under the trigger, never past the bar's edges (100cqw is the bar's width) */
 		transform: translateX(clamp(0px, calc(var(--centre) - 17rem), calc(100cqw - 34rem)));
-		transition: transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
+		transition: transform var(--dur) var(--ease);
 	}
 
 	.arrow {
 		@apply absolute -top-1.5 left-0 z-10 size-3 border-t border-l border-border-muted bg-foreground;
 		transform: translateX(calc(var(--centre) - 6px)) rotate(45deg);
-		transition: transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
+		transition: transform var(--dur) var(--ease);
 	}
 
-	/* Every panel sits in the same grid cell; the others wait to one side and fade out */
+	/* Every panel sits in the same grid cell with no surface of its own (the box is the card); the
+	   others wait a few pixels to one side and fade, on the box's curve */
 	.slot {
 		@apply pointer-events-none invisible col-start-1 row-start-1 opacity-0;
-		transform: translateX(calc(var(--side) * 48px));
+		transform: translateX(calc(var(--side) * 12px));
 		transition:
-			opacity 200ms ease,
-			transform 200ms ease,
-			visibility 200ms;
+			opacity var(--dur) var(--ease),
+			transform var(--dur) var(--ease),
+			visibility var(--dur);
 
 		&.current {
 			@apply pointer-events-auto visible opacity-100;

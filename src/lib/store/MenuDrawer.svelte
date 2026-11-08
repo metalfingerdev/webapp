@@ -4,68 +4,65 @@
 	import ArrowRightIcon from '@lucide/svelte/icons/arrow-right';
 	import ChevronLeftIcon from '@lucide/svelte/icons/chevron-left';
 	import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
+	import LogInIcon from '@lucide/svelte/icons/log-in';
 	import MessageCircleIcon from '@lucide/svelte/icons/message-circle';
+	import SearchIcon from '@lucide/svelte/icons/search';
+	import ShoppingBagIcon from '@lucide/svelte/icons/shopping-bag';
 	import UserIcon from '@lucide/svelte/icons/user';
 	import { useIsAppAdmin } from '#lib/admin/api/admin.svelte.js';
 	import { ADMIN_ROUTE } from '#lib/admin/utils/admin.constants.js';
+	import Button from '#lib/ui/Button.svelte';
+	import CartList from './CartList.svelte';
+	import CartSummary from './CartSummary.svelte';
 	import Drawer from './Drawer.svelte';
 	import MenuSchool from './MenuSchool.svelte';
+	import { useCart } from './cart.svelte.js';
+	import { useDrawer, type DrawerView, type MenuCategory } from './drawer.svelte.js';
 	import { loadRecentSets, type RecentSet } from './recentSets.js';
 	import { strings } from './strings.js';
 
-	// The menu, on every screen size. Each choice slides in a new view; Back slides it away. Links close
-	// the drawer because the bar closes it on every page change. (The old sidebar's history idea,
-	// legacy/src/lib/sidebar/sidebar.svelte.ts.)
-	type Category = { name: string; slug: string; children: { name: string; slug: string }[] };
+	// The shop's one drawer, from the right, on every screen size: the menu and the cart are views of
+	// it, and the icon row at the top switches between them (the old sidebar, hims-style). Each menu
+	// choice slides in a new view; Back slides it away. Links close the drawer because the bar closes
+	// it on every page change.
 	let {
-		open = $bindable(false),
 		categories,
 		schools,
-		whatsapp
+		whatsapp,
+		onsearch
 	}: {
-		open?: boolean;
-		categories: Category[];
+		categories: MenuCategory[];
 		schools: { name: string; slug: string }[];
 		whatsapp?: string;
+		/** Close the drawer and open the bar's search */
+		onsearch: () => void;
 	} = $props();
 
 	const auth = useAuth();
 	const admin = useIsAppAdmin();
+	const cart = useCart();
+	const drawer = useDrawer();
+	const view = $derived(drawer.view);
+	const previous = $derived(drawer.previous);
+	const go = drawer.go;
+	const back = drawer.back;
 
-	type View =
-		| { kind: 'root' }
-		| { kind: 'schools' }
-		| { kind: 'school'; slug: string; name: string }
-		| { kind: 'category'; category: Category };
-	let stack = $state<View[]>([{ kind: 'root' }]);
-	let direction = $state<'fwd' | 'back'>('fwd');
+	// The sets remembered on this device, read on every opening
 	let recent = $state<RecentSet[]>([]);
-	const view = $derived(stack[stack.length - 1]);
-	const previous = $derived(stack[stack.length - 2]);
-
-	// Every opening starts at the top, with the sets remembered on this device
 	$effect(() => {
-		if (!open) return;
-		stack = [{ kind: 'root' }];
-		recent = loadRecentSets();
+		if (drawer.open) recent = loadRecentSets();
 	});
 
-	const go = (next: View) => {
-		direction = 'fwd';
-		stack = [...stack, next];
-	};
-	const back = () => {
-		direction = 'back';
-		stack = stack.slice(0, -1);
-	};
-	const titleOf = (v: View) =>
+	const titleOf = (v: DrawerView) =>
 		v.kind === 'root'
 			? strings.nav.menu
-			: v.kind === 'schools'
-				? strings.nav.schools
-				: v.kind === 'school'
-					? v.name
-					: v.category.name;
+			: v.kind === 'cart'
+				? strings.cart.title
+				: v.kind === 'schools'
+					? strings.nav.schools
+					: v.kind === 'school'
+						? v.name
+						: v.category.name;
 
 	// wa.me wants the number in digits with the country code; a 10-digit number is Indian
 	const whatsappLink = $derived.by(() => {
@@ -78,21 +75,69 @@
 	);
 </script>
 
-<Drawer bind:open title={titleOf(view)} closeLabel={strings.nav.close}>
+<Drawer bind:open={drawer.open} side="right" title={titleOf(view)} closeLabel={strings.nav.close}>
 	{#snippet head()}
-		{#if previous}
-			<button class="back" type="button" onclick={back}>
-				<ChevronLeftIcon class="size-5" aria-hidden="true" />
-				<span>{titleOf(previous)}</span>
-			</button>
-		{:else}
-			<span class="brand">{strings.brand}</span>
-		{/if}
+		<div class="head">
+			{#if previous}
+				<button class="back-button" type="button" onclick={back}>
+					<ChevronLeftIcon class="size-5" aria-hidden="true" />
+					<span>{titleOf(previous)}</span>
+				</button>
+			{:else if view.kind === 'cart'}
+				<button class="back-button" type="button" onclick={() => drawer.show('root')}>
+					<ChevronLeftIcon class="size-5" aria-hidden="true" />
+					<span>{strings.nav.menu}</span>
+				</button>
+			{:else}
+				<span class="head-title">{strings.nav.menu}</span>
+			{/if}
+			<span class="icons">
+				<button class="icon" type="button" aria-label={strings.nav.search} onclick={onsearch}>
+					<SearchIcon class="size-5" aria-hidden="true" />
+				</button>
+				{#if auth.isAuthenticated}
+					<a class="icon" href={resolve('/account')} aria-label={strings.nav.account}>
+						<UserIcon class="size-5" aria-hidden="true" />
+					</a>
+				{:else}
+					<a class="icon" href={resolve('/(auth)/signin')} aria-label={strings.nav.signIn}>
+						<LogInIcon class="size-5" aria-hidden="true" />
+					</a>
+				{/if}
+				<button
+					class="icon cart"
+					class:active={view.kind === 'cart'}
+					type="button"
+					aria-label={strings.cart.open(cart.count)}
+					onclick={() => drawer.show('cart')}
+				>
+					<ShoppingBagIcon class="size-5" aria-hidden="true" />
+					{#if cart.count > 0}<span class="badge" aria-hidden="true">{cart.count}</span>{/if}
+				</button>
+			</span>
+		</div>
 	{/snippet}
 
-	{#key stack.length}
-		<div class="view {direction}">
-			{#if view.kind === 'root'}
+	{#key drawer.stack}
+		<div class="view slide-{drawer.direction}">
+			{#if view.kind === 'cart'}
+				<h2 class="title">{strings.cart.title}</h2>
+				{#if cart.loading}
+					<p class="note">{strings.menu.loading}</p>
+				{:else if cart.count === 0}
+					<div>
+						<p class="note">{strings.cart.empty}</p>
+						<p class="note">{strings.cart.emptyHint}</p>
+					</div>
+					<Button href={resolve('/(shop)/shop')} variant="primary">{strings.cart.browse}</Button>
+				{:else}
+					<CartList />
+					<div class="cart-foot">
+						<CartSummary />
+						<Button href={resolve('/(shop)/cart')} block>{strings.cart.viewCart}</Button>
+					</div>
+				{/if}
+			{:else if view.kind === 'root'}
 				{#each recent as set (set.setId)}
 					<a
 						class="continue"
@@ -210,11 +255,42 @@
 <style lang="postcss">
 	@reference 'src/app.css';
 
-	.brand {
-		@apply px-3 text-lg font-extrabold text-primary;
+	.head {
+		@apply flex items-center justify-between gap-2;
 	}
 
-	.back {
+	.head-title {
+		@apply px-3 text-lg font-extrabold;
+	}
+
+	/* The icon row stays put while the views slide under it */
+	.icons {
+		@apply flex shrink-0 items-center;
+	}
+
+	.icon {
+		@apply relative grid size-11 place-items-center rounded-full transition-colors;
+
+		&:hover,
+		&.active {
+			@apply bg-midground;
+		}
+	}
+
+	/* The count sits over the icon's corner, so it never changes the button's size */
+	.badge {
+		@apply absolute top-0.5 right-0.5 grid min-w-5 place-items-center rounded-full bg-primary px-1 text-xs leading-5 font-bold text-foreground tabular-nums;
+	}
+
+	.note {
+		@apply text-text-muted;
+	}
+
+	.cart-foot {
+		@apply flex flex-col gap-2 border-t border-border-muted pt-3;
+	}
+
+	.back-button {
 		@apply flex min-h-11 max-w-full items-center gap-0.5 rounded-full pr-3 pl-1 font-semibold text-text-muted;
 
 		span {
@@ -226,11 +302,11 @@
 	.view {
 		@apply flex flex-col gap-6 px-6 pt-1 pb-8;
 
-		&.fwd {
+		&.slide-fwd {
 			animation: view-fwd 280ms cubic-bezier(0.16, 1, 0.3, 1) both;
 		}
 
-		&.back {
+		&.slide-back {
 			animation: view-back 280ms cubic-bezier(0.16, 1, 0.3, 1) both;
 		}
 	}
@@ -250,8 +326,8 @@
 	}
 
 	@media (prefers-reduced-motion: reduce) {
-		.view.fwd,
-		.view.back {
+		.view.slide-fwd,
+		.view.slide-back {
 			animation: none;
 		}
 	}

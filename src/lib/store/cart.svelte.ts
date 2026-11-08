@@ -7,6 +7,7 @@ import { useConvexClient, useQuery } from 'convex-svelte';
 import { useAuth } from '@mmailaender/convex-better-auth-svelte/svelte';
 import { api } from '#convex/_generated/api.js';
 import { mergeLines, type LooseLine } from '#convex/model/store/cart.js';
+import type { ShopDrawer } from './drawer.svelte.js';
 
 const KEY = 'aggarwalkart:cart';
 
@@ -35,8 +36,6 @@ const store = (lines: LooseLine[]) => {
 };
 
 export class Cart {
-	/** The cart drawer: opened by the bar's cart button and after adding something */
-	open = $state(false);
 	/** Say what happened to the last add, for a screen reader and the button label */
 	justAdded = $state(false);
 
@@ -51,7 +50,11 @@ export class Cart {
 		!this.signedIn && !this.auth.isLoading && this.loaded ? { lines: this.guestLines } : 'skip'
 	);
 
-	constructor() {
+	/** The shop drawer, opened at the cart view after something is added */
+	private drawer: ShopDrawer;
+
+	constructor(drawer: ShopDrawer) {
+		this.drawer = drawer;
 		$effect(() => {
 			this.guestLines = load();
 			this.loaded = true;
@@ -101,7 +104,7 @@ export class Cart {
 	add = async (added: LooseLine[]) => {
 		await this.write(mergeLines(this.current(), added));
 		this.justAdded = true;
-		this.open = true;
+		this.drawer.show('cart');
 	};
 
 	setQuantity = (variantId: string, quantity: number) =>
@@ -118,5 +121,5 @@ export class Cart {
 }
 
 const CONTEXT = Symbol('cart');
-export const provideCart = () => setContext(CONTEXT, new Cart());
+export const provideCart = (drawer: ShopDrawer) => setContext(CONTEXT, new Cart(drawer));
 export const useCart = () => getContext<Cart>(CONTEXT);

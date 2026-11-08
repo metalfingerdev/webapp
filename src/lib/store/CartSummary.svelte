@@ -22,7 +22,6 @@
 		large
 		block
 		href={resolve('/(shop)/checkout')}
-		onclick={() => (cart.open = false)}
 	>
 		{text.checkout}
 	</Button>
