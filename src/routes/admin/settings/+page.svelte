@@ -2,6 +2,7 @@
 	import PaymentsPanel from '#lib/store/admin/PaymentsPanel.svelte';
 	import ShopSettings from '#lib/store/admin/ShopSettings.svelte';
 	import ZonesPanel from '#lib/store/admin/ZonesPanel.svelte';
+	import PageHead from '#lib/store/PageHead.svelte';
 	import { strings } from '#lib/store/strings.js';
 
 	const text = strings.admin.settings;
@@ -11,9 +12,9 @@
 	<title>{text.title} · {strings.admin.title}</title>
 </svelte:head>
 
-<h1 class="mb-4 text-2xl font-extrabold">{text.title}</h1>
+<PageHead title={text.title} size="headline" />
 
-<div class="flex max-w-3xl flex-col gap-8">
+<div class="sections">
 	<section>
 		<h2>{text.shop}</h2>
 		<ShopSettings />
@@ -31,7 +32,11 @@
 <style lang="postcss">
 	@reference 'src/app.css';
 
-	h2 {
-		@apply mb-3 text-lg font-extrabold;
+	div.sections {
+		@apply flex max-w-3xl flex-col gap-10;
+
+		h2 {
+			@apply mb-4 type-headline text-3xl;
+		}
 	}
 </style>

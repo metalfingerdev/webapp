@@ -83,9 +83,9 @@
 </script>
 
 {#if !loaded}
-	<div class="bone h-96 rounded-xl"></div>
+	<div class="loading bone"></div>
 {:else}
-	<form class="panel form" onsubmit={submit}>
+	<form class="settings" onsubmit={submit}>
 		<div class="open" class:closed={!form.placedOrdersOpen}>
 			<Switch bind:checked={form.placedOrdersOpen}>{text.open}</Switch>
 			<p>{text.openHint}</p>
@@ -94,7 +94,7 @@
 			<Notice tone="warn" role="status">{text.closedNotice}</Notice>
 		{/if}
 
-		<div class="grid">
+		<div class="fields">
 			<Field label={text.businessName}>
 				<input bind:value={form.businessName} required maxlength="80" />
 			</Field>
@@ -121,7 +121,7 @@
 			<Field label={text.invoicePrefix} hint={text.invoicePrefixHint}>
 				<input bind:value={form.invoicePrefix} maxlength="3" class="uppercase" />
 			</Field>
-			<p class="wide hint">{text.taxHint}</p>
+			<p class="wide tax">{text.taxHint}</p>
 			<Field label={text.returnWindow} hint={text.returnWindowHint}>
 				<input bind:value={form.returnWindowDays} type="number" min="0" max="30" required />
 			</Field>
@@ -154,26 +154,36 @@
 <style lang="postcss">
 	@reference 'src/app.css';
 
-	.form {
-		@apply flex flex-col gap-4 p-4;
+	div.loading {
+		@apply h-96 rounded-[1.75rem];
 	}
-	.open {
-		@apply flex flex-col gap-1 rounded-xl raised-success p-3;
 
-		p {
-			@apply text-sm;
+	form.settings {
+		@apply flex flex-col gap-5 rounded-[1.75rem] raised p-5;
+
+		/* "Taking orders": the one switch that matters most, as a large ink tile (wine when off) */
+		div.open {
+			@apply flex flex-col gap-1 rounded-3xl chapter-ink p-5;
+
+			&.closed {
+				@apply chapter-wine;
+			}
+			:global(label.switch) {
+				@apply type-title;
+			}
+			p {
+				@apply text-sm text-text-muted;
+			}
 		}
-	}
-	.open.closed {
-		@apply raised-danger;
-	}
-	.grid {
-		@apply grid gap-3 sm:grid-cols-2;
-	}
-	.wide {
-		@apply sm:col-span-2;
-	}
-	.hint {
-		@apply text-xs text-text-muted;
+
+		div.fields {
+			@apply grid gap-4 sm:grid-cols-2;
+		}
+		.wide {
+			@apply sm:col-span-2;
+		}
+		p.tax {
+			@apply text-xs text-text-muted;
+		}
 	}
 </style>
