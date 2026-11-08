@@ -270,7 +270,8 @@
 	}
 
 	.dock-bar {
-		@apply pointer-events-auto flex gap-2 rounded-full bg-foreground p-1 shadow-lg;
+		@apply pointer-events-auto flex gap-2 rounded-full raised p-1;
+		box-shadow: var(--shadow-m);
 	}
 
 	.dock-button {
@@ -293,7 +294,7 @@
 		@apply min-h-11 w-full rounded-lg px-3 text-left font-bold;
 
 		&.current {
-			@apply bg-foreground text-primary;
+			@apply bg-primary-tint text-primary;
 		}
 	}
 

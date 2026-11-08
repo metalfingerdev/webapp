@@ -538,8 +538,7 @@
     @apply flex flex-col gap-2;
   }
   .row {
-    --fill: var(--color-midground);
-    @apply edge-flat flex flex-col gap-3 rounded-xl bg-midground p-3;
+    @apply flex flex-col gap-3 rounded-xl p-3 raised;
   }
   .line {
     @apply flex items-center justify-between gap-2;

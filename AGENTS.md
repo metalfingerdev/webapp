@@ -104,10 +104,14 @@ Before step 1 the old store is still inside `src/` (`src/components`, `src/route
   `background` (darkest) < `midground` < `foreground` (lightest), plus `text`, `text-muted`, `primary`,
   `secondary`, `on-secondary`, `danger`, `warning`, `success`, `info`, `border`. Light only. Build
   screens from `src/lib/ui` (Button, Card, Pill, Field, Choice, Notice, Select, Switch, Sheet, Modal,
-  ConfirmDialog, Spinner) and `src/lib/primitives/ui`. Borders and hard shadows are never black: use
-  the `edge`, `edge-flat`, `edge-press` utilities in `src/app.css` with `--fill` set to the element's
-  background. For native elements `src/app.css` has `button`, `tone-*`, `tag`, `panel`, `control`,
-  `field-label`, `data-table`, `bone`.
+  ConfirmDialog, Spinner) and `src/lib/primitives/ui`. **The look is soft layers** (after Sajid's
+  technique): depth comes from the layers, from gradients that mix them, and from soft shadows, with
+  the light straight above. No outlines: a border is only a 1px `border-border-muted` divider inside a
+  surface. Use `raised` (lit at the top, small shadow), `floating` (dialogs, drawers, menus, toasts),
+  `sunken` (inputs, tracks: shaded at the top), `raised-primary` and its colour siblings, and `press`
+  (sinks 1px); `shadow-s`, `shadow-m`, `shadow-l` and `shadow-inset` come from `palette.css`. For
+  native elements `src/app.css` has `button`, `tone-*`, `tag`, `panel`, `control`, `field-label`,
+  `data-table`, `bone`.
 - **No long Tailwind class lists inline.** A short semantic class, and the Tailwind in the component's
   `<style lang="postcss">` block (`@reference 'src/app.css';`, then `@apply`). One or two layout
   utilities in markup are fine.

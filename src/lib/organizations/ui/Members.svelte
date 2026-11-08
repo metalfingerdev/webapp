@@ -228,14 +228,14 @@
 									<span class="font-medium">{member.user.name}</span>
 									{#if member.role === 'owner'}
 										<span
-											class="tag tone-primary-soft border-primary h-6 border px-2"
+											class="tag tone-primary-soft h-6 px-2"
 										>
 											Owner
 										</span>
 									{/if}
 									{#if member.role === 'admin'}
 										<span
-											class="tag tone-warning-soft border-warning h-6 border px-2"
+											class="tag tone-warning-soft h-6 px-2"
 										>
 											Admin
 										</span>
@@ -325,19 +325,19 @@
 												</Select.Root>
 											{:else if member.role === 'owner'}
 												<span
-													class="tag tone-primary-soft border-primary h-7 border px-2"
+													class="tag tone-primary-soft h-7 px-2"
 												>
 													Owner
 												</span>
 											{:else if member.role === 'admin'}
 												<span
-													class="tag tone-warning-soft border-warning h-7 border px-2"
+													class="tag tone-warning-soft h-7 px-2"
 												>
 													Admin
 												</span>
 											{:else}
 												<span
-													class="tag tone-sunken border-border h-7 border px-2"
+													class="tag tone-sunken h-7 px-2"
 												>
 													Member
 												</span>

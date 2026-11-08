@@ -166,6 +166,14 @@ Each entry has a date and the reason. When the user decides something new, add i
   one child, already have some books, and want the notebooks with the set.
 - **Shop filters include School** (2026-11-08, dictated): the school's current set lines and its
   uniform pieces.
+- **Soft layers replace the neo-brutalist look** (2026-11-08, dictated: "neo morphism based on the
+  youtuber Sajid's design techniques"). Whole app, store and admin and the template's screens.
+  Background is the darkest layer and foreground the lightest; no borders (only 1px light dividers);
+  gradients mixing foreground and midground (raised) or background and midground (sunken); the
+  light source is straight above, so shadows fall straight down; the greys carry a whisper of the
+  brand teal. Why: a calmer, premium feel in the hims and Apple direction instead of the template's
+  hard borders and offset shadows. How: `palette.css` (layers, gradients, shadows) and the `raised`,
+  `floating`, `sunken`, `press` utilities in `app.css`; the old `edge` utilities and `--fill` are gone.
 - **Client questions go through the user** (2026-11-06). Ask the user when a step needs an answer;
   they get it from the client. Don't batch questions far ahead of the step that needs them.
 

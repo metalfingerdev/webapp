@@ -273,8 +273,7 @@
 		@apply flex gap-2;
 	}
 	.prefix {
-		--fill: var(--color-background);
-		@apply edge-flat flex shrink-0 items-center rounded-lg bg-background px-3 text-sm font-bold text-text-muted;
+		@apply flex shrink-0 items-center rounded-lg px-3 text-sm font-bold text-text-muted sunken;
 	}
 	.phone :global(input) {
 		@apply min-w-0 flex-1;

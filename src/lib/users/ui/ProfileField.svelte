@@ -44,12 +44,10 @@
   @reference 'src/app.css';
 
   .row {
-    --fill: var(--color-midground);
-    @apply edge-flat relative flex w-full items-center gap-3 rounded-xl bg-midground px-3.5 py-2.5;
+    @apply relative flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 raised;
   }
   .idle:hover {
-    --fill: var(--color-background);
-    @apply bg-background;
+    background-image: var(--gradient-sunken);
   }
   .body {
     @apply flex min-w-0 flex-1 flex-col gap-1;

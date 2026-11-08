@@ -287,7 +287,7 @@
 					{/if}
 					{#if user.isAppAdmin}
 						<span
-							class="tag tone-warning-soft border-warning border"
+							class="tag tone-warning-soft"
 							title={user.isBootstrapAdmin
 								? 'Admin through the ADMIN_USER_IDS environment variable'
 								: undefined}
@@ -296,7 +296,7 @@
 						</span>
 					{/if}
 					{#if user.banned}
-						<span class="tag tone-danger-soft border-danger border">Banned</span>
+						<span class="tag tone-danger-soft">Banned</span>
 					{/if}
 				</div>
 				<p class="text-text-muted truncate text-sm">{user.email}</p>
@@ -311,7 +311,7 @@
 
 		{#if user.banned}
 			<div
-				class="panel tone-danger-soft border-danger flex flex-wrap items-center justify-between gap-3 border p-4 text-sm"
+				class="panel tone-danger-soft flex flex-wrap items-center justify-between gap-3 p-4 text-sm"
 			>
 				<p class="min-w-0">{banDescription}</p>
 				{#if !isSelf}
@@ -442,7 +442,7 @@
 								</div>
 								{#if isOwner(membership)}
 									<span
-										class="tag tone-primary-soft border-primary border"
+										class="tag tone-primary-soft"
 										title="Hand over the ownership on the organization's page to change their role or remove them"
 									>
 										Owner

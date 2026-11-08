@@ -129,8 +129,7 @@
     @apply grid size-11 place-items-center rounded-full;
   }
   :global(.ui-avatar) {
-    --fill: var(--color-secondary);
-    @apply edge-flat relative grid size-9 place-items-center overflow-hidden rounded-full bg-secondary text-sm font-extrabold text-on-secondary;
+    @apply relative grid size-9 place-items-center overflow-hidden rounded-full text-sm font-extrabold text-on-secondary raised-secondary;
   }
   :global(.ui-avatar.big) {
     @apply size-12 shrink-0;
@@ -142,8 +141,7 @@
     @apply size-full object-cover;
   }
   :global(.ui-account-menu) {
-    --fill: var(--color-foreground);
-    @apply edge z-30 flex w-72 max-w-[calc(100vw-1rem)] flex-col gap-1 rounded-xl bg-foreground p-2 text-text;
+    @apply z-30 flex w-72 max-w-[calc(100vw-1rem)] flex-col gap-1 rounded-xl p-2 text-text floating;
   }
   :global(.ui-account-menu .who:hover),
   :global(.ui-account-menu .item:hover) {

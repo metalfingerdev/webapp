@@ -218,11 +218,11 @@
 		}
 
 		.dot {
-			@apply size-3 shrink-0 rounded-full border-2 border-border-muted;
+			@apply size-3 shrink-0 rounded-full sunken;
 		}
 
 		.done .dot {
-			@apply border-primary bg-primary;
+			@apply raised-primary;
 		}
 	}
 

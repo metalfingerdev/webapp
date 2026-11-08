@@ -22,15 +22,14 @@
     @apply inline-flex min-h-11 items-center gap-2 font-semibold;
   }
   :global(.ui-switch-track) {
-    --fill: var(--color-background);
-    @apply edge-flat relative h-7 w-12 shrink-0 rounded-full bg-background transition-colors;
+    @apply relative h-7 w-12 shrink-0 rounded-full transition-colors sunken;
   }
   :global(.ui-switch-track[data-state="checked"]) {
-    --fill: var(--color-primary);
     @apply bg-primary;
+    background-image: none;
   }
   :global(.ui-switch-thumb) {
-    @apply block size-5 translate-x-0.5 rounded-full bg-foreground shadow transition-transform;
+    @apply block size-5 translate-x-0.5 rounded-full transition-transform raised;
   }
   :global(.ui-switch-thumb[data-state="checked"]) {
     @apply translate-x-5.5;

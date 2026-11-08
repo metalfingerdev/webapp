@@ -37,7 +37,6 @@
 		@apply fixed inset-0 z-50 bg-black/45;
 	}
 	:global(.ui-dialog) {
-		--fill: var(--color-foreground);
-		@apply edge fixed top-1/2 left-1/2 z-50 flex max-h-[90dvh] w-[90%] max-w-lg -translate-x-1/2 -translate-y-1/2 flex-col items-start gap-5 overflow-x-hidden overflow-y-auto rounded-xl bg-foreground p-5 text-text;
+		@apply fixed top-1/2 left-1/2 z-50 flex max-h-[90dvh] w-[90%] max-w-lg -translate-x-1/2 -translate-y-1/2 flex-col items-start gap-5 overflow-x-hidden overflow-y-auto rounded-xl p-5 text-text floating;
 	}
 </style>

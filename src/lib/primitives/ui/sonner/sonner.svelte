@@ -55,22 +55,21 @@
 		position: static !important;
 		transform: none !important;
 	}
-	/* A toast is a small raised card; success and error get a coloured edge */
+	/* A toast is a small floating card; success, error and warning tint it */
 	:global(.ui-toast) {
-		--fill: var(--color-foreground);
-		@apply edge pointer-events-auto flex w-full items-start gap-2 rounded-xl bg-foreground p-3 font-semibold text-text md:w-96;
+		@apply pointer-events-auto flex w-full items-start gap-2 rounded-xl p-3 font-semibold text-text md:w-96 floating;
 	}
 	:global(.ui-toast-success) {
-		--fill: var(--color-success);
 		@apply bg-success-tint;
+		background-image: none;
 	}
 	:global(.ui-toast-error) {
-		--fill: var(--color-danger);
 		@apply bg-danger-tint;
+		background-image: none;
 	}
 	:global(.ui-toast-warning) {
-		--fill: var(--color-secondary);
 		@apply bg-secondary-tint;
+		background-image: none;
 	}
 	:global(.ui-toast-title) {
 		@apply text-sm leading-tight font-bold break-words;

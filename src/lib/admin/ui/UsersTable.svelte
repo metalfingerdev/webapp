@@ -152,7 +152,7 @@
 											{/if}
 											{#if user.isAppAdmin}
 												<span
-													class="tag tone-warning-soft border-warning shrink-0 border"
+													class="tag tone-warning-soft shrink-0"
 													title={user.isBootstrapAdmin
 														? 'Admin through the ADMIN_USER_IDS environment variable'
 														: undefined}
@@ -162,7 +162,7 @@
 											{/if}
 											{#if user.banned}
 												<span
-													class="tag tone-danger-soft border-danger shrink-0 border"
+													class="tag tone-danger-soft shrink-0"
 													title={banTitle(user)}
 												>
 													Banned

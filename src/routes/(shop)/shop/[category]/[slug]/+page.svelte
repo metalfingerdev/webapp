@@ -172,7 +172,7 @@
 
 	.variants {
 		li {
-			@apply flex min-h-11 items-center justify-between gap-3 border-b-2 border-border-muted tabular-nums;
+			@apply flex min-h-11 items-center justify-between gap-3 border-b border-border-muted tabular-nums;
 		}
 	}
 

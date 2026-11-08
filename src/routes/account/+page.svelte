@@ -97,13 +97,11 @@
     @apply text-2xl font-extrabold;
   }
   .who {
-    --fill: var(--color-foreground);
-    @apply edge flex items-center gap-4 rounded-xl bg-foreground p-4;
+    @apply flex items-center gap-4 rounded-xl p-4 raised;
   }
   .who :global(.photo),
   .photo {
-    --fill: var(--color-secondary);
-    @apply edge-flat relative grid size-16 shrink-0 place-items-center overflow-hidden rounded-full bg-secondary text-xl font-extrabold text-on-secondary;
+    @apply relative grid size-16 shrink-0 place-items-center overflow-hidden rounded-full text-xl font-extrabold text-on-secondary raised-secondary;
   }
   .who :global(.fit) {
     @apply size-full object-cover;
@@ -121,8 +119,7 @@
     @apply truncate text-sm text-text-muted;
   }
   .menu {
-    --fill: var(--color-foreground);
-    @apply edge flex flex-col overflow-hidden rounded-xl bg-foreground;
+    @apply flex flex-col overflow-hidden rounded-xl raised;
   }
   .item {
     @apply flex min-h-16 w-full items-center gap-3 border-b border-border-muted px-4 py-3 text-left last:border-b-0;
@@ -131,8 +128,7 @@
     @apply bg-midground;
   }
   .icon {
-    --fill: var(--color-midground);
-    @apply edge-flat grid size-10 shrink-0 place-items-center rounded-full bg-midground;
+    @apply grid size-10 shrink-0 place-items-center rounded-full bg-midground;
   }
   .text {
     @apply flex min-w-0 flex-1 flex-col;

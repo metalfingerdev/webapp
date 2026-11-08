@@ -136,13 +136,13 @@
 	}
 
 	.tabs {
-		@apply grid grid-cols-2 gap-1 rounded-full bg-midground p-1;
+		@apply grid grid-cols-2 gap-1 rounded-full sunken p-1;
 
 		button {
 			@apply min-h-11 rounded-full font-bold text-text-muted;
 
 			&[aria-pressed='true'] {
-				@apply bg-foreground text-text shadow-sm;
+				@apply raised text-text;
 			}
 		}
 	}
