@@ -4,6 +4,7 @@
 	import type { OrderStatus } from '#convex/store/validators.js';
 	import { useNow } from '#lib/store/admin/clock.svelte.js';
 	import OrderCard from '#lib/store/admin/OrderCard.svelte';
+	import PageHead from '#lib/store/PageHead.svelte';
 	import { strings } from '#lib/store/strings.js';
 	import Button from '#lib/ui/Button.svelte';
 	import Select from '#lib/ui/Select.svelte';
@@ -42,7 +43,7 @@
 	<title>{text.title} · {strings.admin.title}</title>
 </svelte:head>
 
-<h1 class="mb-4 text-2xl font-extrabold">{text.title}</h1>
+<PageHead title={text.title} size="headline" />
 
 <div class="filters">
 	<label class="search">
@@ -56,7 +57,7 @@
 
 {#if loading && rows.length === 0}
 	<ul class="list" aria-busy="true">
-		{#each { length: 6 }, i (i)}<li class="bone h-24 rounded-xl"></li>{/each}
+		{#each { length: 6 }, i (i)}<li class="bone"></li>{/each}
 	</ul>
 {:else if rows.length === 0}
 	<p class="empty">{text.empty}</p>
@@ -67,7 +68,7 @@
 		{/each}
 	</ul>
 	{#if !q && listing.status === 'CanLoadMore'}
-		<div class="mt-4 flex justify-center">
+		<div class="more">
 			<Button onclick={() => listing.loadMore(30)}>{text.more}</Button>
 		</div>
 	{/if}
@@ -76,23 +77,31 @@
 <style lang="postcss">
 	@reference 'src/app.css';
 
-	.filters {
-		@apply mb-2 grid gap-2 sm:grid-cols-[2fr_1fr];
-	}
-	.search {
-		@apply flex min-h-11 items-center gap-2 rounded-lg sunken px-3 text-text-muted;
+	div.filters {
+		@apply mb-2 grid gap-3 sm:grid-cols-[2fr_1fr];
 
-		input {
-			@apply min-w-0 flex-1 bg-transparent text-sm text-text outline-none;
+		label.search {
+			@apply flex min-h-11 items-center gap-2 rounded-full sunken px-4 text-text-muted;
+
+			input {
+				@apply min-w-0 flex-1 border-0 bg-transparent text-sm text-text outline-none focus:ring-0;
+			}
 		}
 	}
-	.hint {
+	p.hint {
 		@apply mb-2 text-xs text-text-muted;
 	}
-	.list {
-		@apply mt-2 grid gap-2 md:grid-cols-2;
+	ul.list {
+		@apply mt-4 grid gap-4 md:grid-cols-2;
+
+		li.bone {
+			@apply h-24 rounded-3xl;
+		}
 	}
-	.empty {
+	p.empty {
 		@apply py-10 text-center text-text-muted;
+	}
+	div.more {
+		@apply mt-6 flex justify-center;
 	}
 </style>

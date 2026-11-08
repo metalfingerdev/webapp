@@ -41,7 +41,7 @@
 <div class="shell">
 	<aside class="rail">
 		<a class="brand" href={resolve('/admin')}>
-			{strings.brand} <span>{strings.admin.badge}</span>
+			{strings.brand} <span class="badge">{strings.admin.badge}</span>
 		</a>
 		<nav aria-label={text.label}>
 			<ul class="nav">
@@ -75,34 +75,43 @@
 <style lang="postcss">
 	@reference 'src/app.css';
 
-	.shell {
-		@apply flex min-h-dvh flex-col bg-background md:flex-row;
-	}
-	.rail {
-		@apply sticky top-0 z-20 flex shrink-0 items-center gap-2 overflow-x-auto bg-midground p-2 shadow-s;
-		@apply md:h-dvh md:w-56 md:flex-col md:items-stretch md:gap-1 md:overflow-visible md:p-4;
-	}
-	.brand {
-		@apply flex shrink-0 items-baseline gap-1.5 px-2 text-base font-extrabold whitespace-nowrap md:pb-4;
+	/* The rail is an ink chapter: a column on the left from tablet width, a scrolling bar on top
+	   on phones. The page itself stays paper. */
+	div.shell {
+		@apply flex min-h-dvh flex-col gap-3 p-2 md:flex-row md:p-3;
 
-		span {
-			@apply text-xs font-bold text-text-muted uppercase;
-		}
-	}
-	.nav {
-		@apply flex gap-1 md:flex-col;
-	}
-	.item {
-		@apply flex min-h-11 shrink-0 items-center gap-2 rounded-lg px-3 text-sm font-bold whitespace-nowrap text-text-muted;
+		aside.rail {
+			@apply sticky top-2 z-20 flex shrink-0 items-center gap-2 overflow-x-auto rounded-[1.75rem] chapter-ink p-2;
+			@apply md:top-3 md:h-[calc(100dvh-1.5rem)] md:w-60 md:flex-col md:items-stretch md:gap-1 md:overflow-visible md:p-4;
+			scrollbar-width: none;
 
-		&.active {
-			@apply raised text-text;
+			a.brand {
+				@apply flex shrink-0 items-baseline gap-2 px-2 font-display text-lg font-extrabold tracking-tight whitespace-nowrap md:pb-6 md:text-2xl;
+
+				span.badge {
+					@apply type-kicker text-accent;
+				}
+			}
+			ul.nav {
+				@apply flex gap-1 md:flex-col;
+			}
+			a.item {
+				@apply flex min-h-11 shrink-0 items-center gap-3 rounded-full px-4 text-sm font-bold whitespace-nowrap text-text-muted;
+
+				&:hover {
+					@apply text-text;
+				}
+				&.active {
+					@apply sunken text-text;
+				}
+				&.store {
+					@apply md:mt-auto;
+				}
+			}
 		}
-	}
-	.store {
-		@apply md:mt-auto;
-	}
-	.content {
-		@apply mx-auto w-full max-w-6xl min-w-0 flex-1 p-4 md:p-6;
+
+		main.content {
+			@apply mx-auto w-full max-w-6xl min-w-0 flex-1 p-2 md:p-6;
+		}
 	}
 </style>
