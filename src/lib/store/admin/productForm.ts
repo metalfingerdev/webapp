@@ -2,7 +2,10 @@
 // argument shapes on save. The server checks everything again (model/store/products.ts).
 import type { Doc, Id } from '#convex/_generated/dataModel.js';
 import type { GstRate } from '#convex/store/validators.js';
+import { strings } from '#lib/store/strings.js';
 import { parseRupees, toRupeeInput } from './money.js';
+
+const errors = strings.admin.sizes.errors;
 
 export type ProductState = {
 	title: string;
@@ -109,8 +112,8 @@ const optional = (text: string) => (text.trim() ? text.trim() : undefined);
 type Result<T> = { ok: true; value: T } | { ok: false; error: string };
 
 export const toProductInput = (s: ProductState) => {
-	if (!s.categoryId) return { ok: false, error: 'Pick a category' } as const;
-	if (!s.gstRate) return { ok: false, error: 'Pick the GST rate' } as const;
+	if (!s.categoryId) return { ok: false, error: errors.category } as const;
+	if (!s.gstRate) return { ok: false, error: errors.gstRate } as const;
 	const uniform = s.kind === 'uniform';
 	const gstRate: GstRate = s.gstRate === 'exempt' ? 'exempt' : (Number(s.gstRate) as GstRate);
 	return {
@@ -152,14 +155,14 @@ export const toVariantInput = (
 	isActive: boolean;
 }> => {
 	const price = parseRupees(s.price);
-	if (price === undefined || price === null) return { ok: false, error: 'Enter the selling price' };
+	if (price === undefined || price === null) return { ok: false, error: errors.price };
 	const mrp = parseRupees(s.mrp);
-	if (mrp === null) return { ok: false, error: 'The MRP is not an amount' };
+	if (mrp === null) return { ok: false, error: errors.mrp };
 	const purchasePrice = parseRupees(s.purchasePrice);
-	if (purchasePrice === null) return { ok: false, error: 'The purchase price is not an amount' };
+	if (purchasePrice === null) return { ok: false, error: errors.purchasePrice };
 	const lowStockAt = Number(s.lowStockAt);
 	if (!Number.isInteger(lowStockAt) || lowStockAt < 0) {
-		return { ok: false, error: 'Low stock is a whole number' };
+		return { ok: false, error: errors.lowStockAt };
 	}
 	return {
 		ok: true,

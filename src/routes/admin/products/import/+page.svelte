@@ -119,7 +119,8 @@
 	const show = (field: string, value: string | number | null) => {
 		if (value === null) return '—';
 		if (money.has(field) && typeof value === 'number') return `₹${toRupeeInput(value)}`;
-		if (field === 'gstRate') return value === 'exempt' ? 'Exempt' : `${Number(value) / 100}%`;
+		if (field === 'gstRate')
+			return value === 'exempt' ? strings.admin.product.gstRates.exempt : `${Number(value) / 100}%`;
 		return String(value);
 	};
 	const tone = { new: 'ok', update: 'warn', unchanged: 'plain', error: 'bad' } as const;
