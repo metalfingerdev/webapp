@@ -346,7 +346,7 @@
 <div class="signin {className ?? ''}">
 	{#if authConstants.sendEmails && (currentStep === 'verify-email' || (verifyContext === 'magicLink' && magicLinkSent))}
 		<div class="verify">
-			<span class="mail"><MailIcon class="size-8" aria-hidden="true" /></span>
+			<span class="mail"><MailIcon size={32} aria-hidden="true" /></span>
 
 			<h3 class="title">Check your email</h3>
 			<p class="muted">
@@ -486,34 +486,38 @@
 <style lang="postcss">
 	@reference 'src/app.css';
 
-	.signin {
-		@apply mx-auto flex h-full w-full max-w-md flex-col justify-center gap-2 p-4 pb-8;
-	}
-	.title {
-		@apply text-2xl leading-tight font-extrabold;
-	}
-	.muted {
-		@apply text-sm text-text-muted;
-	}
-	.lead {
-		@apply pb-6;
-	}
-	.steps {
-		@apply flex w-full flex-col gap-6;
-	}
-	.verify {
-		@apply flex flex-col gap-2;
-	}
-	.mail {
-		@apply mb-2 grid size-16 place-items-center rounded-full text-text-muted sunken;
-	}
-	.actions {
-		@apply mt-4 flex flex-col gap-2;
-	}
-	.legal {
-		@apply mt-6 text-xs text-text-muted;
-	}
-	.legal a {
-		@apply font-bold text-text underline;
+	div.signin {
+		@apply mx-auto flex h-full w-full max-w-md flex-col justify-center gap-3 p-4 pb-8;
+
+		:is(h1, h3).title {
+			@apply type-headline text-3xl;
+		}
+		p.muted {
+			@apply text-sm text-text-muted;
+
+			&.lead {
+				@apply pb-4;
+			}
+		}
+		div.steps {
+			@apply flex w-full flex-col gap-6;
+		}
+		div.verify {
+			@apply flex flex-col gap-3;
+
+			span.mail {
+				@apply mb-2 grid size-16 place-items-center rounded-full text-text-muted sunken;
+			}
+		}
+		div.actions {
+			@apply mt-4 flex flex-col gap-2;
+		}
+		p.legal {
+			@apply mt-6 text-xs text-text-muted;
+
+			a {
+				@apply font-bold text-text underline;
+			}
+		}
 	}
 </style>

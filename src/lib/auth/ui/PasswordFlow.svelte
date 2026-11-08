@@ -249,28 +249,30 @@
 <style lang="postcss">
 	@reference 'src/app.css';
 
-	.form {
+	form.form {
 		@apply flex flex-col gap-6;
-	}
-	.fields {
-		@apply flex flex-col gap-5;
-	}
-	.actions {
-		@apply flex flex-col gap-2;
-	}
-	.locked {
-		@apply cursor-not-allowed opacity-60;
-	}
-	.password {
-		@apply flex flex-col gap-1;
-	}
-	.caption {
-		@apply text-sm font-bold;
-	}
-	.problem {
-		@apply block pt-1 text-xs font-semibold text-danger;
-	}
-	.forgot {
-		@apply self-end py-2 text-xs font-bold text-primary;
+
+		div.fields {
+			@apply flex flex-col gap-5;
+		}
+		div.actions {
+			@apply flex flex-col gap-2;
+		}
+		input.locked {
+			@apply cursor-not-allowed opacity-60;
+		}
+		div.password {
+			@apply flex flex-col gap-1.5;
+
+			label.caption {
+				@apply text-sm font-bold;
+			}
+		}
+		span.problem {
+			@apply block pt-1 text-xs font-semibold text-danger;
+		}
+		button.forgot {
+			@apply self-end py-2 text-xs font-bold text-accent;
+		}
 	}
 </style>
