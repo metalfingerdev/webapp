@@ -46,7 +46,7 @@
 		@apply grid gap-4 p-6;
 
 		a.lead {
-			@apply flex items-start justify-between gap-3 headline text-2xl;
+			@apply flex items-start justify-between gap-3 type-headline text-2xl;
 		}
 		ul.items {
 			@apply grid gap-x-4 gap-y-1 sm:grid-cols-2;

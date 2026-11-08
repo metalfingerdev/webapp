@@ -49,10 +49,10 @@
 			@apply mx-auto grid max-w-6xl gap-8 sm:grid-cols-[2fr_1fr_2fr];
 		}
 		p.masthead {
-			@apply display text-4xl sm:text-5xl;
+			@apply type-display text-4xl sm:text-5xl;
 		}
 		h2.heading {
-			@apply mb-2 kicker;
+			@apply mb-2 type-kicker;
 		}
 		:is(li a, button.link) {
 			@apply flex min-h-11 items-center text-left font-semibold hover:text-accent;

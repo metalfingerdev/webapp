@@ -229,7 +229,7 @@
 		@apply flex flex-col gap-6;
 
 		h2.hello {
-			@apply headline text-3xl;
+			@apply type-headline text-3xl;
 		}
 		.note {
 			@apply min-h-5 text-sm text-text-muted tabular-nums;
@@ -267,7 +267,7 @@
 				@apply flex items-center justify-between gap-3;
 
 				h3 {
-					@apply kicker;
+					@apply type-kicker;
 				}
 			}
 			:is(a, button).more {
@@ -306,7 +306,7 @@
 			@apply flex flex-col;
 
 			a {
-				@apply flex min-h-16 w-full items-center justify-between gap-3 border-b border-border-muted headline text-xl;
+				@apply flex min-h-16 w-full items-center justify-between gap-3 border-b border-border-muted type-headline text-xl;
 			}
 			span.row-text {
 				@apply flex min-w-0 flex-col py-2;

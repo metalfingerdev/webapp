@@ -170,10 +170,11 @@
 	color: var(--text);
 }
 
-/* Editorial type. display: the one big headline of a page or chapter; headline: a section
-   title; title: a card's title; kicker: the small label above a headline; accent: the coloured
-   second line of a headline */
-@utility display {
+/* Editorial type. type-display: the one big headline of a page or chapter; type-headline: a
+   section title; type-title: a card's title; type-kicker: the small label above a headline.
+   The coloured second line of a headline is text-accent. Named type-* so a plain class="title"
+   in markup never picks one up by accident. */
+@utility type-display {
 	font-family: var(--font-display);
 	font-size: clamp(2.25rem, 7vw, 4.5rem);
 	font-weight: 600;
@@ -181,7 +182,7 @@
 	letter-spacing: -0.035em;
 	text-wrap: balance;
 }
-@utility headline {
+@utility type-headline {
 	font-family: var(--font-display);
 	font-size: clamp(1.75rem, 4.5vw, 3rem);
 	font-weight: 600;
@@ -189,18 +190,15 @@
 	letter-spacing: -0.03em;
 	text-wrap: balance;
 }
-@utility title {
+@utility type-title {
 	font-family: var(--font-display);
 	font-size: 1.25rem;
 	font-weight: 700;
 	line-height: 1.2;
 	letter-spacing: -0.015em;
 }
-@utility kicker {
+@utility type-kicker {
 	@apply text-xs font-bold tracking-[0.14em] text-text-muted uppercase;
-}
-@utility accent {
-	color: var(--accent);
 }
 
 /* A row of cards that scrolls sideways with the thumb, snapping to each card */

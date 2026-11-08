@@ -50,7 +50,7 @@
         @apply flex items-center justify-between gap-3 px-5 pt-4 pb-2;
       }
       div.ui-sheet-title {
-        @apply title;
+        @apply type-title;
       }
       button.ui-sheet-close {
         @apply grid size-11 place-items-center rounded-full raised press;
