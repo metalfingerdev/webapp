@@ -4,6 +4,7 @@
 	import { api } from '#convex/_generated/api.js';
 	import { useRequireSignIn } from '#lib/auth/requireSignIn.svelte.js';
 	import { formatDate, formatPrice } from '#lib/store/format.js';
+	import PageHead from '#lib/store/PageHead.svelte';
 	import { strings } from '#lib/store/strings.js';
 	import Button from '#lib/ui/Button.svelte';
 	import Pill from '#lib/ui/Pill.svelte';
@@ -17,54 +18,57 @@
 
 <svelte:head><title>{text.title} · {strings.brand}</title></svelte:head>
 
-<h1 class="title">{text.title}</h1>
-{#if orders.data?.length === 0}
-	<p class="note">{text.empty}</p>
-	<Button href={resolve('/(shop)/shop')} variant="primary">{text.browse}</Button>
-{:else if orders.data}
-	<ul class="list">
-		{#each orders.data as order (order.number)}
-			<li>
-				<a class="order" href={resolve('/(shop)/orders/[number]', { number: order.number })}>
-					<span class="top">
-						<strong>{order.number}</strong>
-						<Pill tone={tone(order.status)}>{text.status[order.status]}</Pill>
-					</span>
-					<span class="note">
-						{formatDate(order.placedAt)} · {text.items(order.itemCount)} · {formatPrice(
-							order.total
-						)}
-					</span>
-				</a>
-			</li>
-		{/each}
-	</ul>
-{/if}
+<PageHead title={text.title} />
+<div class="orders">
+	{#if orders.data?.length === 0}
+		<p class="note">{text.empty}</p>
+		<Button href={resolve('/(shop)/shop')} variant="primary">{text.browse}</Button>
+	{:else if orders.data}
+		<ul class="list">
+			{#each orders.data as order (order.number)}
+				<li>
+					<a class="order" href={resolve('/(shop)/orders/[number]', { number: order.number })}>
+						<span class="top">
+							<strong>{order.number}</strong>
+							<Pill tone={tone(order.status)}>{text.status[order.status]}</Pill>
+						</span>
+						<span class="note">
+							{formatDate(order.placedAt)} · {text.items(order.itemCount)} · {formatPrice(
+								order.total
+							)}
+						</span>
+					</a>
+				</li>
+			{/each}
+		</ul>
+	{/if}
+</div>
 
 <style lang="postcss">
 	@reference 'src/app.css';
 
-	.title {
-		@apply mb-4 text-3xl font-extrabold;
-	}
+	div.orders {
+		@apply flex flex-col items-start gap-4 pb-8;
 
-	.note {
-		@apply text-sm text-text-muted tabular-nums;
-	}
+		p.note {
+			@apply text-text-muted;
+		}
+		ul.list {
+			@apply grid w-full gap-4 sm:grid-cols-2;
+		}
+		a.order {
+			@apply flex min-h-11 press flex-col gap-2 rounded-3xl raised p-5;
 
-	p.note {
-		@apply mb-4 text-base;
-	}
+			span.top {
+				@apply flex items-center justify-between gap-3;
 
-	.list {
-		@apply flex flex-col gap-2 pb-8;
-	}
-
-	.order {
-		@apply flex min-h-11 flex-col gap-1 panel p-3;
-	}
-
-	.top {
-		@apply flex items-center justify-between gap-3;
+				strong {
+					@apply font-display text-lg;
+				}
+			}
+			span.note {
+				@apply text-sm text-text-muted tabular-nums;
+			}
+		}
 	}
 </style>

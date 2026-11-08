@@ -155,7 +155,7 @@
 	{#if products.length === 0 && isDone}
 		<Notice tone="info">{strings.shop.empty}</Notice>
 	{:else}
-		<ul class="grid">
+		<ul class="products">
 			{#each sorted as product (product.id)}
 				<li><ProductCard {product} /></li>
 			{/each}
@@ -230,7 +230,7 @@
 	@reference 'src/app.css';
 
 	div.listing {
-		ul.grid {
+		ul.products {
 			@apply grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5;
 		}
 		div.more {

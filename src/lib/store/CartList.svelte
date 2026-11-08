@@ -4,6 +4,7 @@
 	import MinusIcon from '@lucide/svelte/icons/minus';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import Trash2Icon from '@lucide/svelte/icons/trash-2';
+	import Media from '#lib/ui/Media.svelte';
 	import Pill from '#lib/ui/Pill.svelte';
 	import { MAX_LINE_QUANTITY } from '#convex/model/store/cart.js';
 	import { useCart } from './cart.svelte.js';
@@ -35,135 +36,124 @@
 	});
 </script>
 
-{#each groups as group (group.key)}
-	<section class="group">
-		{#if group.heading}
-			<div class="group-head">
-				<h3 class="heading">{group.heading}</h3>
-				{#if group.edit}<a class="edit" href={group.edit}>{text.editSet}</a>{/if}
-			</div>
-		{/if}
-		<ul class="lines">
-			{#each group.lines as line (line.variantId)}
-				<li class="line" class:off={line.availability === 'out'}>
-					<span class="picture">
-						{#if line.imageUrl}
-							<img
+<div class="cart-list">
+	{#each groups as group (group.key)}
+		<section class="group">
+			{#if group.heading}
+				<div class="group-head">
+					<h3 class="heading">{group.heading}</h3>
+					{#if group.edit}<a class="edit" href={group.edit}>{text.editSet}</a>{/if}
+				</div>
+			{/if}
+			<ul class="lines">
+				{#each group.lines as line (line.variantId)}
+					<li class="line" class:off={line.availability === 'out'}>
+						<span class="picture">
+							<Media
 								src={line.imageUrl}
-								alt=""
-								width="48"
-								height="64"
-								loading="lazy"
-								decoding="async"
+								ratio="3 / 4"
+								slot="product-thumb"
+								icon={BookOpenIcon}
+								iconSize={18}
+								width={48}
+								height={64}
 							/>
-						{:else}
-							<BookOpenIcon class="size-5 text-text-muted" aria-hidden="true" />
-						{/if}
-					</span>
-					<span class="name">
-						<strong>{line.title}</strong>
-						<span class="note">
-							{#if line.variantLabel !== 'Default'}{line.variantLabel} ·
-							{/if}{formatPrice(line.price)}
 						</span>
-						{#if line.availability === 'out'}
-							<Pill tone="bad">{text.outOfStock}</Pill>
-						{:else if line.availability === 'few_left'}
-							<Pill tone="warn">{text.fewLeft}</Pill>
-						{/if}
-					</span>
-					<span class="stepper">
-						<button
-							type="button"
-							aria-label={text.decrease(line.title)}
-							disabled={line.quantity <= 1}
-							onclick={() => cart.setQuantity(line.variantId, line.quantity - 1)}
-						>
-							<MinusIcon class="size-4" aria-hidden="true" />
-						</button>
-						<output>{line.quantity}</output>
-						<button
-							type="button"
-							aria-label={text.increase(line.title)}
-							disabled={line.quantity >= MAX_LINE_QUANTITY || line.availability === 'out'}
-							onclick={() => cart.setQuantity(line.variantId, line.quantity + 1)}
-						>
-							<PlusIcon class="size-4" aria-hidden="true" />
-						</button>
-						<button
-							type="button"
-							aria-label={text.remove(line.title)}
-							onclick={() => cart.remove(line.variantId)}
-						>
-							<Trash2Icon class="size-4" aria-hidden="true" />
-						</button>
-					</span>
-				</li>
-			{/each}
-		</ul>
-	</section>
-{/each}
+						<span class="name">
+							<strong>{line.title}</strong>
+							<span class="note">
+								{#if line.variantLabel !== 'Default'}{line.variantLabel} ·
+								{/if}{formatPrice(line.price)}
+							</span>
+							{#if line.availability === 'out'}
+								<Pill tone="bad">{text.outOfStock}</Pill>
+							{:else if line.availability === 'few_left'}
+								<Pill tone="warn">{text.fewLeft}</Pill>
+							{/if}
+						</span>
+						<span class="stepper">
+							<button
+								type="button"
+								aria-label={text.decrease(line.title)}
+								disabled={line.quantity <= 1}
+								onclick={() => cart.setQuantity(line.variantId, line.quantity - 1)}
+							>
+								<MinusIcon size={16} aria-hidden="true" />
+							</button>
+							<output>{line.quantity}</output>
+							<button
+								type="button"
+								aria-label={text.increase(line.title)}
+								disabled={line.quantity >= MAX_LINE_QUANTITY || line.availability === 'out'}
+								onclick={() => cart.setQuantity(line.variantId, line.quantity + 1)}
+							>
+								<PlusIcon size={16} aria-hidden="true" />
+							</button>
+							<button
+								type="button"
+								aria-label={text.remove(line.title)}
+								onclick={() => cart.remove(line.variantId)}
+							>
+								<Trash2Icon size={16} aria-hidden="true" />
+							</button>
+						</span>
+					</li>
+				{/each}
+			</ul>
+		</section>
+	{/each}
+</div>
 
 <style lang="postcss">
 	@reference 'src/app.css';
 
-	.group {
-		@apply mb-4;
-	}
+	div.cart-list {
+		@apply flex flex-col gap-6;
 
-	.group-head {
-		@apply mb-1 flex items-center justify-between gap-3;
-	}
+		div.group-head {
+			@apply mb-2 flex items-center justify-between gap-3;
 
-	.heading {
-		@apply text-sm font-extrabold text-text-muted;
-	}
-
-	.edit {
-		@apply inline-flex min-h-11 shrink-0 items-center text-sm font-bold text-primary;
-	}
-
-	.lines {
-		@apply flex flex-col gap-2;
-	}
-
-	.line {
-		@apply grid grid-cols-[3rem_1fr] items-start gap-x-3 gap-y-2 panel p-2;
-
-		&.off .name {
-			@apply opacity-60;
-		}
-	}
-
-	.picture {
-		@apply grid h-16 w-12 place-items-center overflow-hidden rounded-md bg-midground;
-
-		img {
-			@apply size-full object-cover;
-		}
-	}
-
-	.name {
-		@apply flex min-w-0 flex-col items-start gap-1;
-
-		strong {
-			@apply line-clamp-2 leading-snug;
-		}
-	}
-
-	.note {
-		@apply text-sm text-text-muted tabular-nums;
-	}
-
-	.stepper {
-		@apply col-span-2 flex items-center justify-end gap-1;
-
-		button {
-			@apply grid size-11 place-items-center rounded-full bg-midground disabled:opacity-40;
+			h3.heading {
+				@apply type-kicker;
+			}
+			a.edit {
+				@apply inline-flex min-h-11 shrink-0 items-center text-sm font-bold text-accent;
+			}
 		}
 
-		output {
-			@apply w-8 text-center font-bold tabular-nums;
+		ul.lines {
+			@apply flex flex-col gap-3;
+		}
+
+		li.line {
+			@apply grid grid-cols-[3rem_1fr] items-start gap-x-3 gap-y-2 rounded-3xl raised p-3;
+
+			&.off span.name {
+				@apply opacity-60;
+			}
+			span.picture {
+				--media-radius: 0.625rem;
+			}
+			span.name {
+				@apply flex min-w-0 flex-col items-start gap-1;
+
+				strong {
+					@apply line-clamp-2 leading-snug;
+				}
+			}
+			span.note {
+				@apply text-sm text-text-muted tabular-nums;
+			}
+			span.stepper {
+				@apply col-span-2 flex items-center justify-end gap-1.5;
+
+				button {
+					@apply grid size-11 press place-items-center rounded-full raised disabled:opacity-40;
+				}
+				output {
+					@apply w-8 text-center font-bold tabular-nums;
+				}
+			}
 		}
 	}
 </style>

@@ -61,7 +61,7 @@
 	</header>
 
 	{#if result.isLoading}
-		<div class="grid" aria-label={strings.menu.loading}>
+		<div class="tiles" aria-label={strings.menu.loading}>
 			{#each { length: 6 }, i (i)}<span class="tile bone"></span>{/each}
 		</div>
 	{:else if sets.length === 0}
@@ -103,7 +103,7 @@
 		{#if shown.length === 0}
 			<p class="note">{text.noneHere}</p>
 		{:else}
-			<ul class="grid">
+			<ul class="tiles">
 				{#each shown as set (set.id)}
 					<li>
 						<a
@@ -165,7 +165,7 @@
 			@apply text-sm text-text-muted;
 		}
 
-		:is(div, ul).grid {
+		:is(div, ul).tiles {
 			@apply grid grid-cols-2 gap-3;
 		}
 

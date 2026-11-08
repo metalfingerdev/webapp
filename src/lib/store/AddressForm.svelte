@@ -75,20 +75,18 @@
 </script>
 
 <form class="form" onsubmit={submit}>
-	<label class="field-label">
-		<span class="field-caption">{text.name}</span>
+	<label class="field">
+		<span class="caption">{text.name}</span>
 		<input
-			class="control"
 			autocomplete="name"
 			required
 			value={value.name}
 			oninput={(e) => (draft.name = e.currentTarget.value)}
 		/>
 	</label>
-	<label class="field-label">
-		<span class="field-caption">{text.phone}</span>
+	<label class="field">
+		<span class="caption">{text.phone}</span>
 		<input
-			class="control"
 			type="tel"
 			inputmode="numeric"
 			autocomplete="tel-national"
@@ -97,37 +95,30 @@
 			oninput={(e) => (draft.phone = e.currentTarget.value)}
 		/>
 	</label>
-	<label class="field-label wide">
-		<span class="field-caption">{text.line1}</span>
+	<label class="field wide">
+		<span class="caption">{text.line1}</span>
 		<input
-			class="control"
 			autocomplete="address-line1"
 			required
 			value={value.line1}
 			oninput={(e) => (draft.line1 = e.currentTarget.value)}
 		/>
 	</label>
-	<label class="field-label wide">
-		<span class="field-caption">{text.line2}</span>
+	<label class="field wide">
+		<span class="caption">{text.line2}</span>
 		<input
-			class="control"
 			autocomplete="address-line2"
 			value={value.line2}
 			oninput={(e) => (draft.line2 = e.currentTarget.value)}
 		/>
 	</label>
-	<label class="field-label wide">
-		<span class="field-caption">{text.landmark}</span>
-		<input
-			class="control"
-			value={value.landmark}
-			oninput={(e) => (draft.landmark = e.currentTarget.value)}
-		/>
+	<label class="field wide">
+		<span class="caption">{text.landmark}</span>
+		<input value={value.landmark} oninput={(e) => (draft.landmark = e.currentTarget.value)} />
 	</label>
-	<label class="field-label">
-		<span class="field-caption">{text.pincode}</span>
+	<label class="field">
+		<span class="caption">{text.pincode}</span>
 		<input
-			class="control"
 			inputmode="numeric"
 			autocomplete="postal-code"
 			maxlength="6"
@@ -136,20 +127,18 @@
 			oninput={(e) => (draft.pincode = e.currentTarget.value)}
 		/>
 	</label>
-	<label class="field-label">
-		<span class="field-caption">{text.city}</span>
+	<label class="field">
+		<span class="caption">{text.city}</span>
 		<input
-			class="control"
 			autocomplete="address-level2"
 			required
 			value={value.city}
 			oninput={(e) => (draft.city = e.currentTarget.value)}
 		/>
 	</label>
-	<label class="field-label wide">
-		<span class="field-caption">{text.state}</span>
+	<label class="field wide">
+		<span class="caption">{text.state}</span>
 		<input
-			class="control"
 			autocomplete="address-level1"
 			required
 			value={value.state}
@@ -178,23 +167,31 @@
 <style lang="postcss">
 	@reference 'src/app.css';
 
-	.form {
-		@apply grid gap-3 sm:grid-cols-2;
-	}
+	form.form {
+		@apply grid gap-4 sm:grid-cols-2;
 
-	.wide {
-		@apply sm:col-span-2;
-	}
-
-	.check {
-		@apply flex min-h-11 items-center gap-2 text-sm font-bold;
-
-		input {
-			@apply size-5;
+		.wide {
+			@apply sm:col-span-2;
 		}
-	}
+		label.field {
+			@apply field-label;
 
-	.actions {
-		@apply flex flex-wrap gap-2;
+			span.caption {
+				@apply field-caption;
+			}
+			input {
+				@apply control min-h-11 rounded-xl border-0;
+			}
+		}
+		label.check {
+			@apply flex min-h-11 items-center gap-3 text-sm font-bold;
+
+			input {
+				@apply size-5 rounded-md border-0 sunken text-primary;
+			}
+		}
+		div.actions {
+			@apply flex flex-wrap gap-2;
+		}
 	}
 </style>
