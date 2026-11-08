@@ -46,6 +46,10 @@ export const settleCapture = async (
 		return 'paid';
 	}
 	// Late money (the window ran out) or a second payment for a paid order: it is returned
-	await startRefund(ctx, { ...payment, status: 'paid', gatewayPaymentId: capture.gatewayPaymentId });
+	await startRefund(ctx, {
+		...payment,
+		status: 'paid',
+		gatewayPaymentId: capture.gatewayPaymentId
+	});
 	return 'refunding';
 };

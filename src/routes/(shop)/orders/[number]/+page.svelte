@@ -4,7 +4,8 @@
 	import { useConvexClient, useQuery } from 'convex-svelte';
 	import { api } from '#convex/_generated/api.js';
 	import { useRequireSignIn } from '#lib/auth/requireSignIn.svelte.js';
-	import { errorText, formatDate, formatPrice } from '#lib/store/format.js';
+	import { errorText, formatDate, formatPrice, formatTime } from '#lib/store/format.js';
+	import { payForOrder } from '#lib/store/pay.js';
 	import { strings } from '#lib/store/strings.js';
 	import Button from '#lib/ui/Button.svelte';
 	import ConfirmDialog from '#lib/ui/ConfirmDialog.svelte';
@@ -53,6 +54,19 @@
 			await client.mutation(api.store.orders.cancelOrder, { number });
 			confirming = false;
 		});
+	let checking = $state(false);
+	const pay = async () => {
+		busy = true;
+		error = '';
+		try {
+			const outcome = await payForOrder(client, number);
+			checking = outcome === 'pending';
+		} catch (e) {
+			error = errorText(e, text.payFailed);
+		} finally {
+			busy = false;
+		}
+	};
 	const sendReturn = () =>
 		run(async () => {
 			await client.mutation(api.store.orders.requestReturn, { number, reason });
@@ -78,6 +92,31 @@
 			{text.status[order.status]}
 		</Pill>
 	</h1>
+
+	{#if order.status === 'awaiting_payment'}
+		<section class="block">
+			{#if checking}
+				<Notice tone="info" role="status">{text.payChecking}</Notice>
+			{:else}
+				{#if order.payBy}<p>{text.payBy(formatTime(order.payBy))}</p>{/if}
+				<Button variant="primary" large disabled={busy} onclick={pay}>
+					{busy ? text.paying : text.payNow(formatPrice(order.total))}
+				</Button>
+			{/if}
+		</section>
+	{/if}
+
+	{#if order.refund}
+		<Notice tone={order.refund.status === 'failed' ? 'bad' : 'info'} role="status">
+			{#if order.refund.status === 'processed'}
+				{text.refundDone(formatPrice(order.refund.amount))}
+			{:else if order.refund.status === 'failed'}
+				{text.refundFailed}
+			{:else}
+				{text.refundPending(formatPrice(order.refund.amount))}
+			{/if}
+		</Notice>
+	{/if}
 
 	{#if order.status === 'cancelled' && order.cancelledAt}
 		<Notice tone="warn">{text.cancelledOn(formatDate(order.cancelledAt))}</Notice>
@@ -134,7 +173,14 @@
 			</div>
 		</dl>
 		<p class="note">
-			{text.paidBy}: {order.paymentMethod === 'cod' ? text.cod : text.online}
+			{text.paidBy}:
+			{order.paymentMethod === 'cod'
+				? text.cod
+				: order.paymentStatus === 'refunded'
+					? text.refunded
+					: order.paymentStatus === 'paid'
+						? text.online
+						: text.onlineUnpaid}
 		</p>
 	</section>
 
