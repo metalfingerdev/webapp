@@ -39,7 +39,7 @@
 </script>
 
 <div class="shell">
-	<aside class="rail">
+	<aside class="sidebar">
 		<a class="brand" href={resolve('/admin')}>
 			{strings.brand} <span class="badge">{strings.admin.badge}</span>
 		</a>
@@ -80,7 +80,7 @@
 	div.shell {
 		@apply flex min-h-dvh flex-col gap-3 p-2 md:flex-row md:p-3;
 
-		aside.rail {
+		aside.sidebar {
 			@apply sticky top-2 z-20 flex shrink-0 items-center gap-2 overflow-x-auto rounded-[1.75rem] chapter-ink p-2;
 			@apply md:top-3 md:h-[calc(100dvh-1.5rem)] md:w-60 md:flex-col md:items-stretch md:gap-1 md:overflow-visible md:p-4;
 			scrollbar-width: none;

@@ -65,8 +65,8 @@
 	>
 		<PlusIcon size={18} aria-hidden="true" />
 		{text.add}
-		</Button>
-		</PageHead>
+	</Button>
+</PageHead>
 
 <div class="schools">
 	{#if error && !open}<Notice tone="bad" role="alert">{error}</Notice>{/if}
@@ -133,7 +133,7 @@
 				@apply h-18 rounded-3xl;
 			}
 			li.row {
-				@apply flex items-center gap-2 rounded-3xl p-2 pr-3 raised;
+				@apply flex items-center gap-2 rounded-3xl raised p-2 pr-3;
 
 				a.main {
 					@apply flex min-h-14 min-w-0 flex-1 flex-col justify-center rounded-2xl px-3;

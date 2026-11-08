@@ -98,8 +98,6 @@
 	<title>{set?.label ?? text.notFound} · {strings.admin.title}</title>
 </svelte:head>
 
-
-
 <div class="set-page">
 	{#if result.isLoading || (set && !form)}
 		<div class="waiting"><Spinner /></div>
@@ -115,27 +113,27 @@
 				label: set.schoolName ?? strings.admin.schools.back
 			}}
 		>
-				{#if set.isActive}
-					<Pill tone="ok">{text.live}</Pill>
-					<Button
-						disabled={busy}
-						onclick={() =>
-							run(() => client.mutation(api.store.admin.sets.setActive, { setId, isActive: false }))}
-					>
-						{text.unpublish}
-					</Button>
-				{:else}
-					<Pill>{text.hidden}</Pill>
-					<Button
-						variant="primary"
-						disabled={busy || !!set.problem}
-						onclick={() =>
-							run(() => client.mutation(api.store.admin.sets.setActive, { setId, isActive: true }))}
-					>
-						{text.publish}
-						</Button>
-						{/if}
-						</PageHead>
+			{#if set.isActive}
+				<Pill tone="ok">{text.live}</Pill>
+				<Button
+					disabled={busy}
+					onclick={() =>
+						run(() => client.mutation(api.store.admin.sets.setActive, { setId, isActive: false }))}
+				>
+					{text.unpublish}
+				</Button>
+			{:else}
+				<Pill>{text.hidden}</Pill>
+				<Button
+					variant="primary"
+					disabled={busy || !!set.problem}
+					onclick={() =>
+						run(() => client.mutation(api.store.admin.sets.setActive, { setId, isActive: true }))}
+				>
+					{text.publish}
+				</Button>
+			{/if}
+		</PageHead>
 
 		{#if set.problem}
 			<Notice tone="warn" role="status">
@@ -217,7 +215,9 @@
 									aria-label={text.remove}
 									disabled={busy}
 									onclick={() =>
-										run(() => client.mutation(api.store.admin.sets.removeLine, { lineId: line._id }))}
+										run(() =>
+											client.mutation(api.store.admin.sets.removeLine, { lineId: line._id })
+										)}
 								>
 									<Trash2Icon size={18} aria-hidden="true" />
 								</Button>
@@ -252,7 +252,8 @@
 											<label class="qty">
 												<span class="sr-only">{text.pickSize}</span>
 												<select bind:value={sizeFor[product._id]}>
-													{#each product.variants as v (v._id)}<option value={v._id}>{v.label}</option
+													{#each product.variants as v (v._id)}<option value={v._id}
+															>{v.label}</option
 														>{/each}
 												</select>
 											</label>
@@ -296,7 +297,7 @@
 			@apply grid items-start gap-5 lg:grid-cols-[3fr_2fr];
 		}
 		:is(section, form).card {
-			@apply flex flex-col gap-3 rounded-[1.75rem] p-5 raised;
+			@apply flex flex-col gap-3 rounded-[1.75rem] raised p-5;
 		}
 		h2 {
 			@apply type-title;
@@ -318,7 +319,7 @@
 			@apply flex flex-col gap-2;
 		}
 		:is(li.line, li.result) {
-			@apply flex flex-wrap items-center gap-2 rounded-2xl p-2 pl-4 sunken;
+			@apply flex flex-wrap items-center gap-2 rounded-2xl sunken p-2 pl-4;
 
 			div.info {
 				@apply flex min-w-40 flex-1 flex-col items-start gap-0.5;
@@ -333,11 +334,11 @@
 				@apply text-xs text-text-muted;
 			}
 			label.qty select {
-				@apply min-h-11 w-auto rounded-full border-0 control raised;
+				@apply control min-h-11 w-auto rounded-full border-0 raised;
 			}
 		}
 		label.search {
-			@apply flex min-h-11 items-center gap-2 rounded-full px-4 text-text-muted sunken;
+			@apply flex min-h-11 items-center gap-2 rounded-full sunken px-4 text-text-muted;
 
 			input {
 				@apply min-w-0 flex-1 border-0 bg-transparent text-sm text-text outline-none focus:ring-0;

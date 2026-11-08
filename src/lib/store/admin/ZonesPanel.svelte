@@ -134,9 +134,9 @@
 		});
 </script>
 
-<section class="flex flex-col gap-3">
+<section class="zones">
 	<div class="head">
-		<p class="text-text-muted text-sm">{text.zonesIntro}</p>
+		<p class="intro">{text.zonesIntro}</p>
 		<Button onclick={() => edit()}>
 			<PlusIcon size={18} aria-hidden="true" />
 			{text.addZone}
@@ -147,13 +147,13 @@
 	{/if}
 
 	{#if !zones.data}
-		<div class="bone h-24 rounded-xl"></div>
+		<div class="loading bone"></div>
 	{:else}
-		<ul class="zones">
+		<ul class="cards">
 			{#each zones.data as zone (zone._id)}
 				<li>
-					<button type="button" class="zone press" onclick={() => edit(zone)}>
-						<span class="flex flex-wrap items-center gap-2">
+					<button type="button" class="zone" onclick={() => edit(zone)}>
+						<span class="name">
 							<strong>{zone.name}</strong>
 							{#if zone.isFallback}<Pill>{text.fallbackTag}</Pill>{/if}
 							{#if !zone.isActive}<Pill tone="warn">{text.hidden}</Pill>{/if}
@@ -171,7 +171,7 @@
 </section>
 
 <Modal bind:open title={editing ? text.editZone : text.addZone} closeLabel={text.close}>
-	<form class="flex flex-col gap-3" onsubmit={submit}>
+	<form class="zone-form" onsubmit={submit}>
 		<Field label={text.zoneName}>
 			<input bind:value={form.name} required maxlength="60" />
 		</Field>
@@ -181,7 +181,7 @@
 				<option value="courier">{text.methods.courier}</option>
 			</select>
 		</Field>
-		<div class="grid grid-cols-2 gap-3">
+		<div class="pair">
 			<Field label={text.fee}>
 				<input bind:value={form.fee} inputmode="decimal" required />
 			</Field>
@@ -193,7 +193,7 @@
 			<input bind:value={form.estimate} required maxlength="100" />
 		</Field>
 		<Switch bind:checked={form.isFallback}>{text.fallback}</Switch>
-		<p class="text-text-muted -mt-2 text-xs">{text.fallbackHint}</p>
+		<p class="hint">{text.fallbackHint}</p>
 		<Switch bind:checked={form.isActive}>{text.active}</Switch>
 		<div><Button type="submit" variant="primary" disabled={busy}>{text.saveZone}</Button></div>
 	</form>
@@ -207,8 +207,8 @@
 		</div>
 	{/if}
 
-	{#if error}<div class="mt-3"><Notice tone="bad" role="alert">{error}</Notice></div>{/if}
-	{#if notice}<div class="mt-3"><Notice role="status">{notice}</Notice></div>{/if}
+	{#if error}<div class="message"><Notice tone="bad" role="alert">{error}</Notice></div>{/if}
+	{#if notice}<div class="message"><Notice role="status">{notice}</Notice></div>{/if}
 </Modal>
 
 <ConfirmDialog
@@ -226,19 +226,53 @@
 <style lang="postcss">
 	@reference 'src/app.css';
 
-	.head {
-		@apply flex flex-wrap items-center justify-between gap-2;
+	section.zones {
+		@apply flex flex-col gap-4;
+
+		div.head {
+			@apply flex flex-wrap items-center justify-between gap-3;
+
+			p.intro {
+				@apply max-w-xl text-sm text-text-muted;
+			}
+		}
+		div.loading {
+			@apply h-24 rounded-3xl;
+		}
+		ul.cards {
+			@apply grid gap-4 md:grid-cols-2;
+		}
+		button.zone {
+			@apply flex min-h-11 w-full press flex-col items-start gap-1 rounded-3xl raised p-5 text-left;
+
+			span.name {
+				@apply flex flex-wrap items-center gap-2;
+
+				strong {
+					@apply type-title text-lg;
+				}
+			}
+			span.meta {
+				@apply text-sm text-text-muted;
+			}
+		}
 	}
-	.zones {
-		@apply grid gap-2 md:grid-cols-2;
+
+	/* Inside the zone modal */
+	form.zone-form {
+		@apply flex flex-col gap-4;
+
+		div.pair {
+			@apply grid grid-cols-2 gap-3;
+		}
+		p.hint {
+			@apply -mt-3 text-xs text-text-muted;
+		}
 	}
-	.zone {
-		@apply flex min-h-11 w-full flex-col items-start gap-1 rounded-xl raised p-3 text-left;
+	div.pincodes {
+		@apply mt-5 flex flex-col gap-3 rounded-3xl sunken p-4;
 	}
-	.meta {
-		@apply text-sm text-text-muted;
-	}
-	.pincodes {
-		@apply mt-4 flex flex-col gap-3 border-t border-border-muted pt-4;
+	div.message {
+		@apply mt-3;
 	}
 </style>

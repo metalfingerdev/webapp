@@ -114,8 +114,6 @@
 	<title>{school?.name ?? text.title} · {strings.admin.title}</title>
 </svelte:head>
 
-
-
 <div class="school">
 	{#if schoolResult.isLoading}
 		<div class="waiting"><Spinner /></div>
@@ -218,7 +216,8 @@
 								</span>
 								<span class="flags">
 									{#if set.hidden}<Pill tone="bad">{setText.hiddenLines(set.hidden)}</Pill>{/if}
-									{#if set.outOfStock}<Pill tone="warn">{setText.outLines(set.outOfStock)}</Pill>{/if}
+									{#if set.outOfStock}<Pill tone="warn">{setText.outLines(set.outOfStock)}</Pill
+										>{/if}
 									{#if set.problem && !set.isActive}<span class="problem">{set.problem}</span>{/if}
 								</span>
 							</a>
@@ -257,7 +256,7 @@
 			@apply flex justify-center py-16;
 		}
 		section.card {
-			@apply flex flex-col gap-4 rounded-[1.75rem] p-5 raised;
+			@apply flex flex-col gap-4 rounded-[1.75rem] raised p-5;
 
 			form.name-form {
 				@apply flex flex-wrap items-end gap-2;
@@ -285,7 +284,7 @@
 				}
 			}
 			a.set {
-				@apply flex h-full flex-col gap-1.5 rounded-3xl p-5 raised press;
+				@apply flex h-full press flex-col gap-1.5 rounded-3xl raised p-5;
 
 				span.top {
 					@apply flex items-start justify-between gap-2;
