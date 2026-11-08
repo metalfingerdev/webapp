@@ -3,6 +3,7 @@
 	import MinusIcon from '@lucide/svelte/icons/minus';
 	import PlusIcon from '@lucide/svelte/icons/plus';
 	import Button from '#lib/ui/Button.svelte';
+	import Media from '#lib/ui/Media.svelte';
 	import Pill from '#lib/ui/Pill.svelte';
 	import { MAX_LINE_QUANTITY } from '#convex/model/store/cart.js';
 	import {
@@ -120,11 +121,15 @@
 				onchange={(event) => setTicked(line, event.currentTarget.checked)}
 			/>
 			<span class="picture">
-				{#if line.imageUrl}
-					<img src={line.imageUrl} alt="" width="48" height="64" loading="lazy" decoding="async" />
-				{:else}
-					<BookOpenIcon class="size-5 text-text-muted" aria-hidden="true" />
-				{/if}
+				<Media
+					src={line.imageUrl}
+					ratio="3 / 4"
+					slot="product-thumb"
+					icon={BookOpenIcon}
+					iconSize={18}
+					width={48}
+					height={64}
+				/>
 			</span>
 			<span class="name">
 				<strong>{line.title}</strong>
@@ -141,9 +146,8 @@
 			<Pill tone="bad">{strings.product.out}</Pill>
 		{:else if hasChoice(line)}
 			<label class="size">
-				<span class="field-label">{text.size}</span>
+				<span class="caption">{text.size}</span>
 				<select
-					class="control"
 					value={selection[line.id].variantId ?? ''}
 					onchange={(event) => setSize(line, event.currentTarget.value)}
 				>
@@ -163,14 +167,14 @@
 		<!-- Always there (disabled while unticked), so ticking never changes the row's height -->
 		{#if !outOfStock}
 			<span class="stepper">
-				<span class="field-label">{text.quantity}</span>
+				<span class="caption">{text.quantity}</span>
 				<button
 					type="button"
 					aria-label={strings.cart.decrease(line.title)}
 					disabled={!selection[line.id].ticked || quantityOf(line) <= 1}
 					onclick={() => setQuantity(line, quantityOf(line) - 1)}
 				>
-					<MinusIcon class="size-4" aria-hidden="true" />
+					<MinusIcon size={16} aria-hidden="true" />
 				</button>
 				<output>{quantityOf(line)}</output>
 				<button
@@ -179,129 +183,144 @@
 					disabled={!selection[line.id].ticked || quantityOf(line) >= MAX_LINE_QUANTITY}
 					onclick={() => setQuantity(line, quantityOf(line) + 1)}
 				>
-					<PlusIcon class="size-4" aria-hidden="true" />
+					<PlusIcon size={16} aria-hidden="true" />
 				</button>
 			</span>
 		{/if}
 	</li>
 {/snippet}
 
-<p class="note">{editing ? text.inCart : text.untick}</p>
-<ul class="lines">
-	{#each lines as line (line.id)}
-		{@render row(line)}
-	{/each}
-</ul>
+<div class="set-picker">
+	<p class="note">{editing ? text.inCart : text.untick}</p>
+	<ul class="lines">
+		{#each lines as line (line.id)}
+			{@render row(line)}
+		{/each}
+	</ul>
 
-{#if extras.length}
-	<section class="more">
-		<h2 class="more-title">{text.more}</h2>
-		<p class="note">{text.moreHint}</p>
-		<ul class="lines">
-			{#each extras as line (line.id)}
-				{@render row(line)}
-			{/each}
-		</ul>
-	</section>
-{/if}
+	{#if extras.length}
+		<section class="more">
+			<h2 class="more-title">{text.more}</h2>
+			<p class="note">{text.moreHint}</p>
+			<ul class="lines">
+				{#each extras as line (line.id)}
+					{@render row(line)}
+				{/each}
+			</ul>
+		</section>
+	{/if}
 
-<div class="bar">
-	<div class="sum">
-		<span class="note">{text.total} · {text.items(summary.count)}</span>
-		<strong class="amount">{formatPrice(summary.total)}</strong>
-		{#if problem}<span class="problem">{problem}</span>{/if}
+	<div class="bar">
+		<div class="sum">
+			<span class="note">{text.total} · {text.items(summary.count)}</span>
+			<strong class="amount">{formatPrice(summary.total)}</strong>
+			{#if problem}<span class="problem">{problem}</span>{/if}
+		</div>
+		<Button
+			variant="primary"
+			large
+			disabled={ticked === 0 || summary.needSize > 0}
+			onclick={addSet}
+		>
+			{editing ? text.updateCart : text.addToCart}
+		</Button>
 	</div>
-	<Button variant="primary" large disabled={ticked === 0 || summary.needSize > 0} onclick={addSet}>
-		{editing ? text.updateCart : text.addToCart}
-	</Button>
+	<p class="note">{strings.product.inclusiveOfTax}.</p>
 </div>
-<p class="note">{strings.product.inclusiveOfTax}.</p>
 
 <style lang="postcss">
 	@reference 'src/app.css';
 
-	.note {
-		@apply text-sm text-text-muted;
-	}
-
-	.lines {
-		@apply my-4 flex flex-col gap-2;
-	}
-
-	.line {
-		@apply flex flex-wrap items-center justify-between gap-x-4 gap-y-2 panel p-2;
-
-		&.off .name {
-			@apply opacity-50;
-		}
-	}
-
-	.tick {
-		@apply flex min-h-11 flex-1 cursor-pointer items-center gap-3;
-
-		input {
-			@apply size-5 shrink-0;
-		}
-	}
-
-	.picture {
-		@apply grid h-16 w-12 shrink-0 place-items-center overflow-hidden rounded-md bg-midground;
-
-		img {
-			@apply size-full object-cover;
-		}
-	}
-
-	.name {
-		@apply flex min-w-0 flex-col;
-
-		strong {
-			@apply line-clamp-2 leading-snug;
-		}
-	}
-
-	.size {
-		@apply flex w-full flex-col sm:w-56;
-	}
-
-	.stepper {
-		@apply flex w-full items-center justify-end gap-1;
-
-		.field-label {
-			@apply mr-auto text-sm text-text-muted;
-		}
-
-		button {
-			@apply grid size-11 place-items-center rounded-full bg-midground disabled:opacity-40;
-		}
-
-		output {
-			@apply w-8 text-center font-bold tabular-nums;
-		}
-	}
-
-	.more {
-		@apply mt-8;
-	}
-
-	.more-title {
-		@apply text-xl font-extrabold;
-	}
-
-	/* Stays in view while the parent ticks and unticks, so the total is never off screen */
-	.bar {
-		@apply sticky bottom-0 z-20 -mx-4 flex items-center justify-between gap-3 border-t border-border-muted bg-foreground px-4 py-3;
-	}
-
-	.sum {
+	div.set-picker {
 		@apply flex flex-col;
+
+		.note {
+			@apply text-sm text-text-muted;
+		}
+		ul.lines {
+			@apply my-4 flex flex-col gap-3;
+		}
+		section.more {
+			@apply mt-10;
+
+			h2.more-title {
+				@apply type-headline text-3xl;
+			}
+		}
+
+		/* Stays in view while the parent ticks and unticks, so the total is never off screen */
+		div.bar {
+			@apply sticky bottom-3 z-20 my-4 flex items-center justify-between gap-3 rounded-[1.75rem] floating px-5 py-3;
+
+			div.sum {
+				@apply flex flex-col;
+			}
+			strong.amount {
+				@apply font-display text-2xl tabular-nums;
+			}
+			span.problem {
+				@apply text-sm font-bold text-danger;
+			}
+		}
 	}
 
-	.amount {
-		@apply text-2xl tabular-nums;
-	}
+	/* One line of the set (a snippet, so it is styled on its own) */
+	li.line {
+		@apply flex flex-wrap items-center justify-between gap-x-4 gap-y-3 rounded-3xl raised p-3;
 
-	.problem {
-		@apply text-sm font-bold text-danger;
+		&.off {
+			@apply sunken;
+
+			span.name {
+				@apply opacity-50;
+			}
+		}
+
+		label.tick {
+			@apply flex min-h-11 flex-1 cursor-pointer items-center gap-3;
+
+			input {
+				@apply size-5 shrink-0 rounded-md border-0 sunken text-primary;
+			}
+		}
+		span.picture {
+			@apply w-12 shrink-0;
+			--media-radius: 0.625rem;
+		}
+		span.name {
+			@apply flex min-w-0 flex-col;
+
+			strong {
+				@apply line-clamp-2 leading-snug;
+			}
+			span.note {
+				@apply text-sm text-text-muted;
+			}
+		}
+
+		span.caption {
+			@apply text-sm font-bold;
+		}
+		label.size {
+			@apply flex w-full flex-col gap-1 sm:w-56;
+
+			select {
+				@apply min-h-11 w-full rounded-xl border-0 sunken px-4 text-sm text-text;
+			}
+		}
+
+		span.stepper {
+			@apply flex w-full items-center justify-end gap-1.5;
+
+			span.caption {
+				@apply mr-auto font-normal text-text-muted;
+			}
+			button {
+				@apply grid size-11 press place-items-center rounded-full raised disabled:opacity-40;
+			}
+			output {
+				@apply w-8 text-center font-bold tabular-nums;
+			}
+		}
 	}
 </style>

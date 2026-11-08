@@ -1,4 +1,5 @@
 <script lang="ts">
+	import PageHead from '#lib/store/PageHead.svelte';
 	import ProductListing from '#lib/store/ProductListing.svelte';
 	import { strings } from '#lib/store/strings.js';
 
@@ -12,13 +13,5 @@
 	<title>{heading} · {strings.brand}</title>
 </svelte:head>
 
-<h1 class="title">{heading}</h1>
+<PageHead title={heading} />
 <ProductListing listing={data.listing} />
-
-<style lang="postcss">
-	@reference 'src/app.css';
-
-	.title {
-		@apply mb-4 text-3xl font-extrabold;
-	}
-</style>

@@ -2,6 +2,7 @@
 	import { resolve } from '$app/paths';
 	import BookOpenIcon from '@lucide/svelte/icons/book-open';
 	import type { ProductCard } from '#convex/model/store/publicProjection.js';
+	import Media from '#lib/ui/Media.svelte';
 	import Pill from '#lib/ui/Pill.svelte';
 	import { classRange, discountPercent, formatPrice } from './format.js';
 	import { strings } from './strings.js';
@@ -20,11 +21,14 @@
 	})}
 >
 	<div class="picture">
-		{#if product.imageUrl}
-			<img src={product.imageUrl} alt="" width="300" height="400" loading="lazy" decoding="async" />
-		{:else}
-			<BookOpenIcon class="size-10 text-text-muted" aria-hidden="true" />
-		{/if}
+		<Media
+			src={product.imageUrl}
+			ratio="3 / 4"
+			slot="product-cover"
+			icon={BookOpenIcon}
+			width={300}
+			height={400}
+		/>
 		{#if percent > 0}
 			<span class="badge"><Pill tone="ok">{strings.product.off(percent)}</Pill></span>
 		{/if}
@@ -48,36 +52,30 @@
 <style lang="postcss">
 	@reference 'src/app.css';
 
-	.card {
-		@apply flex press flex-col gap-1.5 rounded-xl raised p-2.5;
-	}
+	a.card {
+		@apply flex h-full press flex-col gap-2 rounded-3xl raised p-2.5;
 
-	.picture {
-		@apply relative grid aspect-[3/4] place-items-center overflow-hidden rounded-lg bg-midground;
-
-		img {
-			@apply size-full object-cover;
+		div.picture {
+			@apply relative;
 		}
-	}
+		span.badge {
+			@apply absolute top-2 left-2;
+		}
+		h3.title {
+			@apply mt-1 line-clamp-2 px-1 text-sm leading-snug font-bold;
+		}
+		p.meta {
+			@apply line-clamp-1 px-1 text-xs text-text-muted;
+		}
+		p.price {
+			@apply mt-auto flex flex-wrap items-baseline gap-x-1.5 px-1 tabular-nums;
 
-	.badge {
-		@apply absolute top-1.5 left-1.5;
-	}
-
-	.title {
-		@apply line-clamp-2 text-sm leading-snug font-bold;
-	}
-
-	.meta {
-		@apply line-clamp-1 text-xs text-text-muted;
-	}
-
-	.price {
-		@apply flex flex-wrap items-baseline gap-x-1.5 tabular-nums;
-	}
-
-	.from,
-	.mrp {
-		@apply text-xs text-text-muted;
+			strong {
+				@apply font-display text-lg;
+			}
+		}
+		:is(span.from, s.mrp) {
+			@apply text-xs text-text-muted;
+		}
 	}
 </style>
