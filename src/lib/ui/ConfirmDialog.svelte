@@ -51,7 +51,7 @@
       @apply fixed top-1/2 left-1/2 z-50 flex w-[min(24rem,calc(100vw-2rem))] -translate-x-1/2 -translate-y-1/2 flex-col gap-3 rounded-3xl p-6 text-text floating;
 
       div.ui-confirm-title {
-        @apply title;
+        @apply type-title;
       }
       div.ui-confirm-text {
         @apply text-sm text-text-muted;

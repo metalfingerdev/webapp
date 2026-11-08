@@ -260,7 +260,7 @@
 		@apply flex items-center justify-between gap-2;
 
 		span.head-title {
-			@apply px-2 title;
+			@apply px-2 type-title;
 		}
 		button.back-button {
 			@apply flex min-h-11 max-w-full items-center gap-0.5 rounded-full pr-3 pl-1 font-semibold text-text-muted;
@@ -301,7 +301,7 @@
 		}
 
 		h2.title {
-			@apply headline text-3xl;
+			@apply type-headline text-3xl;
 		}
 		p.note {
 			@apply text-text-muted;
@@ -317,7 +317,7 @@
 				@apply flex min-w-0 flex-1 flex-col;
 
 				small {
-					@apply kicker text-foreground/80;
+					@apply type-kicker text-foreground/80;
 				}
 				strong {
 					@apply truncate font-display text-lg font-extrabold;
@@ -332,7 +332,7 @@
 			@apply flex flex-col;
 
 			:is(button, a) {
-				@apply flex min-h-14 w-full items-center justify-between headline text-3xl;
+				@apply flex min-h-14 w-full items-center justify-between type-headline text-3xl;
 			}
 			a {
 				@apply text-xl text-text-muted;
@@ -340,7 +340,7 @@
 		}
 
 		section.group h2 {
-			@apply mb-1 kicker;
+			@apply mb-1 type-kicker;
 		}
 		ul.small a {
 			@apply flex min-h-11 items-center gap-3 font-semibold;

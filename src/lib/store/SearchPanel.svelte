@@ -339,7 +339,7 @@
 			@apply flex items-center justify-between px-2 pt-2;
 
 			h2 {
-				@apply kicker;
+				@apply type-kicker;
 			}
 			button.text-button {
 				@apply min-h-9 px-2 text-xs font-bold text-accent;

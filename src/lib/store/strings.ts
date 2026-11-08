@@ -41,7 +41,9 @@ export const strings = {
 	},
 	home: {
 		title: 'Aggarwal Kart',
-		headline: 'Your child’s school year, in one order.',
+		headlineLead: 'Your child’s school year,',
+		headlineAccent: 'in one order.',
+		quickLinks: 'Shop by section',
 		lead: 'Book sets and uniforms by school and class, plus textbooks, NCERT books, sample papers, entrance exam and language books.',
 		findSchool: 'Find your school',
 		howItWorks: 'How it works',

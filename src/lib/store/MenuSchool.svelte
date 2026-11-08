@@ -130,7 +130,7 @@
 			@apply flex flex-col items-start gap-2;
 
 			h2.title {
-				@apply headline text-3xl;
+				@apply type-headline text-3xl;
 			}
 		}
 
@@ -159,7 +159,7 @@
 		}
 
 		p.step {
-			@apply kicker;
+			@apply type-kicker;
 		}
 		p.note {
 			@apply text-sm text-text-muted;
