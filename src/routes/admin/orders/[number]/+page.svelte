@@ -12,7 +12,6 @@
 	import Notice from '#lib/ui/Notice.svelte';
 	import Pill from '#lib/ui/Pill.svelte';
 	import Spinner from '#lib/ui/Spinner.svelte';
-	import ArrowLeftIcon from '@lucide/svelte/icons/arrow-left';
 
 	const text = strings.admin.orders;
 	const client = useConvexClient();

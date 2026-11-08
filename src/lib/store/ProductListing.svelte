@@ -294,7 +294,7 @@
 			@apply flex min-h-11 items-center gap-3 text-sm font-bold;
 
 			input {
-				@apply size-5 rounded-md border-0 sunken text-primary;
+				@apply size-5 rounded-md border-0 text-primary shadow-inset;
 			}
 		}
 		div.actions {

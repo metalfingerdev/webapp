@@ -267,7 +267,7 @@
 			@apply flex min-h-11 cursor-pointer items-start gap-3;
 
 			input {
-				@apply mt-1 size-5 shrink-0 border-0 sunken text-primary;
+				@apply mt-1 size-5 shrink-0 border-0 text-primary shadow-inset;
 			}
 			> span {
 				@apply flex flex-col;

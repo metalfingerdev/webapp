@@ -280,7 +280,7 @@
 			@apply flex min-h-11 flex-1 cursor-pointer items-center gap-3;
 
 			input {
-				@apply size-5 shrink-0 rounded-md border-0 sunken text-primary;
+				@apply size-5 shrink-0 rounded-md border-0 text-primary shadow-inset;
 			}
 		}
 		span.picture {

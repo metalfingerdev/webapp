@@ -17,6 +17,7 @@ code came from the `@auth/svelte` jsrepo registry (see `jsrepo.config.ts`).
 | [App overview](./overview.md) | Aggarwal Kart specifics: store architecture, directory map, key concepts |
 | [Deployment checklist](./deployment.md) | What is left before real orders (payments, invoices, roles) |
 | [09 – Testing](./09-testing.md) | What Vitest and Playwright each test, running the e2e suite against dev |
+| [10 – UI](./10-ui.md) | The look (chapters, neumorphism, editorial type), nested CSS, and the photo slots |
 
 ## Stack
 
