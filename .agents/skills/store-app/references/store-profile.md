@@ -41,7 +41,7 @@ in your report, and ask when it affects behaviour.
 
 | Item                                                                                                                                                    | Value                                                                                                                                 | Used for                                 |
 | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- |
-| Courier and how AWBs are entered (manual or API)                                                                                                        | **TODO (dictate)**                                                                                                                    | `shipments`, shipping screen             |
+| Courier and how AWBs are entered (manual or API)                                                                                                        | AWB typed in by hand (`shipping.md`); couriers a placeholder list (India Post, DTDC, Delhivery, Blue Dart, Other), **TODO (dictate)** | `shipments`, shipping screen             |
 | Delivery fee, free-delivery threshold, COD fee                                                                                                          | dictated 2026-11-07: "make up typical" → placeholder flat ₹50, free from ₹1,000, no COD fee; client to confirm                        | `priceCart`                              |
 | Where it delivers                                                                                                                                       | **Faridabad only for now, as the first delivery zone; built to add zones** (dictated 2026-11-07); its pincode list **TODO (dictate)** | checkout address check                   |
 | Online payment only, or cash on delivery too?                                                                                                           | **both** (dictated 2026-11-07)                                                                                                        | checkout, order states                   |
@@ -176,6 +176,16 @@ Each entry has a date and the reason. When the user decides something new, add i
   brand teal. Why: a calmer, premium feel in the hims and Apple direction instead of the template's
   hard borders and offset shadows. How: `palette.css` (layers, gradients, shadows) and the `raised`,
   `floating`, `sunken`, `press` utilities in `app.css`; the old `edge` utilities and `--fill` are gone.
+- **Step 7 is four sub-steps** (2026-11-08, chosen by the user): 7a products, stock and import;
+  7b schools and sets; 7c order board, orders and shipping; 7d settings. One branch and draft PR
+  each (`step-7a-products`, …), in that order, all four the same day. Why: one admin PR would be
+  too big to review. `/admin` opens on Products until 7c puts the order board there.
+- **Couriers are a placeholder list** (2026-11-08, chosen by the user): India Post, DTDC,
+  Delhivery, Blue Dart and Other (free text), with tracking-link templates in
+  `model/store/couriers.ts` (7c). The client is to confirm which couriers the shop uses.
+- **The import never chooses a GST rate** (2026-11-08). The billing software's combined tax
+  categories ("GST 12 to 5%") don't name one rate, so such a row is an error until the sheet or
+  the product says which. Why: tax rates are the CA's call (`admin.md`).
 - **Client questions go through the user** (2026-11-06). Ask the user when a step needs an answer;
   they get it from the client. Don't batch questions far ahead of the step that needs them.
 
@@ -234,7 +244,7 @@ until its screens follow `design.md`; the step's PR names any deliberate departu
    cancellation window, delivery estimate wording.
 6. **Razorpay** (**built**, 2026-11-08, branch `step-6-razorpay`; `payments.md`). _Needs_: the client's Razorpay account; test keys and the webhook secret
    on dev; KYC and live keys before launch.
-7. **Admin.** Products, stock and import (port `legacy/src/lib/products/import.ts`), then schools and
+7. **Admin** (in four sub-steps, see Decisions; **7a built** 2026-11-08, branch `step-7a-products`). Products, stock and import (port `legacy/src/lib/products/import.ts`), then schools and
    sets (with "copy to next session"), then the order board and shipping (`shipping.md`), then
    `/admin/settings`. _Look from_: `legacy/src/components/dashboard/`, `legacy/src/routes/(app)/dashboard/`.
    _Needs_: who works the admin, the courier(s) used, the real store details typed
@@ -254,7 +264,8 @@ until its screens follow `design.md`; the step's PR names any deliberate departu
 
 ## Status (what exists)
 
-Steps 0 to 6 are built (step 6: 2026-11-08, branch `step-6-razorpay`). **Next: step 7 (Admin)**.
+Steps 0 to 6 and 7a are built (7a: 2026-11-08, branch `step-7a-products`). **Next: step 7b (schools
+and sets)**, then 7c (orders and shipping) and 7d (settings).
 
 - **Old store**: in `legacy/` (not built, linted or type-checked); tag `old-store` runs it.
 - **Tables**: all of `data-model.md`. Every product has one or more `productVariants` holding price and
@@ -424,7 +435,26 @@ Steps 0 to 6 are built (step 6: 2026-11-08, branch `step-6-razorpay`). **Next: s
   "started" and late captures are not seen.
 - **Plain buttons set their own text colour** (2026-11-08): `Button.svelte` plain variant had
   inherited the parent's colour, so the home page closing band's buttons were invisible.
-- **Not in yet**: no order board for staff (step 7), no `/admin/settings` (the settings row holds placeholders).
+- **Step 7a, admin products** (2026-11-08). `/admin` is now a layout (admin check, then
+  `AdminShell`: rail on tablet and up, top bar on phones) and redirects to `/admin/products` until
+  7c; the template's users dashboard moved to `/admin/users`. Functions (all `requireAppAdmin`):
+  `store/admin/products.ts` (`options`, `list` paginated with category, status and low/out-of-stock
+  filters, `search`, `get` with exact stock, what open orders hold and the last 20 changes per size,
+  `create` with a first size at zero stock, `update` (slug never changes; a replaced photo is
+  deleted), `setActive`, `saveVariant`, `imageUploadUrl`, `exportPage` for the CSV),
+  `store/admin/stock.ts` (`adjust` now only Received (+) and Damaged (−); `count` sets stock to the
+  count minus what unshipped orders hold, and is refused if stock moved since the screen showed it),
+  `store/admin/import.ts` (`plan`, `apply`). Rules shared by form and import:
+  `model/store/products.ts`; the planner: `model/store/importPlan.ts` (match on item code, else
+  barcode; blank cell keeps the value; stock mode keep, add or set; rows with errors skipped; the
+  apply refuses if the plan's fingerprint changed since the preview; max 500 rows; new rows need a
+  category picked on the page, kind is book for HSN 4901 else stationery). Schema: optional
+  `purchasePrice` on variants (admin only), indexes `productVariants.by_stock` and
+  `orderItems.by_variantId`. Client: `src/lib/store/admin/*` (sheet parser ported from
+  `legacy/src/lib/products/import.ts`, `xlsx` loaded only on the import page). `src/routes/admin`
+  is no longer on the lint and Prettier ignore lists. Tests: `store/adminProducts.test.ts`.
+- **Not in yet**: no school or set editing (7b), no order board for staff (7c), no `/admin/settings`
+  (7d; the settings row holds placeholders).
 
 When a step lands, mark it **built** in the roadmap with the date, write what was built here in a few
 lines (routes, main functions, anything surprising), and move "Next" on.

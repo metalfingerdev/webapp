@@ -64,7 +64,7 @@
 				<span class="label">{variant.label}</span>
 				<span class="meta">
 					{formatPrice(variant.price)}{variant.mrp > variant.price
-						? ` · MRP ${formatPrice(variant.mrp)}`
+						? ` · ${text.mrpShort} ${formatPrice(variant.mrp)}`
 						: ''}{variant.sku ? ` · ${variant.sku}` : ''}
 				</span>
 			</button>

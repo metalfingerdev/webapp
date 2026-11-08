@@ -436,7 +436,16 @@ export const strings = {
 			purchaseHint: 'Admin only. Never shown to customers.',
 			lowStockAt: 'Low stock at',
 			active: 'On sale',
-			inactive: 'Off sale'
+			inactive: 'Off sale',
+			mrpShort: 'MRP',
+			errors: {
+				category: 'Pick a category',
+				gstRate: 'Pick the GST rate',
+				price: 'Enter the selling price',
+				mrp: 'The MRP is not an amount',
+				purchasePrice: 'The purchase price is not an amount',
+				lowStockAt: 'Low stock is a whole number'
+			}
 		},
 		stock: {
 			title: 'Stock',
