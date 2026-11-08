@@ -24,7 +24,7 @@
 
 <div class="page">
   <a class="back" href={resolve("/account")}>
-    <ChevronLeftIcon class="size-5" aria-hidden="true" />
+    <ChevronLeftIcon size={20} aria-hidden="true" />
     Account
   </a>
   <h1 class="title">Profile</h1>
@@ -52,22 +52,24 @@
   @reference 'src/app.css';
 
   /* A readable width on a wide screen */
-  .page {
-    @apply mx-auto flex w-full max-w-xl flex-col gap-4 p-4;
-  }
-  .back {
-    @apply -ml-1 inline-flex min-h-11 items-center gap-1 self-start font-semibold;
-  }
-  .title {
-    @apply text-2xl font-extrabold;
-  }
-  .fields {
-    @apply flex flex-col gap-3;
-  }
-  .section {
-    @apply text-sm font-bold text-text-muted;
-  }
-  .danger {
-    @apply flex flex-col items-start gap-2;
+  div.page {
+    @apply mx-auto flex w-full max-w-xl flex-col gap-5 p-4;
+
+    a.back {
+      @apply -ml-1 inline-flex min-h-11 items-center gap-1 self-start rounded-full px-2 font-semibold text-text-muted;
+    }
+    h1.title {
+      @apply type-display text-5xl;
+    }
+    div.fields {
+      @apply flex flex-col gap-4;
+    }
+    section.danger {
+      @apply flex flex-col items-start gap-3 rounded-[1.75rem] p-5 sunken;
+
+      h2.section {
+        @apply type-kicker text-danger;
+      }
+    }
   }
 </style>

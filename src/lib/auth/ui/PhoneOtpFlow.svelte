@@ -257,28 +257,31 @@
 <style lang="postcss">
 	@reference 'src/app.css';
 
-	.form {
+	form.form {
 		@apply flex flex-col gap-5;
-	}
-	.actions {
-		@apply flex flex-col gap-2;
-	}
-	.muted {
-		@apply text-sm text-text-muted;
-	}
-	.strong {
-		@apply text-text;
-	}
-	.phone {
-		@apply flex gap-2;
-	}
-	.prefix {
-		@apply flex shrink-0 items-center rounded-lg px-3 text-sm font-bold text-text-muted sunken;
-	}
-	.phone :global(input) {
-		@apply min-w-0 flex-1;
-	}
-	.code {
-		@apply text-center text-2xl tracking-[0.4em];
+
+		div.actions {
+			@apply flex flex-col gap-2;
+		}
+		p.muted {
+			@apply text-sm text-text-muted;
+
+			strong.strong {
+				@apply text-text;
+			}
+		}
+		span.phone {
+			@apply flex gap-2;
+
+			span.prefix {
+				@apply flex shrink-0 items-center rounded-xl px-4 text-sm font-bold text-text-muted sunken;
+			}
+			:global(input) {
+				@apply min-w-0 flex-1;
+			}
+		}
+		input.code {
+			@apply text-center font-display text-2xl tracking-[0.4em];
+		}
 	}
 </style>
