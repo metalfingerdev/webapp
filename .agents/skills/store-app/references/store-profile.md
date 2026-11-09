@@ -288,9 +288,9 @@ until its screens follow `design.md`; the step's PR names any deliberate departu
    _Needs_: who works the admin, the courier(s) used, the real store details typed
    into settings by the client.
 8. **Invoices and packing slips.** Sequential numbers per financial year; port `legacy/src/lib/pdf/`.
-   The old store's real invoice and packing slip (`invoice-26.pdf`, `packing-slip-2826.pdf`) are
-   reference only, in the gitignored `private/` folder of the user's checkout; they hold a customer's
-   and the shop's details, so never commit them or copy their contents into code, tests or docs.
+   `src/lib/assets/invoice-26.pdf` and `packing-slip-2826.pdf` are **invented samples**, not real
+   orders (confirmed by the user 2026-11-09): reference for the layout. Their phone, GSTIN and address
+   are made up, so they need no scrubbing.
    _Needs_: the CA's answer on GST (registered, scheme, rates, "Tax invoice" or "Bill of supply"), legal
    name and address, invoice prefix.
 9. **Product On Demand.** Form, `enquiries`, email to the store, admin inbox. _Needs_: what the store
