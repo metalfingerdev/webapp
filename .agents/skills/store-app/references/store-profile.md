@@ -54,6 +54,7 @@ in your report, and ask when it affects behaviour.
 | How long an unpaid online order holds its stock                                                                                                         | placeholder **30 minutes** + 5 minutes' grace (chosen 2026-11-08, `PAYMENT_WINDOW_MINUTES`); client to confirm                        | payment expiry                           |
 | Cancellation and return windows                                                                                                                         | cancel until the order ships; after delivery a return request (dictated 2026-11-07); return window days still placeholder 7           | order rules (from the live policy pages) |
 | GST: registered, GSTIN, composition scheme?                                                                                                             | **TODO (dictate)**, confirm with the CA                                                                                               | invoice tax columns                      |
+| Tax invoice or Bill of supply; CGST + SGST or IGST outside Haryana; GST on the delivery fee                                                             | **TODO (dictate)**, ask the CA. Placeholder: titled "Invoice", tax shown once per rate, none on delivery                              | invoice wording and tax split            |
 | Invoice prefix (3 letters or fewer)                                                                                                                     | **TODO (dictate)**                                                                                                                    | invoice numbers                          |
 | Legal name and address for invoices                                                                                                                     | **TODO (dictate)**                                                                                                                    | invoice header                           |
 | Store phone, WhatsApp, email                                                                                                                            | **TODO (dictate)**, entered in the admin                                                                                              | help text, footer                        |
@@ -224,6 +225,7 @@ Each entry has a date and the reason. When the user decides something new, add i
 - **The import never chooses a GST rate** (2026-11-08). The billing software's combined tax
   categories ("GST 12 to 5%") don't name one rate, so such a row is an error until the sheet or
   the product says which. Why: tax rates are the CA's call (`admin.md`).
+- **Invoice is issued when the order ships** (2026-11-09, chosen by the user; replaces "when paid"). Same rule for online and cash-on-delivery orders. Why: the invoice can go in the parcel, and orders cancelled before shipping never use up a number, so no credit notes are needed yet. How: `transitionOrder` calls `issueInvoice` (`model/store/invoices.ts`).
 - **Client questions go through the user** (2026-11-06). Ask the user when a step needs an answer;
   they get it from the client. Don't batch questions far ahead of the step that needs them.
 
@@ -287,7 +289,7 @@ until its screens follow `design.md`; the step's PR names any deliberate departu
    `/admin/settings`. _Look from_: `legacy/src/components/dashboard/`, `legacy/src/routes/(app)/dashboard/`.
    _Needs_: who works the admin, the courier(s) used, the real store details typed
    into settings by the client.
-8. **Invoices and packing slips.** Sequential numbers per financial year; port `legacy/src/lib/pdf/`.
+8. **Invoices and packing slips** (**built**, 2026-11-09, branch `step-8-invoices`). Sequential numbers per financial year; port `legacy/src/lib/pdf/`.
    `src/lib/assets/invoice-26.pdf` and `packing-slip-2826.pdf` are **invented samples**, not real
    orders (confirmed by the user 2026-11-09): reference for the layout. Their phone, GSTIN and address
    are made up, so they need no scrubbing.
@@ -305,8 +307,7 @@ until its screens follow `design.md`; the step's PR names any deliberate departu
 
 ## Status (what exists)
 
-Steps 0 to 7 are built (step 7: 2026-11-08, branch `step-7-admin`, one PR). **Next: step 8 (invoices
-and packing slips)**; the packing-slip print was left for it.
+Steps 0 to 8 are built (step 8: 2026-11-09, branch `step-8-invoices`). **Next: step 9 (Product On Demand).**
 
 **UI refresh** (2026-11-08/09, branch `ui-refresh`, before step 8): the magazine and neumorphism look
 and nested CSS across the store, admin, sign-in and account (Decisions). New: `Media.svelte` (photo
@@ -531,7 +532,8 @@ branch.
   active fallback), `setPincodes` (refused if a pincode is in another zone)), and the Razorpay setup
   check and recent payments (`store/admin/payments.ts`). The payment window stays a code constant.
   Tests: `store/adminSettings.test.ts`, plus "taking orders off" in `store/orders.test.ts`.
-- **Not in yet**: invoices and the packing slip (step 8), Product On Demand (9), policies and launch
+- **Step 8, invoices and packing slips** (2026-11-09). `orders.invoice` (number, financial year, issue time, seller and `taxByRate`, all frozen) is written by `model/store/invoices.ts#issueInvoice` when an order ships; the number is `PREFIX/26-27/0001` from `invoiceCounters` (April to March, IST), or `26-27/0001` with no prefix. `orderItems.setLabel` (set and school as written at order time) groups lines on both documents. `model/store/pricing.ts#taxByRateOf` is shared by checkout and the invoice. `model/store/orderDocument.ts` builds the data: `store/orders.ts#invoiceDocument` (customer, own order), `store/admin/documents.ts` (`invoice`, `packingSlip`, `packingSlipsToPack`, all `requireAppAdmin`). The packing slip has no price field. PDFs are drawn in the browser (`src/lib/store/pdf/`, pdfmake loaded on tap, `PdfButton.svelte`, `documents.ts`), ported from `legacy/src/lib/pdf/`; the seller is read from settings, not a constant. Buttons: customer order page, admin order page, shipping page, board's To pack column. Settings shows a notice while legal name or address is empty. Tests: `store/invoices.test.ts`, `model/store/invoices.test.ts`. Placeholders: title "Invoice", no CGST/SGST/IGST split, no tax on delivery, no logo, COD amount not on the slip. Not built: credit notes.
+- **Not in yet**: Product On Demand (9), policies and launch
   (10). The settings row still holds placeholders until the client types the real details in.
 
 When a step lands, mark it **built** in the roadmap with the date, write what was built here in a few
