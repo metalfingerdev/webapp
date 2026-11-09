@@ -62,11 +62,11 @@ use `Date.now()`. Dates are shown in IST.
 
 ## Invoices
 
-- Created when an order becomes `paid`, with a **sequential number per financial year** (April to March):
+- Issued when the order **ships** (online and cash on delivery alike, 2026-11-09), with a **sequential number per financial year** (April to March):
   prefix + `YY-YY/` + zero-padded counter, taken atomically from `invoiceCounters`.
 - Stored fields on the order: number, date, taxable value and GST per rate, buyer and seller details
   snapshot. The seller details come from `storeSettings`.
-- Rendered with pdfmake on the client (port `src/lib/pdf/*` and `lib/orderDocument.ts`), lazy-loaded in admin
+- Rendered with pdfmake on the client (`src/lib/store/pdf/*`, data from `model/store/orderDocument.ts`), lazy-loaded in admin
   only. The packing slip uses the same document model with no prices.
 - The GSTIN, HSN and rate are snapshotted per line. Confirm the GST scheme with the CA first
   (`store-profile.md`).
