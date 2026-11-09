@@ -56,25 +56,28 @@
    glow on top and cast a soft shade below; sunken things are shaded at the top. The colours come
    from the palette the element sits in (palette.css), so all of these work inside any chapter. */
 
-/* The default surface: raised out of the page */
+/* The default surface: raised out of the page. The gradient is also kept in --surface, so a
+   select can draw its arrow on top of it (control) */
 @utility raised {
 	@apply shadow-s;
-	background-color: var(--background);
-	background-image: linear-gradient(
+	--surface: linear-gradient(
 		to bottom,
 		color-mix(in oklab, var(--foreground) 55%, var(--background)),
 		var(--background)
 	);
+	background-color: var(--background);
+	background-image: var(--surface);
 }
 /* Pressed into the page (inputs, tracks, wells) */
 @utility sunken {
 	@apply shadow-inset;
-	background-color: var(--background);
-	background-image: linear-gradient(
+	--surface: linear-gradient(
 		to bottom,
 		color-mix(in oklab, var(--background), black 4%),
 		var(--background)
 	);
+	background-color: var(--background);
+	background-image: var(--surface);
 }
 /* A raised colour: the colour lit a little at the top. Text on it is set by the component */
 @utility raised-primary {
@@ -294,6 +297,24 @@
 }
 @utility control {
 	@apply min-h-9 w-full rounded-xl sunken px-3 py-1.5 text-sm text-text placeholder:text-text-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:text-text-muted disabled:opacity-60;
+
+	/* The surface's gradient covers the forms plugin's arrow, so a select draws its own on top:
+	   two small triangles in the muted text colour */
+	&:is(select) {
+		@apply pr-10;
+		background-image:
+			linear-gradient(45deg, transparent 50%, var(--text-muted) 50%),
+			linear-gradient(135deg, var(--text-muted) 50%, transparent 50%), var(--surface);
+		background-position:
+			calc(100% - 20px) 50%,
+			calc(100% - 15px) 50%,
+			0 0;
+		background-size:
+			5px 5px,
+			5px 5px,
+			100% 100%;
+		background-repeat: no-repeat;
+	}
 }
 
 /* A plain data table */

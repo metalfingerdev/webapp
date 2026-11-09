@@ -105,6 +105,7 @@
 		void page.url.pathname;
 		dismiss();
 		drawer.close();
+		tucked = false;
 	});
 
 	// A tap outside the bar, or Escape, closes the panel
@@ -123,17 +124,57 @@
 			window.removeEventListener('keydown', onKey);
 		};
 	});
+
+	// The bar lies flat on the page at the top and rises out of it over the first 48px of scroll
+	// (lift, 0 to 1). On the product grids it also slides away while the page scrolls down, to give
+	// the products the room, and comes back on any scroll up. It stays while a panel, the search or
+	// the drawer is open, and while it has keyboard focus.
+	const grid = $derived(
+		page.route.id === '/(shop)/shop' || page.route.id === '/(shop)/shop/[category]'
+	);
+	let lift = $state(0);
+	let tucked = $state(false);
+	$effect(() => {
+		let last = window.scrollY;
+		// How far the page has moved in the current direction
+		let travel = 0;
+		let frame = 0;
+		const update = () => {
+			frame = 0;
+			const y = Math.max(0, window.scrollY);
+			const delta = y - last;
+			last = y;
+			travel = delta * travel > 0 ? travel + delta : delta;
+			lift = Math.min(1, y / 48);
+			if (!grid || open || drawer.open || y < (header?.offsetHeight ?? 80)) tucked = false;
+			else if (travel > 24) tucked = true;
+			else if (travel < -8) tucked = false;
+		};
+		// Through a frame, the first time too, so this effect reads no state and runs once
+		const onScroll = () => {
+			frame ||= requestAnimationFrame(update);
+		};
+		onScroll();
+		window.addEventListener('scroll', onScroll, { passive: true });
+		return () => {
+			window.removeEventListener('scroll', onScroll);
+			cancelAnimationFrame(frame);
+		};
+	});
 </script>
 
 <!-- Hover is a mouse shortcut only: every panel also opens by click, tap or Enter -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <header
 	class="bar-wrap"
+	class:tucked
 	bind:this={header}
 	onpointerenter={() => clearTimeout(closeTimer)}
 	onpointerleave={leave}
+	onfocusin={() => (tucked = false)}
 >
-	<nav class="bar" aria-label={strings.nav.label}>
+	<!-- An open panel or search always shows the raised bar: the search grows it over the page -->
+	<nav class="bar" aria-label={strings.nav.label} style="--lift: {open ? 1 : lift}">
 		<menu class="row">
 			<li class="brand"><a href={resolve('/(shop)')}>{strings.brand}</a></li>
 
@@ -240,9 +281,24 @@
 		@apply sticky top-0 z-30 mx-auto max-w-6xl px-3 pt-3;
 		height: calc(0.75rem + 2.75rem + 0.75rem + 0.75rem);
 		container-type: inline-size;
+		transition: translate 300ms cubic-bezier(0.16, 1, 0.3, 1);
 
+		/* Slid away above the screen, far enough that its shadow goes too */
+		&.tucked {
+			translate: 0 calc(-100% - 3rem);
+		}
+
+		/* Flat on the page; the floating surface fades in under it as the page scrolls (--lift).
+		   Only opacity animates, which stays smooth on a cheap phone */
 		nav.bar {
-			@apply absolute inset-x-3 top-3 rounded-[1.75rem] floating p-1.5;
+			@apply absolute inset-x-3 top-3 isolate rounded-[1.75rem] bg-background p-1.5;
+
+			&::before {
+				@apply absolute inset-0 -z-10 rounded-[inherit] floating;
+				content: '';
+				opacity: var(--lift);
+				transition: opacity 150ms;
+			}
 		}
 		menu.row {
 			@apply flex h-11 items-center gap-1;
@@ -340,6 +396,8 @@
 		}
 
 		@media (prefers-reduced-motion: reduce) {
+			&,
+			nav.bar::before,
 			:is(div.box-wrap, div.box, div.arrow, div.slot) {
 				transition: none;
 			}

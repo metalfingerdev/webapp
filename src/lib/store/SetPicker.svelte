@@ -305,7 +305,7 @@
 			@apply flex w-full flex-col gap-1 sm:w-56;
 
 			select {
-				@apply min-h-11 w-full rounded-xl border-0 sunken px-4 text-sm text-text;
+				@apply control min-h-11 border-0;
 			}
 		}
 
