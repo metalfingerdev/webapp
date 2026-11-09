@@ -6,21 +6,28 @@
 	import LayoutGridIcon from '@lucide/svelte/icons/layout-grid';
 	import ReceiptIcon from '@lucide/svelte/icons/receipt';
 	import TruckIcon from '@lucide/svelte/icons/truck';
+	import InboxIcon from '@lucide/svelte/icons/inbox';
 	import FileUpIcon from '@lucide/svelte/icons/file-up';
 	import UsersIcon from '@lucide/svelte/icons/users';
 	import SchoolIcon from '@lucide/svelte/icons/school';
 	import SettingsIcon from '@lucide/svelte/icons/settings';
 	import ArrowUpLeftIcon from '@lucide/svelte/icons/arrow-up-left';
+	import { useQuery } from 'convex-svelte';
+	import { api } from '#convex/_generated/api.js';
 	import { strings } from '#lib/store/strings.js';
 
 	// The admin's frame: a rail on the left from tablet width, a scrolling bar on top on phones.
 	let { children }: { children: Snippet } = $props();
 	const text = strings.admin.nav;
 
+	// New enquiries waiting, for the badge on the Enquiries item (the layout has checked admin)
+	const fresh = useQuery(api.store.admin.enquiries.countNew, {});
+
 	const items = [
 		{ href: resolve('/admin'), label: text.board, icon: LayoutGridIcon, exact: true },
 		{ href: resolve('/admin/orders'), label: text.orders, icon: ReceiptIcon, exact: false },
 		{ href: resolve('/admin/shipping'), label: text.shipping, icon: TruckIcon, exact: false },
+		{ href: resolve('/admin/enquiries'), label: text.enquiries, icon: InboxIcon, exact: false },
 		{ href: resolve('/admin/products'), label: text.products, icon: PackageIcon, exact: false },
 		{ href: resolve('/admin/products/import'), label: text.import, icon: FileUpIcon, exact: true },
 		{ href: resolve('/admin/schools'), label: text.schools, icon: SchoolIcon, exact: false },
@@ -56,6 +63,9 @@
 						>
 							<Icon size={18} aria-hidden="true" />
 							<span>{item.label}</span>
+							{#if item.href === resolve('/admin/enquiries') && fresh.data}
+								<span class="count">{fresh.data >= 100 ? '99+' : fresh.data}</span>
+							{/if}
 						</a>
 					</li>
 				{/each}
@@ -103,6 +113,9 @@
 				}
 				&.active {
 					@apply sunken text-text;
+				}
+				span.count {
+					@apply ml-auto rounded-full raised-primary px-2 text-xs text-foreground;
 				}
 				&.store {
 					@apply md:mt-auto;

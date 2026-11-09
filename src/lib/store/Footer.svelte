@@ -22,6 +22,14 @@
 			</ul>
 		</section>
 		<section>
+			<h2 class="heading">{strings.footer.help}</h2>
+			<ul>
+				<li>
+					<a href={resolve('/(shop)/product-on-demand')}>{strings.footer.onDemand}</a>
+				</li>
+			</ul>
+		</section>
+		<section>
 			<h2 class="heading">{strings.footer.policies}</h2>
 			<ul>
 				{#each strings.policies.list as policy (policy.slug)}
@@ -46,7 +54,7 @@
 		@apply mx-3 mt-16 mb-3 chapter chapter-ink;
 
 		div.inner {
-			@apply mx-auto grid max-w-6xl gap-8 sm:grid-cols-[2fr_1fr_2fr];
+			@apply mx-auto grid max-w-6xl gap-8 sm:grid-cols-[2fr_1fr_1fr_2fr];
 		}
 		p.masthead {
 			@apply type-display text-4xl sm:text-5xl;
