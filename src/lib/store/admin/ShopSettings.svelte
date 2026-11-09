@@ -93,6 +93,9 @@
 		{#if result.data && !result.data.placedOrdersOpen}
 			<Notice tone="warn" role="status">{text.closedNotice}</Notice>
 		{/if}
+		{#if result.data && (!result.data.legalName || !result.data.address)}
+			<Notice tone="warn" role="status">{text.invoiceDetailsMissing}</Notice>
+		{/if}
 
 		<div class="fields">
 			<Field label={text.businessName}>

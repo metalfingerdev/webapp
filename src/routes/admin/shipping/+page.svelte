@@ -1,15 +1,18 @@
 <script lang="ts">
-	import { useQuery } from 'convex-svelte';
+	import { useConvexClient, useQuery } from 'convex-svelte';
 	import { api } from '#convex/_generated/api.js';
 	import { istDayStart, useNow } from '#lib/store/admin/clock.svelte.js';
 	import OrderCard from '#lib/store/admin/OrderCard.svelte';
 	import ShipForm from '#lib/store/admin/ShipForm.svelte';
+	import { savePackingSlip } from '#lib/store/documents.js';
 	import PageHead from '#lib/store/PageHead.svelte';
+	import PdfButton from '#lib/store/PdfButton.svelte';
 	import { strings } from '#lib/store/strings.js';
 
 	// Packed orders, each with the ship form open, for working through a pile of parcels.
 	const text = strings.admin.shipping;
 	const now = useNow();
+	const client = useConvexClient();
 	const board = useQuery(api.store.admin.orders.board, () => ({ dayStart: istDayStart() }));
 	const packed = $derived(board.data?.packed ?? []);
 </script>
@@ -29,6 +32,9 @@
 		{#each packed as order (order._id)}
 			<li class="item">
 				<OrderCard {order} now={now.value} />
+				<PdfButton make={() => savePackingSlip(client, order.number)}>
+					{strings.documents.packingSlipPdf}
+				</PdfButton>
 				<ShipForm number={order.number} local={order.deliveryMethod === 'local'} />
 			</li>
 		{/each}

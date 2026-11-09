@@ -1,15 +1,18 @@
 <script lang="ts">
-	import { useQuery } from 'convex-svelte';
+	import { useConvexClient, useQuery } from 'convex-svelte';
 	import { api } from '#convex/_generated/api.js';
 	import { istDayStart, useNow } from '#lib/store/admin/clock.svelte.js';
 	import OrderCard from '#lib/store/admin/OrderCard.svelte';
+	import { savePackingSlips } from '#lib/store/documents.js';
 	import { formatPrice } from '#lib/store/format.js';
 	import PageHead from '#lib/store/PageHead.svelte';
+	import PdfButton from '#lib/store/PdfButton.svelte';
 	import { strings } from '#lib/store/strings.js';
 
 	// The live order board (admin.md): open orders by column, today's numbers on top.
 	const text = strings.admin.board;
 	const now = useNow();
+	const client = useConvexClient();
 	const dayStart = $derived(istDayStart(now.value));
 	const board = useQuery(api.store.admin.orders.board, () => ({ dayStart }));
 
@@ -63,6 +66,11 @@
 					{#if orders.length === 0}
 						<p class="empty">{text.emptyColumn}</p>
 					{:else}
+						{#if key === 'toPack'}
+							<PdfButton make={() => savePackingSlips(client)}>
+								{strings.documents.packingSlipsPdf}
+							</PdfButton>
+						{/if}
 						<ul class="cards">
 							{#each orders as order (order._id)}
 								<li><OrderCard {order} now={now.value} /></li>

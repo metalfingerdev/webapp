@@ -4,9 +4,11 @@
 	import { useConvexClient, useQuery } from 'convex-svelte';
 	import { api } from '#convex/_generated/api.js';
 	import { useRequireSignIn } from '#lib/auth/requireSignIn.svelte.js';
+	import { saveMyInvoice } from '#lib/store/documents.js';
 	import { errorText, formatDate, formatPrice, formatTime } from '#lib/store/format.js';
 	import { payForOrder } from '#lib/store/pay.js';
 	import PageHead from '#lib/store/PageHead.svelte';
+	import PdfButton from '#lib/store/PdfButton.svelte';
 	import { strings } from '#lib/store/strings.js';
 	import Button from '#lib/ui/Button.svelte';
 	import ConfirmDialog from '#lib/ui/ConfirmDialog.svelte';
@@ -150,6 +152,15 @@
 						{text.track}
 					</a>
 				{/if}
+			</section>
+		{/if}
+
+		{#if order.invoiceNumber}
+			<section class="card">
+				<p>{strings.documents.invoiceNumber}: <strong>{order.invoiceNumber}</strong></p>
+				<PdfButton make={() => saveMyInvoice(client, number)}>
+					{strings.documents.downloadInvoice}
+				</PdfButton>
 			</section>
 		{/if}
 
