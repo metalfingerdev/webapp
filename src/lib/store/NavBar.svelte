@@ -105,7 +105,7 @@
 		void page.url.pathname;
 		dismiss();
 		drawer.close();
-		tucked = false;
+		peek = false;
 	});
 
 	// A tap outside the bar, or Escape, closes the panel
@@ -125,15 +125,20 @@
 		};
 	});
 
-	// The bar lies flat on the page at the top and rises out of it over the first 48px of scroll
-	// (lift, 0 to 1). On the product grids it also slides away while the page scrolls down, to give
-	// the products the room, and comes back on any scroll up. It stays while a panel, the search or
-	// the drawer is open, and while it has keyboard focus.
-	const grid = $derived(
-		page.route.id === '/(shop)/shop' || page.route.id === '/(shop)/shop/[category]'
-	);
-	let lift = $state(0);
-	let tucked = $state(false);
+	// On the home page the bar stays at the top of the screen. Everywhere else it rests in the page,
+	// flat, and scrolls away with it; once it is out of sight, scrolling up brings it in from the top
+	// (peek) until the page scrolls down again (dictated 2026-11-09). It lies flat on the page and
+	// rises out of it over the first 48px of scroll (lift, 0 to 1), but only while it follows the
+	// screen: at rest in the page it stays flat. A peek holds while a panel, the search or the drawer
+	// is open, and keyboard focus brings it in.
+	const home = $derived(page.route.id === '/(shop)');
+	// The scroll, up to 48px: all the lift needs
+	let scrolled = $state(0);
+	let peek = $state(false);
+	const lift = $derived(home || peek ? scrolled / 48 : 0);
+	// What the bar shows. The search grows it over the page, so it always floats then; panels don't
+	// lift it. Past halfway it counts as floating, and its buttons lie flat on it.
+	const surface = $derived(searchOpen ? 1 : lift);
 	$effect(() => {
 		let last = window.scrollY;
 		// How far the page has moved in the current direction
@@ -145,10 +150,12 @@
 			const delta = y - last;
 			last = y;
 			travel = delta * travel > 0 ? travel + delta : delta;
-			lift = Math.min(1, y / 48);
-			if (!grid || open || drawer.open || y < (header?.offsetHeight ?? 80)) tucked = false;
-			else if (travel > 24) tucked = true;
-			else if (travel < -8) tucked = false;
+			scrolled = Math.min(y, 48);
+			if (y === 0) peek = false;
+			else if (!open && !drawer.open) {
+				if (travel < -8 && y > (header?.offsetHeight ?? 80)) peek = true;
+				else if (travel > 24) peek = false;
+			}
 		};
 		// Through a frame, the first time too, so this effect reads no state and runs once
 		const onScroll = () => {
@@ -167,14 +174,20 @@
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <header
 	class="bar-wrap"
-	class:tucked
+	class:parked={!home && !peek}
 	bind:this={header}
 	onpointerenter={() => clearTimeout(closeTimer)}
 	onpointerleave={leave}
-	onfocusin={() => (tucked = false)}
+	onfocusin={(event) => {
+		if ((event.target as Element).matches(':focus-visible')) peek = true;
+	}}
 >
-	<!-- An open panel or search always shows the raised bar: the search grows it over the page -->
-	<nav class="bar" aria-label={strings.nav.label} style="--lift: {open ? 1 : lift}">
+	<nav
+		class="bar"
+		class:afloat={surface > 0.5}
+		aria-label={strings.nav.label}
+		style="--lift: {surface}"
+	>
 		<menu class="row">
 			<li class="brand"><a href={resolve('/(shop)')}>{strings.brand}</a></li>
 
@@ -279,13 +292,16 @@
 	   of pushing it down. The dropdown box positions against the header, the bar's width. */
 	header.bar-wrap {
 		@apply sticky top-0 z-30 mx-auto max-w-6xl px-3 pt-3;
-		height: calc(0.75rem + 2.75rem + 0.75rem + 0.75rem);
+		--bar-height: calc(0.75rem + 2.75rem + 0.75rem + 0.75rem);
+		height: var(--bar-height);
 		container-type: inline-size;
-		transition: translate 300ms cubic-bezier(0.16, 1, 0.3, 1);
+		transition: top 300ms cubic-bezier(0.16, 1, 0.3, 1);
 
-		/* Slid away above the screen, far enough that its shadow goes too */
-		&.tucked {
-			translate: 0 calc(-100% - 3rem);
+		/* At rest in the page (away from home, not peeking): it sticks one bar's height above the
+		   screen, so it scrolls away with the page like the rest of it. A peek brings it back to
+		   top 0, sliding in */
+		&.parked {
+			top: calc(-1 * var(--bar-height));
 		}
 
 		/* Flat on the page; the floating surface fades in under it as the page scrolls (--lift).
@@ -334,6 +350,8 @@
 			}
 		}
 
+		/* Raised out of the page while the bar lies flat on it; once the bar floats, a level above
+		   the page, they lie flat on the bar (afloat) */
 		button.action {
 			@apply grid size-11 press place-items-center rounded-full raised;
 
@@ -346,6 +364,13 @@
 			}
 			span.badge {
 				@apply absolute -top-1 -right-1 grid min-w-5 place-items-center rounded-full raised-primary px-1 text-xs leading-5 font-bold text-foreground tabular-nums;
+			}
+		}
+		nav.bar.afloat button.action {
+			@apply flat;
+
+			&.active {
+				@apply sunken;
 			}
 		}
 

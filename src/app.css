@@ -143,6 +143,22 @@
 		color-mix(in oklab, var(--foreground) 70%, var(--background))
 	);
 }
+/* A control on a floating surface (the nav bar once it floats, the drawer). That surface is already
+   a level above the page, so its controls lie flat on it, with no glow, shade or line, and sink in
+   when pointed at or pressed. A chosen toggle ([aria-pressed]) keeps its own colour */
+@utility flat {
+	@apply shadow-none;
+	background-color: transparent;
+	background-image: none;
+	&:active:not(:disabled, [aria-pressed='true']) {
+		@apply sunken;
+	}
+	@media (hover: hover) {
+		&:hover:not(:disabled, [aria-pressed='true']) {
+			@apply sunken;
+		}
+	}
+}
 
 /* ---------- Magazine ---------- */
 

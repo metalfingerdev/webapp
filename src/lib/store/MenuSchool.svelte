@@ -150,7 +150,7 @@
 			@apply flex flex-wrap gap-2;
 
 			button {
-				@apply min-h-11 press rounded-full raised px-4 font-bold;
+				@apply min-h-11 press rounded-full flat px-4 font-bold;
 
 				&[aria-pressed='true'] {
 					@apply raised-primary text-foreground;
@@ -170,7 +170,7 @@
 		}
 
 		:is(a, span).tile {
-			@apply flex min-h-18 press flex-col justify-center gap-0.5 rounded-2xl raised px-4 py-3;
+			@apply flex min-h-18 press flex-col justify-center gap-0.5 rounded-2xl flat px-4 py-3;
 
 			strong {
 				@apply font-display font-extrabold;
