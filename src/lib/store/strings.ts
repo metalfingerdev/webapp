@@ -19,6 +19,7 @@ export const strings = {
 	menu: {
 		back: 'Back',
 		continue: 'Continue where you left off',
+		hideContinue: 'Hide this card',
 		shop: 'Shop',
 		help: 'Help',
 		whatsapp: 'Chat on WhatsApp',
