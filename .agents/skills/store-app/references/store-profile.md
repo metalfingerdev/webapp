@@ -181,6 +181,14 @@ Each entry has a date and the reason. When the user decides something new, add i
 - **CSS is nested, element.class, with short `@apply` lines** (2026-11-08, dictated: "modern nested
   css ... for human readability"; the user chose to keep `@apply`). No utilities in markup. Why:
   people read the styles. How: AGENTS.md conventions, `docs/10-ui.md`.
+- **The nav bar rises out of the page; it hides only on product grids** (2026-11-09, dictated on
+  `ui-refresh`). At the top of every shop page the bar lies flat (the page colour, no shadow); the
+  floating colour and shadow fade in with the first ~48px of scroll. On `/shop` and
+  `/shop/[category]` (search included) it slides away while scrolling down and comes back on any
+  scroll up; other pages keep it. The filter and sort dock sticks to the bottom of the screen only
+  while the listing is under it and rests at the listing's end, never over the footer. Why: room to
+  look at products, and a dock that hints there is more to scroll without covering the footer.
+  How: `NavBar.svelte` (`lift`, `tucked`), `ProductListing.svelte` (`div.dock`).
 - **Step 7 is built in four sub-steps on one branch, one PR** (2026-11-08, dictated: "all sub
   steps will be merged in a single pr"): 7a products, stock and import; 7b schools and sets; 7c order
   board, orders and shipping; 7d settings, each in its own commits on `step-7-admin`. Why: the
@@ -276,7 +284,10 @@ and packing slips)**; the packing-slip print was left for it.
 **UI refresh** (2026-11-08/09, branch `ui-refresh`, before step 8): the magazine and neumorphism look
 and nested CSS across the store, admin, sign-in and account (Decisions). New: `Media.svelte` (photo
 slots), `PageHead.svelte`, chapter palettes and `type-*`/`rail` utilities, the Manrope display font.
-No functions or data changed.
+No functions or data changed. 2026-11-09 (branch `fix-selects-dock-navbar`): selects got their arrow back (`control` draws it over the
+surface), the shop's filter and sort dock is sticky inside the listing, and the nav bar lifts out of
+the page as it scrolls and hides on product grids (Decisions). No e2e tests exist yet
+(`docs/09-testing.md`); offered as its own branch.
 
 - **Old store**: in `legacy/` (not built, linted or type-checked); tag `old-store` runs it.
 - **Tables**: all of `data-model.md`. Every product has one or more `productVariants` holding price and

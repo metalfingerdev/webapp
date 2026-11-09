@@ -172,35 +172,35 @@
 			</div>
 		{/if}
 	{/if}
-</div>
 
-<!-- Filter and sort stay at the bottom, in thumb reach. The page fades into the dock's background. -->
-<div class="dock-space" aria-hidden="true"></div>
-<div class="dock">
-	<div class="dock-bar">
-		{#if !listing.q}
+	<!-- Filter and sort stay at the bottom, in thumb reach, until the listing ends. The products fade
+	     into the dock's background. -->
+	<div class="dock">
+		<div class="dock-bar">
+			{#if !listing.q}
+				<button
+					class="dock-button"
+					type="button"
+					aria-haspopup="dialog"
+					aria-label={activeCount ? strings.shop.filtersActive(activeCount) : undefined}
+					onclick={() => (filterOpen = true)}
+				>
+					<ListFilterIcon size={20} aria-hidden="true" />
+					{strings.shop.filters}
+					{#if activeCount}<span class="dot" aria-hidden="true">{activeCount}</span>{/if}
+				</button>
+			{/if}
 			<button
 				class="dock-button"
 				type="button"
 				aria-haspopup="dialog"
-				aria-label={activeCount ? strings.shop.filtersActive(activeCount) : undefined}
-				onclick={() => (filterOpen = true)}
+				onclick={() => (sortOpen = true)}
 			>
-				<ListFilterIcon size={20} aria-hidden="true" />
-				{strings.shop.filters}
-				{#if activeCount}<span class="dot" aria-hidden="true">{activeCount}</span>{/if}
+				<ArrowUpDownIcon size={20} aria-hidden="true" />
+				{strings.shop.sort}
+				{#if sort !== 'new'}<span class="dot" aria-hidden="true">1</span>{/if}
 			</button>
-		{/if}
-		<button
-			class="dock-button"
-			type="button"
-			aria-haspopup="dialog"
-			onclick={() => (sortOpen = true)}
-		>
-			<ArrowUpDownIcon size={20} aria-hidden="true" />
-			{strings.shop.sort}
-			{#if sort !== 'new'}<span class="dot" aria-hidden="true">1</span>{/if}
-		</button>
+		</div>
 	</div>
 </div>
 
@@ -250,15 +250,12 @@
 		}
 	}
 
-	/* Room for the dock, so the last row is never hidden behind it */
-	div.dock-space {
-		@apply h-24;
-	}
-
-	/* Fixed to the bottom. The top edge fades from the page colour to nothing, so products slide
-	   under it softly; only the buttons take taps, the faded strip lets them through. */
+	/* Sticks to the bottom of the screen while the products scroll under it, and comes to rest at
+	   the end of the listing, so it never covers the footer. It takes its own room, so the last row
+	   is never hidden behind it. The top edge fades from the page colour to nothing, so products
+	   slide under it softly; only the buttons take taps, the faded strip lets them through. */
 	div.dock {
-		@apply pointer-events-none fixed inset-x-0 bottom-0 z-30 flex justify-center px-4 pt-10 pb-4;
+		@apply pointer-events-none sticky bottom-0 z-30 -mx-3 flex justify-center px-4 pt-10 pb-4 sm:-mx-4;
 		background: linear-gradient(to top, var(--background) 40%, transparent);
 
 		div.dock-bar {
