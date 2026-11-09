@@ -4,8 +4,10 @@
 	import { useConvexClient, useQuery } from 'convex-svelte';
 	import { api } from '#convex/_generated/api.js';
 	import ShipForm from '#lib/store/admin/ShipForm.svelte';
+	import { saveInvoice, savePackingSlip } from '#lib/store/documents.js';
 	import { errorText, formatDate, formatPrice, formatTime } from '#lib/store/format.js';
 	import PageHead from '#lib/store/PageHead.svelte';
+	import PdfButton from '#lib/store/PdfButton.svelte';
 	import { strings } from '#lib/store/strings.js';
 	import Button from '#lib/ui/Button.svelte';
 	import ConfirmDialog from '#lib/ui/ConfirmDialog.svelte';
@@ -223,6 +225,23 @@
 								</li>
 							{/each}
 						</ul>
+					</section>
+				{/if}
+
+				{#if order.status !== 'cancelled' || order.invoice}
+					<section class="card documents">
+						<h2>{strings.documents.title}</h2>
+						{#if order.status !== 'cancelled'}
+							<PdfButton make={() => savePackingSlip(client, number)}>
+								{strings.documents.packingSlipPdf}
+							</PdfButton>
+						{/if}
+						{#if order.invoice}
+							<p>{strings.documents.invoiceNumber}: <strong>{order.invoice.number}</strong></p>
+							<PdfButton make={() => saveInvoice(client, number)}>
+								{strings.documents.invoicePdf}
+							</PdfButton>
+						{/if}
 					</section>
 				{/if}
 
