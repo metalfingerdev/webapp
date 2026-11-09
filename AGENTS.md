@@ -112,7 +112,8 @@ Before step 1 the old store is still inside `src/` (`src/components`, `src/route
   the colour of the page they sit on: `raised` (light above, shade below), `sunken` (pressed in),
   `floating` (dialogs, drawers, menus), `raised-primary` and siblings, `press`. Everything takes its
   colours from the palette it sits in, so it works inside any chapter. No outlines: a border is only a
-  1px `border-border-muted` divider. Every photo spot is a `Media` slot (a placeholder until a photo
+  1px `border-border-muted` divider. Controls on a floating surface (the floating nav bar's buttons
+  and the drawer's) are `flat`: no glow or shade, sunk in when pointed at or pressed. Every photo spot is a `Media` slot (a placeholder until a photo
   exists). `src/app.css` also has `button`, `tone-*`, `tag`, `control`, `field-label`, `data-table`,
   `bone` for use inside `@apply`.
 - **CSS is nested and readable** (dictated 2026-11-08). No Tailwind utilities in markup, only short

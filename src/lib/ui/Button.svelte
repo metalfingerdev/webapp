@@ -11,6 +11,7 @@
     block = false,
     icon = false,
     large = false,
+    afloat = false,
     href,
     children,
     ...rest
@@ -21,6 +22,8 @@
     icon?: boolean;
     /** Taller, for the main action of a screen */
     large?: boolean;
+    /** On a floating surface (the drawer): a plain button lies flat */
+    afloat?: boolean;
     href?: string;
     children: Snippet;
   } & HTMLButtonAttributes &
@@ -34,6 +37,7 @@
     class:block
     class:icon
     class:large
+    class:afloat
     {...rest}
   >
     {@render children()}
@@ -45,6 +49,7 @@
     class:block
     class:icon
     class:large
+    class:afloat
     {...rest}
   >
     {@render children()}
@@ -69,6 +74,9 @@
     }
     &.danger {
       @apply raised-danger text-foreground;
+    }
+    &.plain.afloat {
+      @apply flat;
     }
     &.block {
       @apply flex w-full;

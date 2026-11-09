@@ -145,10 +145,10 @@
 					</div>
 					<Button href={resolve('/(shop)/shop')} variant="primary">{strings.cart.browse}</Button>
 				{:else}
-					<CartList />
+					<CartList afloat />
 					<div class="cart-foot">
 						<CartSummary />
-						<Button href={resolve('/(shop)/cart')} block>{strings.cart.viewCart}</Button>
+						<Button href={resolve('/(shop)/cart')} block afloat>{strings.cart.viewCart}</Button>
 					</div>
 				{/if}
 			{:else if view.kind === 'root'}
@@ -291,7 +291,7 @@
 			@apply flex shrink-0 items-center gap-1.5;
 		}
 		button.icon {
-			@apply relative grid size-11 press place-items-center rounded-full raised;
+			@apply relative grid size-11 press place-items-center rounded-full flat;
 
 			&.active {
 				@apply sunken;
@@ -371,7 +371,7 @@
 		}
 
 		a.sign-in {
-			@apply flex press flex-col gap-0.5 rounded-3xl raised p-4;
+			@apply flex press flex-col gap-0.5 rounded-3xl flat p-4;
 
 			strong {
 				@apply font-display;

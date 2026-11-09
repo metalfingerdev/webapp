@@ -78,7 +78,7 @@
 				@apply min-w-0 flex-1;
 			}
 			button.store-drawer-close {
-				@apply grid size-11 shrink-0 press place-items-center rounded-full raised;
+				@apply grid size-11 shrink-0 press place-items-center rounded-full flat;
 			}
 			div.store-drawer-body {
 				@apply relative flex-1 overflow-x-hidden overflow-y-auto overscroll-contain;

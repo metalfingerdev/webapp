@@ -181,20 +181,34 @@ Each entry has a date and the reason. When the user decides something new, add i
 - **CSS is nested, element.class, with short `@apply` lines** (2026-11-08, dictated: "modern nested
   css ... for human readability"; the user chose to keep `@apply`). No utilities in markup. Why:
   people read the styles. How: AGENTS.md conventions, `docs/10-ui.md`.
-- **The nav bar rises out of the page; it hides only on product grids** (2026-11-09, dictated on
-  `ui-refresh`). At the top of every shop page the bar lies flat (the page colour, no shadow); the
-  floating colour and shadow fade in with the first ~48px of scroll. On `/shop` and
-  `/shop/[category]` (search included) it slides away while scrolling down and comes back on any
-  scroll up; other pages keep it. The filter and sort dock sticks to the bottom of the screen only
-  while the listing is under it and rests at the listing's end, never over the footer. Why: room to
-  look at products, and a dock that hints there is more to scroll without covering the footer.
-  How: `NavBar.svelte` (`lift`, `tucked`), `ProductListing.svelte` (`div.dock`).
+- **The nav bar follows the screen only on the home page; elsewhere it rests in the page and
+  peeks on scroll up** (2026-11-09, dictated twice the same day; the second time replaced "hides
+  only on product grids"). At the top of every shop page the bar lies flat (the page colour, no
+  shadow); hovering its items keeps it flat. On the home page it stays at the top of the screen and
+  the floating colour and shadow fade in with the first ~48px of scroll. On every other page it
+  scrolls away with the page and stays flat while it does ("the navbar should not even move");
+  once it is out of sight, scrolling up slides it in from the top, raised, until the page scrolls
+  down again. The filter and sort dock sticks to the bottom of the screen only while the listing is
+  under it and rests at the listing's end, never over the footer. Why: room to browse products on
+  every page where people browse, and a dock that hints there is more to scroll without covering
+  the footer. How: `NavBar.svelte` (`home`, `peek`, `lift`), `ProductListing.svelte` (`div.dock`).
+  Desktop side panels that stick under the bar (product gallery `md:top-24`, cart and checkout
+  summaries `md:top-28`) keep their offset, so they sit lower than needed while the bar is away.
 - **Floating things have no glow above** (2026-11-09, dictated: "Its floating so it should not
   illuminate the surface below with reflected light the way a non floating tile would"). `shadow-l`
   (used only by `floating`: the nav bar, drawer, dialogs, menus, docks) casts shade below and no
   `--neu-light` glow; raised tiles and buttons keep theirs. Why: the glow is light bouncing off the
   page beside a tile that rises out of it; something clear of the page only shades it. How:
   `src/themes/palette.css`.
+- **Controls on a floating surface lie flat** (2026-11-09, dictated: "navbar and side bar are
+  already one level up so buttons look odd embossed make them flat and engraved on interaction").
+  The nav bar's search, cart and menu buttons are raised while the bar lies flat on the page; once
+  it floats they lose their gradient and shade (no outline either: the user tried one and dropped
+  it), and sink in (`sunken`) when pointed at or pressed. The drawer's buttons always look like that: close, the
+  icon row, the sign-in card, a school's chips and class tiles, the cart steppers and "View cart".
+  Coloured buttons, the Continue card and cards that are not controls stay as they were. Why: keep
+  the levels honest, page, then floating surface, then its controls on it. How: `flat` in
+  `src/app.css`, `afloat` on `NavBar`, `CartList` and `Button`.
 - **One Continue card, which can be hidden** (2026-11-09, asked for: the two cards "spawning
   multiple instances" with no way to remove them). The menu shows the last set opened, with a cross
   to hide it; it comes back when a set is opened again. How: `recentSets.ts`, `MenuDrawer.svelte`.
@@ -293,10 +307,13 @@ and packing slips)**; the packing-slip print was left for it.
 **UI refresh** (2026-11-08/09, branch `ui-refresh`, before step 8): the magazine and neumorphism look
 and nested CSS across the store, admin, sign-in and account (Decisions). New: `Media.svelte` (photo
 slots), `PageHead.svelte`, chapter palettes and `type-*`/`rail` utilities, the Manrope display font.
-No functions or data changed. 2026-11-09 (branch `fix-selects-dock-navbar`): selects got their arrow back (`control` draws it over the
-surface), the shop's filter and sort dock is sticky inside the listing, and the nav bar lifts out of
-the page as it scrolls and hides on product grids (Decisions). No e2e tests exist yet
-(`docs/09-testing.md`); offered as its own branch.
+No functions or data changed. Follow-ups on 2026-11-09, all in Decisions: selects got their arrow
+back (`control` draws it over the surface) and the shop's filter and sort dock is sticky inside the
+listing (PR #25); one Continue card that can be hidden, and floating surfaces with no glow above
+(PR #26); the nav bar follows the screen only on the home page and elsewhere rests in the page and
+peeks on scroll up, and controls on floating surfaces (the floating bar, the drawer) are `flat`
+(branch `fix-navbar-peek`). No e2e tests exist yet (`docs/09-testing.md`); offered as its own
+branch.
 
 - **Old store**: in `legacy/` (not built, linted or type-checked); tag `old-store` runs it.
 - **Tables**: all of `data-model.md`. Every product has one or more `productVariants` holding price and

@@ -12,6 +12,8 @@
 	import { strings } from './strings.js';
 
 	// The lines of the cart, grouped under the set they came from. Shared by the drawer and /cart.
+	// In the drawer (afloat), a floating surface, the steppers lie flat.
+	let { afloat = false }: { afloat?: boolean } = $props();
 	const cart = useCart();
 	const text = strings.cart;
 	const view = $derived(cart.view);
@@ -36,7 +38,7 @@
 	});
 </script>
 
-<div class="cart-list">
+<div class="cart-list" class:afloat>
 	{#each groups as group (group.key)}
 		<section class="group">
 			{#if group.heading}
@@ -154,6 +156,10 @@
 					@apply w-8 text-center font-bold tabular-nums;
 				}
 			}
+		}
+
+		&.afloat span.stepper button {
+			@apply flat;
 		}
 	}
 </style>
