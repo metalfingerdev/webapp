@@ -1,10 +1,12 @@
 // The one place an order's status changes. It checks the move is allowed, writes the timestamp and
-// does the side effect (put the held stock back on a cancel, settle cash on delivery). Asking for the
-// status the order already has does nothing, so a retried call never double-releases stock.
+// does the side effect (put the held stock back on a cancel, settle cash on delivery, issue the
+// invoice on shipping). Asking for the status the order already has does nothing, so a retried call
+// never double-releases stock or takes a second invoice number.
 import { ConvexError } from 'convex/values';
 import type { Doc } from '../../_generated/dataModel.js';
 import type { MutationCtx } from '../../_generated/server.js';
 import type { OrderStatus } from '../../store/validators.js';
+import { issueInvoice } from './invoices.js';
 import { startRefund } from './refunds.js';
 import { adjustStock } from './stock.js';
 
@@ -54,6 +56,8 @@ export const transitionOrder = async (
 		patch.paidAt = now;
 	}
 	await ctx.db.patch('orders', order._id, patch);
+	// The invoice is issued as the order leaves the shop (model/store/invoices.ts)
+	if (to === 'shipped') await issueInvoice(ctx, order, now);
 
 	if (to === 'cancelled') {
 		const items = await ctx.db

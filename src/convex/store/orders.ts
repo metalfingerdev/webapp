@@ -4,7 +4,7 @@
 import { ConvexError, v } from 'convex/values';
 import { internal } from '../_generated/api.js';
 import { mutation, query } from '../_generated/server.js';
-import type { Doc } from '../_generated/dataModel.js';
+import type { Doc, Id } from '../_generated/dataModel.js';
 import type { MutationCtx, QueryCtx } from '../_generated/server.js';
 import { requireCustomer } from '../model/store/access.js';
 import { loadCheckoutLines } from '../model/store/checkout.js';
@@ -13,6 +13,7 @@ import { canCancel, transitionOrder } from '../model/store/orders.js';
 import { priceCart } from '../model/store/pricing.js';
 import { orderRateLimiter } from '../model/store/rateLimits.js';
 import { adjustStock } from '../model/store/stock.js';
+import { buildInvoiceDocument, setLabelFor } from '../model/store/orderDocument.js';
 import { PAYMENT_EXPIRY_MS, PAYMENT_WINDOW_MS } from '../model/store/payments.js';
 import { onlinePaymentReady } from '../model/store/razorpay.js';
 import { PLACEHOLDER_COD_ENABLED } from '../model/store/storeProfile.js';
@@ -24,6 +25,7 @@ import {
 	paymentMethod,
 	paymentStatus,
 	refund,
+	invoiceDocument as invoiceDocumentValidator,
 	returnRequest
 } from './validators.js';
 
@@ -111,7 +113,15 @@ export const placeOrder = mutation({
 			total: price.total,
 			placedAt: now
 		});
+		// The set each line came from, written onto the line so the documents can group by it
+		const setLabels = new Map<Id<'schoolSets'>, string | undefined>();
 		for (const line of lines) {
+			const setId = line.fromSetId;
+			if (setId && !setLabels.has(setId)) {
+				const set = await ctx.db.get('schoolSets', setId);
+				const school = set ? await ctx.db.get('schools', set.schoolId) : null;
+				setLabels.set(setId, set && school ? setLabelFor(school.name, set) : undefined);
+			}
 			await ctx.db.insert('orderItems', {
 				orderId,
 				productId: line.productId,
@@ -123,7 +133,8 @@ export const placeOrder = mutation({
 				gstRate: line.gstRate,
 				unitPrice: line.unitPrice,
 				quantity: line.quantity,
-				fromSetId: line.fromSetId
+				fromSetId: line.fromSetId,
+				setLabel: setId ? setLabels.get(setId) : undefined
 			});
 			// The shelf was checked above; this holds the stock and logs it
 			await adjustStock(ctx, {
@@ -199,6 +210,8 @@ export const getOrder = query({
 		cancelledAt: v.optional(v.number()),
 		returnRequest: v.optional(returnRequest),
 		refund: v.optional(refund),
+		/** Set once the order has shipped; the invoice itself is `invoiceDocument` */
+		invoiceNumber: v.optional(v.string()),
 		/** An unpaid online order is cancelled after this (plus a short grace) */
 		payBy: v.optional(v.number()),
 		/** What the customer may still do */
@@ -255,6 +268,7 @@ export const getOrder = query({
 			cancelledAt: order.cancelledAt,
 			returnRequest: order.returnRequest,
 			refund: order.refund,
+			invoiceNumber: order.invoice?.number,
 			payBy: order.status === 'awaiting_payment' ? order.placedAt + PAYMENT_WINDOW_MS : undefined,
 			canCancel: canCancel(order.status),
 			canRequestReturn: order.status === 'delivered' && order.returnRequest === undefined,
@@ -273,6 +287,17 @@ export const getOrder = query({
 				? { courier: shipment.courier, awb: shipment.awb, trackingUrl: shipment.trackingUrl }
 				: null
 		};
+	}
+});
+
+/** The customer's own invoice, drawn on their phone. Null until the order has shipped. */
+export const invoiceDocument = query({
+	args: { number: v.string() },
+	returns: v.union(v.null(), invoiceDocumentValidator),
+	handler: async (ctx, args) => {
+		const user = await requireCustomer(ctx);
+		const order = await findOwnOrder(ctx, user._id, args.number);
+		return await buildInvoiceDocument(ctx, order);
 	}
 });
 

@@ -8,6 +8,7 @@ import {
 	gatewayPaymentStatus,
 	gender,
 	gstRate,
+	invoice,
 	orderStatus,
 	paymentMethod,
 	paymentStatus,
@@ -187,7 +188,9 @@ export default defineSchema({
 		deliveredAt: v.optional(v.number()),
 		cancelledAt: v.optional(v.number()),
 		refund: v.optional(refund),
-		returnRequest: v.optional(returnRequest)
+		returnRequest: v.optional(returnRequest),
+		// Issued when the order ships (model/store/invoices.ts), never before
+		invoice: v.optional(invoice)
 	})
 		.index('by_userId_and_placedAt', ['userId', 'placedAt'])
 		.index('by_status_and_placedAt', ['status', 'placedAt'])
@@ -205,7 +208,9 @@ export default defineSchema({
 		gstRate,
 		unitPrice: v.number(),
 		quantity: v.number(),
-		fromSetId: v.optional(v.id('schoolSets'))
+		fromSetId: v.optional(v.id('schoolSets')),
+		// The school and set it came from, as written then, for the documents ("Ryan International School · Class 3 books")
+		setLabel: v.optional(v.string())
 	})
 		.index('by_orderId', ['orderId'])
 		.index('by_variantId', ['variantId']),
