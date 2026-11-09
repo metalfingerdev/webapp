@@ -10,6 +10,9 @@ node_modules
 /dist
 *.tgz
 
+# Real documents kept for reference only (an old order's invoice and packing slip): never committed
+/private/
+
 # OS
 .DS_Store
 Thumbs.db

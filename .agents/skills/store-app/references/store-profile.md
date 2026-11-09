@@ -59,6 +59,7 @@ in your report, and ask when it affects behaviour.
 | Store phone, WhatsApp, email                                                                                                                            | **TODO (dictate)**, entered in the admin                                                                                              | help text, footer                        |
 | Brand colours and logo                                                                                                                                  | **TODO (dictate)**                                                                                                                    | `src/themes/palette.css`                 |
 | Real figures and quotes for the home page: students served, years open, parent or principal quotes; and whether to show a "for schools" partner section | **TODO (dictate)**; the home page shows only true facts until then (decided 2026-11-08)                                               | home page stats and testimonials         |
+| The shop's logo (favicon, later the masthead)                                                                                                           | **TODO (dictate)**; placeholder favicon `static/favicon.svg`, a cream "A" on the brand teal (2026-11-09)                              | browser tab icon                         |
 | Languages in the UI                                                                                                                                     | English, Hindi-ready (all text in `src/lib/store/strings.ts`)                                                                         | `strings.ts`                             |
 | Carry over WooCommerce customers, orders, products?                                                                                                     | **TODO (dictate)**                                                                                                                    | migration script                         |
 | Who works the admin; is a role narrower than admin needed?                                                                                              | **TODO (dictate)**                                                                                                                    | `roles-and-access.md`                    |
@@ -287,6 +288,9 @@ until its screens follow `design.md`; the step's PR names any deliberate departu
    _Needs_: who works the admin, the courier(s) used, the real store details typed
    into settings by the client.
 8. **Invoices and packing slips.** Sequential numbers per financial year; port `legacy/src/lib/pdf/`.
+   The old store's real invoice and packing slip (`invoice-26.pdf`, `packing-slip-2826.pdf`) are
+   reference only, in the gitignored `private/` folder of the user's checkout; they hold a customer's
+   and the shop's details, so never commit them or copy their contents into code, tests or docs.
    _Needs_: the CA's answer on GST (registered, scheme, rates, "Tax invoice" or "Bill of supply"), legal
    name and address, invoice prefix.
 9. **Product On Demand.** Form, `enquiries`, email to the store, admin inbox. _Needs_: what the store
