@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+	<!-- Placeholder until the shop's logo: an A in the brand teal and paper (palette.css primary and
+	     foreground; a favicon cannot read the page's CSS variables) -->
+	<rect width="64" height="64" rx="14" fill="#0b3d37" />
+	<path
+		fill="#fbf9f4"
+		fill-rule="evenodd"
+		d="M32 11 50.5 53h-8.6l-3.6-9H25.7l-3.6 9h-8.6L32 11Zm0 15.5L28.6 36h6.8L32 26.5Z"
+	/>
+</svg>

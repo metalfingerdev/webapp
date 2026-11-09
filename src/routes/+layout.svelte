@@ -1,7 +1,6 @@
 <script lang="ts">
 	import '@fontsource-variable/manrope';
 	import '../app.css';
-	import favicon from '#lib/assets/favicon.svg';
 	import { createSvelteAuthClient } from '@mmailaender/convex-better-auth-svelte/svelte';
 	import { authClient } from '#lib/auth/api/auth-client.js';
 	import { api } from '#convex/_generated/api.js';
@@ -14,10 +13,6 @@
 
 	createSvelteAuthClient({ authClient, getServerState: () => data.authState });
 </script>
-
-<svelte:head>
-	<link rel="icon" href={favicon} />
-</svelte:head>
 
 <Toaster position="top-center" />
 <AuthProvider {api} {authClient} authConstants={AUTH_CONSTANTS}>
