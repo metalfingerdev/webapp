@@ -11,6 +11,7 @@ import { loadCheckoutLines } from '../model/store/checkout.js';
 import { findZone } from '../model/store/delivery.js';
 import { canCancel, transitionOrder } from '../model/store/orders.js';
 import { priceCart } from '../model/store/pricing.js';
+import { readableNumber } from '../model/store/numbers.js';
 import { orderRateLimiter } from '../model/store/rateLimits.js';
 import { adjustStock } from '../model/store/stock.js';
 import { buildInvoiceDocument, setLabelFor } from '../model/store/orderDocument.js';
@@ -29,9 +30,7 @@ import {
 	returnRequest
 } from './validators.js';
 
-const NUMBER_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no 0/O, 1/I: read out over the phone
-const newNumber = () =>
-	`AK-${Array.from({ length: 8 }, () => NUMBER_ALPHABET[Math.floor(Math.random() * NUMBER_ALPHABET.length)]).join('')}`;
+const newNumber = () => readableNumber('AK', 8);
 
 export const MAX_RETURN_REASON = 500;
 const DAY = 24 * 60 * 60 * 1000;

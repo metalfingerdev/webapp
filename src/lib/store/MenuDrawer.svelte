@@ -215,6 +215,9 @@
 								</a>
 							</li>
 						{/if}
+						<li>
+							<a href={resolve('/(shop)/product-on-demand')}>{strings.menu.onDemand}</a>
+						</li>
 						{#each helpPolicies as policy (policy.slug)}
 							<li>
 								<a href={resolve('/(shop)/policies/[slug]', { slug: policy.slug })}>

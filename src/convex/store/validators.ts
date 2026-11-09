@@ -114,6 +114,7 @@ export type StockReason = Infer<typeof stockReason>;
 export const manualStockReason = v.union(v.literal('received'), v.literal('damaged'));
 
 export const enquiryStatus = v.union(v.literal('new'), v.literal('quoted'), v.literal('closed'));
+export type EnquiryStatus = Infer<typeof enquiryStatus>;
 
 /** Money going back to the customer: asked of the gateway (pending), then processed or failed */
 export const refundStatus = v.union(

@@ -12,6 +12,12 @@ export const CLASS_LABELS: Record<number, string> = {
 export const FIRST_CLASS = -2;
 export const LAST_CLASS = 12;
 
+/** Every class label in school order, for pickers */
+export const CLASS_OPTIONS: string[] = Array.from(
+	{ length: LAST_CLASS - FIRST_CLASS + 1 },
+	(_, i) => CLASS_LABELS[FIRST_CLASS + i]
+);
+
 export const isClassOrder = (value: number) =>
 	Number.isInteger(value) && value >= FIRST_CLASS && value <= LAST_CLASS;
 

@@ -56,3 +56,10 @@ export const PAYMENT_WINDOW_MINUTES = 30;
 
 /** Extra minutes before the cancel, for a payment the bank finished at the last moment */
 export const PAYMENT_GRACE_MINUTES = 5;
+
+/**
+ * TODO (dictate): what the shop promises after a Product On Demand enquiry. Placeholder chosen
+ * 2026-11-09; the client is to say what really happens (a call, a WhatsApp, a quote, how soon).
+ */
+export const ENQUIRY_PROMISE =
+	"We'll call or WhatsApp you within 2 working days with the price and availability.";

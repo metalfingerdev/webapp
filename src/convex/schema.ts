@@ -261,6 +261,7 @@ export default defineSchema({
 	}).index('by_eventId', ['eventId']),
 
 	enquiries: defineTable({
+		number: v.string(), // EQ-XXXXXX, shown to the parent on the confirmation
 		name: v.string(),
 		email: v.string(),
 		phone,
@@ -270,7 +271,7 @@ export default defineSchema({
 		status: enquiryStatus,
 		note: v.optional(v.string()),
 		createdAt: v.number()
-	}).index('by_status_and_createdAt', ['status', 'createdAt']),
+	}).index('by_status_and_createdAt', ['status', 'createdAt']).index('by_number', ['number']),
 
 	// A single row. Business details are typed into /admin/settings, never committed (public repo).
 	storeSettings: defineTable({

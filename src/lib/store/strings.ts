@@ -22,6 +22,7 @@ export const strings = {
 		hideContinue: 'Hide this card',
 		shop: 'Shop',
 		help: 'Help',
+		onDemand: 'Product On Demand',
 		whatsapp: 'Chat on WhatsApp',
 		signIn: 'Sign in with your phone',
 		signInHint: 'See your orders and save your address',
@@ -365,6 +366,8 @@ export const strings = {
 		account: 'Account',
 		myAccount: 'My account',
 		policies: 'Policies',
+		help: 'Help',
+		onDemand: 'Product On Demand',
 		gstin: 'GSTIN',
 		rights: (year: number, name: string) => `© ${year} ${name}`
 	},
@@ -378,6 +381,7 @@ export const strings = {
 			board: 'Order board',
 			orders: 'Orders',
 			shipping: 'Shipping',
+			enquiries: 'Enquiries',
 			products: 'Products',
 			import: 'Import',
 			schools: 'Schools',
@@ -473,6 +477,24 @@ export const strings = {
 			submit: 'Mark shipped',
 			outForDelivery: 'Send out for delivery',
 			localHint: 'Local delivery: no courier needed.'
+		},
+		enquiries: {
+			title: 'Product On Demand',
+			intro: 'Books parents asked for that are not in the shop. Call them, then mark the enquiry.',
+			status: { new: 'New', quoted: 'Quoted', closed: 'Closed' },
+			empty: 'No enquiries here.',
+			more: 'Show more',
+			book: 'Book',
+			author: 'Author',
+			classLevel: 'Class',
+			email: 'Email',
+			statusLabel: 'Status',
+			note: 'Note for staff',
+			notePlaceholder: 'Price quoted, when it will arrive...',
+			save: 'Save',
+			saved: 'Saved',
+			open: 'Open',
+			close: 'Close'
 		},
 		shipping: {
 			title: 'Shipping',
@@ -803,6 +825,25 @@ export const strings = {
 			noPayments: 'No payments yet.',
 			refund: (status: string) => `refund ${status}`
 		}
+	},
+	enquiry: {
+		title: 'Product On Demand',
+		kicker: "Can't find a book?",
+		lead: 'Tell us which book you need. If we do not stock it, we will try to get it for you.',
+		name: 'Your name',
+		phone: 'Mobile number',
+		phoneHint: '10 digits. We will call or WhatsApp this number.',
+		email: 'Email',
+		bookName: 'Book name',
+		author: 'Author (if you know it)',
+		classLevel: 'Class',
+		anyClass: 'Not for a class',
+		send: 'Send enquiry',
+		sending: 'Sending',
+		failed: 'We could not send your enquiry. Please try again.',
+		doneTitle: 'We have your enquiry',
+		number: 'Enquiry number',
+		another: 'Ask for another book'
 	},
 	policies: {
 		soon: 'This page is being prepared. It will be here before the store opens.',
