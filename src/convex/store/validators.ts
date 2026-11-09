@@ -146,3 +146,80 @@ export const cartLine = v.object({
 	quantity: v.number(),
 	fromSetId: v.optional(v.id('schoolSets'))
 });
+
+/** One row of the tax inside an order's total, by rate in basis points ('exempt' counts as 0) */
+export const taxRow = v.object({ gstRate: v.number(), taxable: v.number(), tax: v.number() });
+
+/** Who the invoice is from. A copy of the settings at the time it was issued. */
+export const invoiceSeller = v.object({
+	name: v.string(),
+	address: v.optional(v.string()),
+	gstin: v.optional(v.string()),
+	phone: v.optional(v.string()),
+	email: v.optional(v.string())
+});
+
+/** Frozen on the order when it ships: later edits to settings or products never change it */
+export const invoice = v.object({
+	number: v.string(), // "AK/26-27/0001"
+	financialYear: v.string(), // "2026-27", April to March
+	issuedAt: v.number(),
+	seller: invoiceSeller,
+	taxByRate: v.array(taxRow)
+});
+
+/** The invoice, as the PDF needs it. Amounts are the ones stored on the order. Lines sit under the set they came from (no label: bought one by one). */
+export const invoiceDocument = v.object({
+	number: v.string(),
+	issuedAt: v.number(),
+	orderNumber: v.string(),
+	placedAt: v.number(),
+	paymentMethod,
+	seller: invoiceSeller,
+	buyer: addressSnapshot,
+	groups: v.array(
+		v.object({
+			label: v.optional(v.string()),
+			lines: v.array(
+				v.object({
+					title: v.string(),
+					variantLabel: v.optional(v.string()),
+					hsn: v.string(),
+					gstRate,
+					unitPrice: v.number(),
+					quantity: v.number()
+				})
+			)
+		})
+	),
+	subtotal: v.number(),
+	shippingFee: v.number(),
+	total: v.number(),
+	taxByRate: v.array(taxRow)
+});
+export type InvoiceDocument = Infer<typeof invoiceDocument>;
+
+/** The packing slip: what to pack and where it goes. It has no price field at all. */
+export const packingSlipDocument = v.object({
+	orderNumber: v.string(),
+	placedAt: v.number(),
+	paymentMethod,
+	zoneName: v.string(),
+	deliveryMethod,
+	seller: invoiceSeller,
+	buyer: addressSnapshot,
+	groups: v.array(
+		v.object({
+			label: v.optional(v.string()),
+			lines: v.array(
+				v.object({
+					title: v.string(),
+					variantLabel: v.optional(v.string()),
+					quantity: v.number()
+				})
+			)
+		})
+	),
+	shipment: v.optional(v.object({ courier: v.string(), awb: v.string() }))
+});
+export type PackingSlipDocument = Infer<typeof packingSlipDocument>;

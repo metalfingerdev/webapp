@@ -14,22 +14,30 @@ export type CartPrice = {
 	taxByRate: { gstRate: number; taxable: number; tax: number }[];
 };
 
-export const priceCart = (lines: PricedLine[], zone: ZoneRates): CartPrice => {
-	const subtotal = lines.reduce((sum, line) => sum + line.unitPrice * line.quantity, 0);
-	// An empty cart pays nothing; otherwise delivery is free once the subtotal reaches the threshold
-	const shippingFee = lines.length === 0 || subtotal >= zone.freeFrom ? 0 : zone.fee;
-
+/**
+ * The tax inside a set of lines, by rate. Rounded once per rate on the rate's total, so the checkout
+ * preview and the invoice (which calls this too) always agree. `taxable + tax` adds back to the lines.
+ */
+export const taxByRateOf = (lines: PricedLine[]) => {
 	const byRate = new Map<number, number>();
 	for (const line of lines) {
 		const rate = line.gstRate === 'exempt' ? 0 : line.gstRate;
 		byRate.set(rate, (byRate.get(rate) ?? 0) + line.unitPrice * line.quantity);
 	}
-	const taxByRate = [...byRate.entries()]
+	return [...byRate.entries()]
 		.sort(([a], [b]) => a - b)
 		.map(([gstRate, gross]) => {
 			const tax = Math.round((gross * gstRate) / (10_000 + gstRate));
 			return { gstRate, taxable: gross - tax, tax };
 		});
+};
+
+export const priceCart = (lines: PricedLine[], zone: ZoneRates): CartPrice => {
+	const subtotal = lines.reduce((sum, line) => sum + line.unitPrice * line.quantity, 0);
+	// An empty cart pays nothing; otherwise delivery is free once the subtotal reaches the threshold
+	const shippingFee = lines.length === 0 || subtotal >= zone.freeFrom ? 0 : zone.fee;
+
+	const taxByRate = taxByRateOf(lines);
 
 	return { subtotal, shippingFee, total: subtotal + shippingFee, taxByRate };
 };
