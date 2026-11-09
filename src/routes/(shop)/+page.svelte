@@ -113,7 +113,7 @@
 	<ul class="cards">
 		{#each data.schools as school (school.slug)}
 			<li class="school">
-				<Media slot="school-cover" ratio="4 / 3" icon={SchoolIcon} />
+				<Media slot="school-cover" ratio="1 / 1" icon={SchoolIcon} />
 				<strong>{school.name}</strong>
 				<Button
 					href={resolve('/(shop)/schools/[school]', { school: school.slug })}
@@ -148,7 +148,7 @@
 			{/each}
 		</ol>
 	</div>
-	<Media slot="home-how" ratio="4 / 3" />
+	<Media slot="home-how" ratio="3 / 4" />
 </section>
 
 <!-- 4. Books beyond the school list: the wine chapter -->
@@ -384,7 +384,7 @@
 				@apply type-kicker;
 			}
 			dd {
-				@apply font-bold break-words;
+				@apply font-bold wrap-break-word;
 			}
 		}
 	}
