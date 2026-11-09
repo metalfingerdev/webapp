@@ -30,10 +30,12 @@
 
   /* Neumorphic shadows (Tailwind's shadow-s, shadow-m, shadow-l, shadow-inset). The light is
      straight above: a soft glow of --neu-light on top, a soft --neu-shade below. s for cards and
-     buttons, m for bars and docks, l for anything floating over the page. Inset is pressed in. */
+     buttons, m for bars and docks, l for anything floating over the page. Inset is pressed in.
+     The glow is light bouncing off the page next to a tile that rises out of it, so l has none: a
+     floating thing is clear of the page and only casts its shade on it. */
   --shadow-s: inset 0 1px 0 var(--neu-edge), 0 -2px 5px var(--neu-light), 0 4px 10px var(--neu-shade);
   --shadow-m: inset 0 1px 0 var(--neu-edge), 0 -4px 10px var(--neu-light), 0 8px 20px var(--neu-shade);
-  --shadow-l: inset 0 1px 0 var(--neu-edge), 0 -6px 16px var(--neu-light), 0 18px 40px var(--neu-shade);
+  --shadow-l: inset 0 1px 0 var(--neu-edge), 0 18px 40px var(--neu-shade);
   --shadow-inset: inset 0 3px 7px var(--neu-shade), inset 0 -2px 4px var(--neu-light);
 
   /* Magazine type: one display face for headlines, the system font for reading */

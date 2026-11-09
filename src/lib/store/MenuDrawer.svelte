@@ -9,6 +9,7 @@
 	import SearchIcon from '@lucide/svelte/icons/search';
 	import ShoppingBagIcon from '@lucide/svelte/icons/shopping-bag';
 	import UserIcon from '@lucide/svelte/icons/user';
+	import XIcon from '@lucide/svelte/icons/x';
 	import Button from '#lib/ui/Button.svelte';
 	import AccountView from './AccountView.svelte';
 	import CartList from './CartList.svelte';
@@ -17,7 +18,7 @@
 	import MenuSchool from './MenuSchool.svelte';
 	import { useCart } from './cart.svelte.js';
 	import { useDrawer, type DrawerView, type MenuCategory } from './drawer.svelte.js';
-	import { loadRecentSets, type RecentSet } from './recentSets.js';
+	import { forgetRecentSet, loadRecentSet, type RecentSet } from './recentSets.js';
 	import { strings } from './strings.js';
 
 	// The shop's one drawer, from the right, on every screen size: the menu and the cart are views of
@@ -45,11 +46,18 @@
 	const go = drawer.go;
 	const back = drawer.back;
 
-	// The sets remembered on this device, read on every opening
-	let recent = $state<RecentSet[]>([]);
+	// The set remembered on this device, read on every opening. Its school must still be in the shop,
+	// so a removed school's card does not linger; the parent can also hide the card.
+	let recent = $state<RecentSet | null>(null);
 	$effect(() => {
-		if (drawer.open) recent = loadRecentSets();
+		if (!drawer.open) return;
+		const saved = loadRecentSet();
+		recent = saved && schools.some((s) => s.slug === saved.schoolSlug) ? saved : null;
 	});
+	const hideRecent = () => {
+		forgetRecentSet();
+		recent = null;
+	};
 
 	const titleOf = (v: DrawerView) =>
 		v.kind === 'root'
@@ -144,22 +152,31 @@
 					</div>
 				{/if}
 			{:else if view.kind === 'root'}
-				{#each recent as set (set.setId)}
-					<a
-						class="continue"
-						href={resolve('/(shop)/schools/[school]/[set]', {
-							school: set.schoolSlug,
-							set: set.setId
-						})}
-					>
-						<span class="continue-text">
-							<small>{strings.menu.continue}</small>
-							<strong>{set.label}</strong>
-							<span>{set.schoolName}</span>
-						</span>
-						<ArrowRightIcon size={20} aria-hidden="true" />
-					</a>
-				{/each}
+				{#if recent}
+					<div class="continue">
+						<a
+							href={resolve('/(shop)/schools/[school]/[set]', {
+								school: recent.schoolSlug,
+								set: recent.setId
+							})}
+						>
+							<span class="continue-text">
+								<small>{strings.menu.continue}</small>
+								<strong>{recent.label}</strong>
+								<span>{recent.schoolName}</span>
+							</span>
+							<ArrowRightIcon size={20} aria-hidden="true" />
+						</a>
+						<button
+							class="hide"
+							type="button"
+							aria-label={strings.menu.hideContinue}
+							onclick={hideRecent}
+						>
+							<XIcon size={18} aria-hidden="true" />
+						</button>
+					</div>
+				{/if}
 
 				<ul class="big">
 					<li>
@@ -310,9 +327,16 @@
 			@apply flex flex-col gap-3 rounded-3xl sunken p-4;
 		}
 
-		a.continue {
-			@apply flex press items-center gap-3 rounded-3xl raised-primary p-4 text-foreground;
+		/* The card opens the set; the small cross at its corner hides it */
+		div.continue {
+			@apply flex items-start rounded-3xl raised-primary text-foreground;
 
+			a {
+				@apply flex min-w-0 flex-1 press items-center gap-3 rounded-3xl p-4;
+			}
+			button.hide {
+				@apply m-1 grid size-11 shrink-0 press place-items-center rounded-full opacity-80;
+			}
 			span.continue-text {
 				@apply flex min-w-0 flex-1 flex-col;
 

@@ -189,6 +189,15 @@ Each entry has a date and the reason. When the user decides something new, add i
   while the listing is under it and rests at the listing's end, never over the footer. Why: room to
   look at products, and a dock that hints there is more to scroll without covering the footer.
   How: `NavBar.svelte` (`lift`, `tucked`), `ProductListing.svelte` (`div.dock`).
+- **Floating things have no glow above** (2026-11-09, dictated: "Its floating so it should not
+  illuminate the surface below with reflected light the way a non floating tile would"). `shadow-l`
+  (used only by `floating`: the nav bar, drawer, dialogs, menus, docks) casts shade below and no
+  `--neu-light` glow; raised tiles and buttons keep theirs. Why: the glow is light bouncing off the
+  page beside a tile that rises out of it; something clear of the page only shades it. How:
+  `src/themes/palette.css`.
+- **One Continue card, which can be hidden** (2026-11-09, asked for: the two cards "spawning
+  multiple instances" with no way to remove them). The menu shows the last set opened, with a cross
+  to hide it; it comes back when a set is opened again. How: `recentSets.ts`, `MenuDrawer.svelte`.
 - **Step 7 is built in four sub-steps on one branch, one PR** (2026-11-08, dictated: "all sub
   steps will be merged in a single pr"): 7a products, stock and import; 7b schools and sets; 7c order
   board, orders and shipping; 7d settings, each in its own commits on `step-7-admin`. Why: the
@@ -372,13 +381,14 @@ the page as it scrolls and hides on product grids (Decisions). No e2e tests exis
   unused by the UI, since every line is untickable.
 - **Step 3b, menu drawer**. `Drawer.svelte` is a floating rounded card over the page (Bits UI
   Dialog: focus trap, Escape, scroll lock), from the left now and from the right for the cart in
-  step 4. `MenuDrawer.svelte` has a back stack whose views slide in and back: menu (Continue cards,
+  step 4. `MenuDrawer.svelte` has a back stack whose views slide in and back: menu (Continue card,
   Schools and each category in large type, All products, help, sign-in or account and Dashboard),
   schools, a school (`MenuSchool.svelte`: book set or uniform tabs, then gender and type chips, then
   the class tiles, loaded with `listForSchool` on the client), and a category's sections plus "View
   all". It replaced the phone sheet; the menu button sits first in the bar on every size. Help shows
   WhatsApp only when a number is set (a 10-digit number gets 91) and two policy links. The set page
-  remembers the last two sets on this device (`recentSets.ts`, `localStorage`) for the Continue cards.
+  remembers the last set on this device (`recentSets.ts`, `localStorage`) for one Continue card, which
+  the parent can hide (2026-11-09: two cards looked like duplicates and could not be dismissed).
   No backend change.
 - **Step 4, cart** (built on seed data). `store/cart.ts`: `getCart` (`requireCustomer`), `getGuestCart`
   (deliberately public: prices a guest's lines, stores nothing), `setLines` (replaces the cart, the
