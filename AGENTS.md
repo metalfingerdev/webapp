@@ -50,6 +50,7 @@ email, Razorpay for payments, pdfmake for invoices, pnpm. Hosted on Vercel.
 | `pnpm check`                     | type-check Svelte + TS (must be 0 errors)                                                          |
 | `npx tsc -p src/convex --noEmit` | type-check the Convex functions                                                                    |
 | `pnpm test`                      | Vitest: `src/convex/**/*.test.ts` on `edge-runtime`, `src/**/*.spec.ts` on jsdom                   |
+| `pnpm test:e2e`                  | Playwright `tests/e2e` on a phone-sized Chromium, **dev deployment only**, not in CI (`docs/09`)   |
 | `pnpm lint`                      | Prettier + ESLint                                                                                  |
 | `pnpm build`                     | production build                                                                                   |
 

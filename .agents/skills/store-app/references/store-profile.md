@@ -320,8 +320,18 @@ back (`control` draws it over the surface) and the shop's filter and sort dock i
 listing (PR #25); one Continue card that can be hidden, and floating surfaces with no glow above
 (PR #26); the nav bar follows the screen only on the home page and elsewhere rests in the page and
 peeks on scroll up, and controls on floating surfaces (the floating bar, the drawer) are `flat`
-(branch `fix-navbar-peek`). No e2e tests exist yet (`docs/09-testing.md`); offered as its own
-branch.
+(branch `fix-navbar-peek`).
+
+**Playwright checkout tests** (2026-11-10, branch `e2e-checkout`). `pnpm test:e2e` runs
+`tests/e2e/checkout.spec.ts` on a phone-sized Chromium against the **dev** deployment only
+(`playwright.config.ts` refuses anything else; not in CI). `auth.setup.ts` signs in the test customer
+(`E2E_USER_PHONE` in `.env.local`) with the console OTP read from `npx convex logs` and keeps the
+session in `tests/e2e/.auth/`. Tests: signed out, `/checkout` goes to sign-in; a customer is refused
+on `/admin` and by `requireAppAdmin` itself (an admin query with the customer's own token); a cash on
+delivery order shows the checkout total on its order page, then is cancelled so dev stock is
+unchanged. Gotcha: typing or clicking before a page hydrates is lost, so the two steps that act on a
+server-rendered page retry until it responds. Online payment is not covered (Razorpay's own window).
+`tsconfig.json` now includes `tests` and `playwright.config.ts`.
 
 - **Old store**: in `legacy/` (not built, linted or type-checked); tag `old-store` runs it.
 - **Tables**: all of `data-model.md`. Every product has one or more `productVariants` holding price and
