@@ -14,11 +14,20 @@ code came from the `@auth/svelte` jsrepo registry (see `jsrepo.config.ts`).
 | [06 – Phone sign-in](./06-phone-otp.md) | Phone OTP architecture and the textbee → WhatsApp/Truecaller → Fast2SMS rollout |
 | [07 – Email verification](./07-email-verification.md) | Resend setup, the verification flow, rate limits, troubleshooting |
 | [08 – Environments and deployment](./08-environments-and-deployment.md) | Local / staging / production, the Vercel + Convex pipeline, CI, moving to production |
-| [App overview](./overview.md) | Aggarwal Kart specifics: store architecture, directory map, key concepts |
-| [Deployment checklist](./deployment.md) | What is left before real orders (payments, invoices, roles) |
 | [09 – Testing](./09-testing.md) | What Vitest and Playwright each test, running the e2e suite against dev |
 | [10 – UI](./10-ui.md) | The look (chapters, neumorphism, editorial type), nested CSS, and the photo slots |
 | [Launch checklist](./launch.md) | Taking the store from staging to aggarwalkart.in: decisions, accounts, env vars, DNS cutover, rollback |
+
+The rebuilt store itself (roadmap, what is built, decisions) is described in
+`.agents/skills/store-app/references/store-profile.md`.
+
+**Old store, kept for reference** (its code is in `legacy/`):
+
+| Doc | What it covers |
+| --- | --- |
+| [Old store overview](./overview.md) | The old store's architecture and directory map |
+| [Old deployment checklist](./deployment.md) | The old store's pre-launch gaps, since replaced by the roadmap |
+| [Old security review](../SECURITY.md) | The 2026-06 review of the old store's Convex functions |
 
 ## Stack
 

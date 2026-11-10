@@ -19,9 +19,13 @@ Every session starts the same way, so nothing is skipped and nothing is built tw
    **Decisions**), then the references the step names. AGENTS.md is already loaded.
 3. **Tell the user**, in five lines or fewer:
    - which step and what it builds
-   - what it replaces from `legacy/` (or from `src/` before step 1); old code is never deleted
+   - what it replaces from `legacy/`; old code is never deleted
    - which `TODO (dictate)` values or client inputs it needs, and whether they are in yet
    - anything from earlier steps left unfinished in **Status**
+
+   If every roadmap step is built, say so, list what **Status** still leaves open (client inputs,
+   leftovers) and ask the user what to work on. Don't invent a new step.
+
 4. **Missing client inputs.** Ask the user now, as plain questions they can pass to the client, only for
    what this step needs. Offer to build with named placeholder constants meanwhile. Ask which they
    prefer; don't decide for them. Record each answer in the store profile when it comes in.

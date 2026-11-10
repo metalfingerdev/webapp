@@ -1,7 +1,8 @@
 # Online payments
 
 Read this when adding pay-online at checkout or refunds. Razorpay is the gateway; the pattern holds for
-any gateway. Applies from step 6; until then the old `MockPaymentProcessor` stays and nothing is charged.
+any gateway. Built in step 6: `store/payments.ts`, `model/store/{razorpay,payments,refunds,paymentWebhook}.ts`,
+and the webhook route in `http.ts`. Online payment is offered only where the Razorpay keys are set.
 
 - **Only the gateway marks an order paid.** A signed webhook (verify the HMAC with the webhook secret, in
   `src/convex/http.ts`, at `https://<deployment>.convex.site/razorpay-webhook`) or a server-side status
@@ -24,5 +25,5 @@ any gateway. Applies from step 6; until then the old `MockPaymentProcessor` stay
   logging them.
 - Build a "check payment setup" action that tells the owner which env var is missing, and an admin
   payments list showing each payment with its refund state.
-- Cash on delivery is only added if it was dictated (`store-profile.md`); it needs its own status path
-  and a COD fee decision.
+- Cash on delivery was dictated (2026-11-07) and is built: its orders start `confirmed` and are marked
+  paid on delivery. No COD fee (placeholder, `store-profile.md`).

@@ -46,7 +46,7 @@ seed, move the old store to `legacy/`), 2 catalogue, 3 school sets, 4 cart, 5 ch
   (18% = 1800). Prices include GST; tax is back-calculated. Floats drift and a ₹0.01 gap between the
   screen and the invoice becomes a dispute.
 - **The server recomputes prices and checks stock at checkout.** The client's cart is a request, not a
-  fact. Reuse `calculateOrder` / `loadSettings` from `src/convex/lib/` until step 5 moves them.
+  fact: `model/store/pricing.ts#priceCart`, used by the cart, checkout and `placeOrder`.
 - **A set is a list of products, not one priced product.** Its price is the sum of its lines at
   checkout, and the order snapshots each line, so the invoice shows real books with their HSN and GST.
 - **Sets belong to an academic session** (e.g. 2026-27). Next year's list never edits last year's orders.
@@ -86,14 +86,14 @@ seed, move the old store to `legacy/`), 2 catalogue, 3 school sets, 4 cart, 5 ch
 
 ## The old store (`legacy/`)
 
-Step 1 moves the old store out of `src/` into `legacy/`, which nothing builds, type-checks or deploys,
+Step 1 moved the old store out of `src/` into `legacy/`, which nothing builds, type-checks or deploys,
 because its tables use the same names as the new ones. Each later step reads the old code there, ports
 what is worth keeping into new files, and leaves the old files where they are: **nothing in `legacy/`
 is ever deleted** (the user's rule, 2026-11-07). Worth porting rather
 than rewriting: the pdfmake invoice and packing slip (`legacy/src/lib/pdf/`, `legacy/src/convex/lib/orderDocument.ts`),
 the stock-sheet parser (`legacy/src/lib/products/import.ts`), the GST maths (`legacy/src/convex/lib/pricing.ts`),
 `slugify` and `reserveUniqueSlug`, and the URL filter state (`legacy/src/lib/shop/filters.svelte.ts`).
-Before step 1 these are still at the same paths without `legacy/`.
+All of these have been ported; look in `legacy/` for anything else before writing it from scratch.
 
 Reuse before writing: `authComponent.getAuthUser` / `safeGetAuthUser` (`src/convex/auth.ts`),
 `requireAppAdmin` (`src/convex/model/admin/index.ts`), `src/lib/ui` and the primitives in

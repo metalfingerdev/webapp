@@ -1,5 +1,9 @@
 # Security Review — Convex Functions
 
+> **This reviews the old store**, whose files (`dashboard.ts`, `products.ts`, `orders.ts`, ...) are now in
+> `legacy/src/convex/`. The rebuilt store's access rules are in
+> `.agents/skills/store-app/references/roles-and-access.md`. Kept for reference.
+
 **Date:** 2026-06-27
 **Scope:** All Convex functions in `src/convex/` (queries, mutations, actions).
 **Reviewer:** automated sweep for broken access control, IDOR, missing auth,

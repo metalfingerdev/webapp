@@ -81,9 +81,6 @@ docs/                    developer docs, start at docs/README.md
 .agents/skills/          skills; .claude/skills/ links to them
 ```
 
-Before step 1 the old store is still inside `src/` (`src/components`, `src/routes/(app)`,
-`src/convex/{products,orders,dashboard,...}.ts`).
-
 ## Conventions
 
 - **Read `src/convex/_generated/ai/guidelines.md` and `src/convex/CONVENTIONS.md` before touching

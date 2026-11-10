@@ -324,6 +324,11 @@ the step 9 and 10 entries and "Linking Google" below. Smaller leftovers still op
 real price sorting (price lives on variants), return refunds done by hand, the dev Razorpay webhook
 secret (the user's to set).
 
+**Docs refresh** (2026-11-10, branch `docs-refresh`): README rewritten for the rebuilt store; the
+`store-app` references (customer, admin, payments, shipping, roles, data model) brought in line with
+what was built; old-store docs (`docs/overview.md`, `docs/deployment.md`, `SECURITY.md`) labelled as
+kept for reference; `/next-step` says so when every roadmap step is built. No code changed.
+
 **UI refresh** (2026-11-08/09, branch `ui-refresh`, before step 8): the magazine and neumorphism look
 and nested CSS across the store, admin, sign-in and account (Decisions). New: `Media.svelte` (photo
 slots), `PageHead.svelte`, chapter palettes and `type-*`/`rail` utilities, the Manrope display font.
@@ -358,7 +363,7 @@ server-rendered page retry until it responds. Online payment is not covered (Raz
 - **Tests**: `store/harness.testutils.ts` signs in real Better Auth rows (signed out, two customers,
   admin); `store/access.test.ts` covers stock refusals, logging and never-below-zero. convex-test
   needs the module glob at the Convex root: `modules.testutils.ts`.
-- **UI**: a bare home page and `src/lib/store/ShopHeader.svelte` (stand-ins until step 2).
+- **UI**: step 1 had a bare home page and `ShopHeader.svelte` as stand-ins; step 2 replaced them.
 - **Staging is live** (2026-11-06): a Vercel project (Hobby, SvelteKit) deploys `main`, with
   `PUBLIC_APP_ENV=staging`. Its backend is this repo's Convex **Production** slot. Convex env vars set
   there: the Better Auth secret, host and URL; `ADMIN_USER_IDS` (the owner); phone sign-in by real SMS
