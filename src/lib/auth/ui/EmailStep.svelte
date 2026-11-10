@@ -15,7 +15,11 @@
 	interface EmailStepProps {
 		email: string;
 		onEmailChange: (email: string) => void;
-		onMethodSelect: (method: AuthMethod, emailExists: boolean) => void | Promise<void>;
+		onMethodSelect: (
+			method: AuthMethod,
+			emailExists: boolean,
+			hasPassword: boolean
+		) => void | Promise<void>;
 		submitting: boolean;
 		availableMethods: AuthMethod[];
 	}
@@ -66,7 +70,7 @@
 				toast.error(data.reason || 'Please enter a valid email address.');
 				return;
 			}
-			await onMethodSelect(method, data.exists);
+			await onMethodSelect(method, data.exists, data.hasPassword);
 		} catch (error) {
 			toast.error('Failed to validate email. Please try again.');
 			console.error('Email validation error:', error);
