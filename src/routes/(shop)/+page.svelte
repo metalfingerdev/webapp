@@ -12,6 +12,7 @@
 	import ArrowRightIcon from '@lucide/svelte/icons/arrow-right';
 	import Button from '#lib/ui/Button.svelte';
 	import Media from '#lib/ui/Media.svelte';
+	import SeoHead from '#lib/store/SeoHead.svelte';
 	import { strings } from '#lib/store/strings.js';
 
 	let { data } = $props();
@@ -47,10 +48,7 @@
 	const stationery = $derived(data.categories.find((c) => c.slug === 'stationery'));
 </script>
 
-<svelte:head>
-	<title>{text.title}</title>
-	<meta name="description" content={strings.tagline} />
-</svelte:head>
+<SeoHead title={text.title} description={strings.tagline} />
 
 <!-- 1. Masthead: the headline, what the shop sells, and quick links -->
 <header class="masthead">

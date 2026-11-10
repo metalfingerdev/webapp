@@ -6,6 +6,7 @@
 	import Pill from '#lib/ui/Pill.svelte';
 	import { useCart } from '#lib/store/cart.svelte.js';
 	import { classRange, discountPercent, formatPrice } from '#lib/store/format.js';
+	import SeoHead from '#lib/store/SeoHead.svelte';
 	import { strings } from '#lib/store/strings.js';
 
 	let { data } = $props();
@@ -34,15 +35,13 @@
 	const tone = { in_stock: 'ok', few_left: 'warn', out: 'bad' } as const;
 </script>
 
-<svelte:head>
-	<title>{product.title} · {strings.brand}</title>
-	<meta
-		name="description"
-		content={[product.title, product.author && `${strings.product.by} ${product.author}`, classes]
-			.filter(Boolean)
-			.join(', ')}
-	/>
-</svelte:head>
+<SeoHead
+	title={product.title}
+	description={[product.title, product.author && `${strings.product.by} ${product.author}`, classes]
+		.filter(Boolean)
+		.join(', ')}
+	image={product.imageUrl}
+/>
 
 <nav class="crumbs" aria-label={strings.product.breadcrumb}>
 	<a href={resolve('/(shop)/shop/[category]', { category: product.categorySlug })}

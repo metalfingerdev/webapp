@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import PageHead from '#lib/store/PageHead.svelte';
+	import SeoHead from '#lib/store/SeoHead.svelte';
 	import SetPicker from '#lib/store/SetPicker.svelte';
 	import { classRange } from '#lib/store/format.js';
 	import { strings } from '#lib/store/strings.js';
@@ -20,9 +21,10 @@
 	});
 </script>
 
-<svelte:head>
-	<title>{data.set.label} · {data.school.name} · {strings.brand}</title>
-</svelte:head>
+<SeoHead
+	title={`${data.set.label} · ${data.school.name}`}
+	description={strings.seo.set(data.set.label, data.school.name, data.session)}
+/>
 
 <PageHead
 	back={{

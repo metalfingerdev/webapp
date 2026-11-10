@@ -3,14 +3,13 @@
 	import SchoolIcon from '@lucide/svelte/icons/school';
 	import Media from '#lib/ui/Media.svelte';
 	import PageHead from '#lib/store/PageHead.svelte';
+	import SeoHead from '#lib/store/SeoHead.svelte';
 	import { strings } from '#lib/store/strings.js';
 
 	let { data } = $props();
 </script>
 
-<svelte:head>
-	<title>{strings.schools.title} · {strings.brand}</title>
-</svelte:head>
+<SeoHead title={strings.schools.title} description={strings.schools.lead} />
 
 <PageHead title={strings.schools.title} lead={strings.schools.lead} />
 <ul class="schools">

@@ -5,6 +5,7 @@
 	import { ENQUIRY_PROMISE } from '#convex/model/store/storeProfile.js';
 	import { errorText } from '#lib/store/format.js';
 	import PageHead from '#lib/store/PageHead.svelte';
+	import SeoHead from '#lib/store/SeoHead.svelte';
 	import { strings } from '#lib/store/strings.js';
 	import Button from '#lib/ui/Button.svelte';
 	import Field from '#lib/ui/Field.svelte';
@@ -54,9 +55,7 @@
 	};
 </script>
 
-<svelte:head>
-	<title>{text.title} · {strings.brand}</title>
-</svelte:head>
+<SeoHead title={text.title} description={text.lead} />
 
 <PageHead title={text.title} kicker={text.kicker} lead={text.lead} />
 

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import PageHead from '#lib/store/PageHead.svelte';
+	import SeoHead from '#lib/store/SeoHead.svelte';
 	import ProductListing from '#lib/store/ProductListing.svelte';
 	import { strings } from '#lib/store/strings.js';
 
@@ -9,9 +10,7 @@
 	);
 </script>
 
-<svelte:head>
-	<title>{heading} · {strings.brand}</title>
-</svelte:head>
+<SeoHead title={heading} description={strings.seo.shop} />
 
 <PageHead title={heading} />
 <ProductListing listing={data.listing} />
