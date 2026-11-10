@@ -51,17 +51,17 @@ Razorpay, Resend) are listed in [docs/05-configuration.md](docs/05-configuration
 
 ## Scripts
 
-| Command                          | Description                                                           |
-| -------------------------------- | --------------------------------------------------------------------- |
-| `pnpm dev`                       | Frontend + Convex dev backend                                         |
-| `pnpm check`                     | `svelte-check` type checking                                          |
-| `npx tsc -p src/convex --noEmit` | Type-check the Convex functions                                       |
-| `pnpm test`                      | Vitest (Convex functions and UI helpers)                              |
-| `pnpm test:e2e`                  | Playwright against the dev deployment ([docs/09](docs/09-testing.md)) |
-| `pnpm lint`                      | Prettier + ESLint                                                     |
-| `pnpm format`                    | Format with Prettier                                                  |
-| `pnpm build`                     | Production build (`@sveltejs/adapter-vercel`)                         |
-| `pnpm preview`                   | Preview the production build locally                                  |
+| Command                               | Description                                                           |
+| ------------------------------------- | --------------------------------------------------------------------- |
+| `pnpm dev`                            | Frontend + Convex dev backend                                         |
+| `pnpm check`                          | `svelte-check` type checking                                          |
+| `pnpm dlx tsc -p src/convex --noEmit` | Type-check the Convex functions                                       |
+| `pnpm test`                           | Vitest (Convex functions and UI helpers)                              |
+| `pnpm test:e2e`                       | Playwright against the dev deployment ([docs/09](docs/09-testing.md)) |
+| `pnpm lint`                           | Prettier + ESLint                                                     |
+| `pnpm format`                         | Format with Prettier                                                  |
+| `pnpm build`                          | Production build (`@sveltejs/adapter-vercel`)                         |
+| `pnpm preview`                        | Preview the production build locally                                  |
 
 ## Deployment
 
