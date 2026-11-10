@@ -33,7 +33,7 @@
 	// Types
 	type AuthStep =
 		| 'phone'
-		| 'email' | 'password-flow' | 'email-otp-flow' | 'magic-link-flow' | 'verify-email' | 'success';
+		| 'email' | 'no-password' | 'password-flow' | 'email-otp-flow' | 'magic-link-flow' | 'verify-email' | 'success';
 	type EmailAuthMethod = 'password' | 'emailOTP' | 'magicLink';
 
 	interface SignInProps {
@@ -201,8 +201,18 @@
 	/**
 	 * Handles method selection from email step
 	 */
-	async function handleMethodSelect(method: EmailAuthMethod, emailExists: boolean): Promise<void> {
+	async function handleMethodSelect(
+		method: EmailAuthMethod,
+		emailExists: boolean,
+		hasPassword = true
+	): Promise<void> {
 		emailExistsRef = emailExists;
+
+		// An account made with Google or a phone has no password: offer the ways it can sign in
+		if (method === 'password' && emailExists && !hasPassword) {
+			currentStep = 'no-password';
+			return;
+		}
 
 		// Existing user + magic link: send directly, skip MagicLinkFlow UI
 		if (method === 'magicLink' && emailExists) {
@@ -278,6 +288,8 @@
 					: 'Sign in with verification code';
 			case 'magic-link-flow':
 				return 'Sign in with magic link';
+			case 'no-password':
+				return 'This account has no password';
 			case 'phone':
 				if (phoneStep === 'code') return 'Verify your number';
 				if (phoneStep === 'name') return 'One last thing';
@@ -300,6 +312,8 @@
 				return 'Enter the verification code we sent to your email address.';
 			case 'magic-link-flow':
 				return "We'll send a magic link to your email address.";
+			case 'no-password':
+				return `${email} was signed up with Google or a mobile number. Sign in the same way.`;
 			case 'phone':
 				if (phoneStep === 'code') return "We've sent you a code by SMS.";
 				if (phoneStep === 'name') return 'What should we call you?';
@@ -392,7 +406,9 @@
 		<div class="steps">
 			<!-- Social Sign In -->
 			<SocialFlow
-				show={currentStep === 'email' || (currentStep === 'phone' && phoneStep === 'phone')}
+				show={currentStep === 'email' ||
+					currentStep === 'no-password' ||
+					(currentStep === 'phone' && phoneStep === 'phone')}
 				onSuccess={handleAuthSuccess}
 				onSubmittingChange={(value) => (submitting = value)}
 				callbackURL={getCallbackURL()}
@@ -425,6 +441,26 @@
 							Continue with mobile number instead
 						</Button>
 					{/if}
+				{:else if currentStep === 'no-password'}
+					<div class="actions">
+						{#if phoneEnabled}
+							<Button block onclick={() => (currentStep = 'phone')} disabled={submitting}>
+								Continue with mobile number
+							</Button>
+						{/if}
+						{#if availableEmailMethods.includes('emailOTP')}
+							<Button
+								block
+								onclick={() => handleMethodSelect('emailOTP', true)}
+								disabled={submitting}
+							>
+								Email me a code
+							</Button>
+						{/if}
+						<Button block onclick={resetToEmailStep} disabled={submitting}>
+							Use a different email
+						</Button>
+					</div>
 				{:else if currentStep === 'password-flow'}
 					<PasswordFlow
 						{email}

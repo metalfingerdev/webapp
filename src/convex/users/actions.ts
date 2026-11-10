@@ -18,9 +18,19 @@ export const checkEmailAvailabilityAndValidity = action({
 		const exists = user !== null;
 
 		if (exists) {
+			// An account made with Google or a phone has no password to type, so the sign-in
+			// form offers the ways it can sign in instead of a password field it can never pass.
+			const credential = await ctx.runQuery(components.betterAuth.adapter.findOne, {
+				model: 'account',
+				where: [
+					{ field: 'userId', value: user._id },
+					{ field: 'providerId', value: 'credential' }
+				]
+			});
 			return {
 				valid: true,
 				exists: true,
+				hasPassword: credential !== null,
 				email,
 				reason: 'User with this email already exists'
 			};
@@ -30,13 +40,15 @@ export const checkEmailAvailabilityAndValidity = action({
 			const result = await validateEmail(ctx, email);
 			return {
 				...result,
-				exists: false
+				exists: false,
+				hasPassword: false
 			};
 		}
 
 		return {
 			valid: true,
 			exists: false,
+			hasPassword: false,
 			email,
 			reason: 'Email verification disabled'
 		};
