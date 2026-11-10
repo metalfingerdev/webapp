@@ -21,8 +21,8 @@ repo ([launch checklist](docs/launch.md)).
   decisions and what the client still has to dictate
 - [Convex conventions](src/convex/CONVENTIONS.md): backend rules; read before touching `src/convex/`
 
-The old store lives in `legacy/` (kept for good, not built). Its docs, [overview](docs/overview.md),
-[deployment](docs/deployment.md) and [security review](SECURITY.md), are kept for reference.
+The old store lives in `legacy/` (kept for good, not built). Its docs are kept for reference in
+[docs/old-store/](docs/old-store/).
 
 ## Local development
 
