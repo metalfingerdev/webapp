@@ -3,6 +3,7 @@
 	import { resolve } from '$app/paths';
 	import Card from '#lib/ui/Card.svelte';
 	import PageHead from '#lib/store/PageHead.svelte';
+	import SeoHead from '#lib/store/SeoHead.svelte';
 	import { classRange } from '#lib/store/format.js';
 	import { forGender } from '#lib/store/schoolSets.js';
 	import { strings } from '#lib/store/strings.js';
@@ -65,9 +66,10 @@
 	};
 </script>
 
-<svelte:head>
-	<title>{data.school.name} · {strings.brand}</title>
-</svelte:head>
+<SeoHead
+	title={data.school.name}
+	description={strings.seo.school(data.school.name, data.session)}
+/>
 
 <PageHead
 	tone="ink"

@@ -845,6 +845,17 @@ export const strings = {
 		number: 'Enquiry number',
 		another: 'Ask for another book'
 	},
+	// Descriptions for search engines and link previews (WhatsApp shows them under the title)
+	seo: {
+		shop: 'Textbooks, NCERT books, sample papers, entrance exam and language books, uniforms and stationery.',
+		category: (name: string) => `${name} at Aggarwal Kart. Order online.`,
+		school: (school: string, session: string) =>
+			`Book sets and uniforms for ${school} by class, session ${session}.`,
+		set: (set: string, school: string, session: string) =>
+			`${set} for ${school}, session ${session}. Untick what you already have and order the rest.`,
+		policies:
+			'Privacy, terms, cancellation, refund and return, shipping, payment and grievance policies of Aggarwal Kart.'
+	},
 	policies: {
 		all: 'Policies',
 		updated: (date: string) => `Last updated ${date}`,

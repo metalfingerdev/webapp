@@ -1,5 +1,6 @@
 <script lang="ts">
 	import PageHead from '#lib/store/PageHead.svelte';
+	import SeoHead from '#lib/store/SeoHead.svelte';
 	import Notice from '#lib/ui/Notice.svelte';
 	import { strings } from '#lib/store/strings.js';
 
@@ -7,10 +8,7 @@
 	const draft = $derived(data.text.sections.length === 0);
 </script>
 
-<svelte:head>
-	<title>{data.title} · {strings.brand}</title>
-	{#if draft}<meta name="robots" content="noindex" />{/if}
-</svelte:head>
+<SeoHead title={data.title} noindex={draft} />
 
 <PageHead title={data.title} back={{ href: '/policies', label: strings.policies.all }} />
 

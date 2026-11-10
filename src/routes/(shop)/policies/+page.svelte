@@ -1,12 +1,11 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import PageHead from '#lib/store/PageHead.svelte';
+	import SeoHead from '#lib/store/SeoHead.svelte';
 	import { strings } from '#lib/store/strings.js';
 </script>
 
-<svelte:head>
-	<title>{strings.policies.all} · {strings.brand}</title>
-</svelte:head>
+<SeoHead title={strings.policies.all} description={strings.seo.policies} />
 
 <PageHead title={strings.policies.all} />
 

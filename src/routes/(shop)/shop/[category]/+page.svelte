@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import PageHead from '#lib/store/PageHead.svelte';
+	import SeoHead from '#lib/store/SeoHead.svelte';
 	import ProductListing from '#lib/store/ProductListing.svelte';
 	import { strings } from '#lib/store/strings.js';
 
@@ -8,9 +9,7 @@
 	const heading = $derived(data.listing.q ? strings.shop.resultsFor(data.listing.q) : data.title);
 </script>
 
-<svelte:head>
-	<title>{data.title} · {strings.brand}</title>
-</svelte:head>
+<SeoHead title={data.title} description={strings.seo.category(data.title)} />
 
 <PageHead title={heading} />
 {#if data.subcategories.length}
