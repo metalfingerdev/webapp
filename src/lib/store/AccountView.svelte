@@ -18,6 +18,7 @@
 	import AddressForm from './AddressForm.svelte';
 	import { useDrawer } from './drawer.svelte.js';
 	import { formatDate, formatPrice } from './format.js';
+	import { accountEmail, accountName } from './me.js';
 	import { strings } from './strings.js';
 
 	// The account, as a view of the shop drawer: the idea of the old sidebar's user and sign-in views
@@ -38,8 +39,7 @@
 	const addresses = useQuery(api.store.addresses.list, () => (signedIn ? {} : 'skip'));
 
 	const me = $derived(user.data);
-	// A phone-only sign-up has its number as its name and only a placeholder email
-	const realName = $derived(me?.name && !/^\+?\d[\d\s]*$/.test(me.name) ? me.name : '');
+	const realName = $derived(accountName(me));
 	const firstName = $derived(realName.split(/\s+/)[0] ?? '');
 	// Shown until the photo loads, or instead of it: two initials, or a person icon for no name
 	const initials = $derived(
@@ -50,9 +50,7 @@
 			.map((word) => word[0]?.toUpperCase())
 			.join('')
 	);
-	const contact = $derived(
-		me?.phoneNumber ?? (me?.email && !me.email.endsWith('.invalid') ? me.email : '')
-	);
+	const contact = $derived(me?.phoneNumber ?? accountEmail(me));
 	const tone = (status: string) =>
 		status === 'cancelled' ? 'bad' : status === 'delivered' ? 'ok' : 'warn';
 
