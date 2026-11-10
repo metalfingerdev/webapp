@@ -114,7 +114,7 @@ docs/                        this documentation
 **Working:** shop browse + category + search, URL-driven filters/sort, cart +
 guest-merge, checkout (mock payment), accounts/addresses/orders, admin dashboard
 (products/schools/bundles/orders/stock), invoice + packing-slip PDFs, role-gated
-admin, security pass on Convex functions (see [SECURITY.md](../SECURITY.md)).
+admin, security pass on Convex functions (see [security-review.md](./security-review.md)).
 
 **Left before / shortly after launch** — the authoritative, detailed list is the
 **[pre-launch checklist](./deployment.md#3-pre-launch-checklist-close-these-before-real-orders)**.

@@ -187,4 +187,4 @@ profile's **Decisions**) with the date and _why_.
 ## Docs
 
 `docs/README.md` indexes everything. New to the project or to Claude Code: `docs/working-with-claude.md`.
-`docs/overview.md` and `docs/deployment.md` describe the **old** store and are kept for reference.
+`docs/old-store/` describes the **old** store (overview, deployment, security review) and is kept for reference.

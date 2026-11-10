@@ -327,7 +327,9 @@ secret (the user's to set).
 **Docs refresh** (2026-11-10, branch `docs-refresh`): README rewritten for the rebuilt store; the
 `store-app` references (customer, admin, payments, shipping, roles, data model) brought in line with
 what was built; old-store docs (`docs/overview.md`, `docs/deployment.md`, `SECURITY.md`) labelled as
-kept for reference; `/next-step` says so when every roadmap step is built. No code changed.
+kept for reference; `/next-step` says so when every roadmap step is built. No code changed. Then
+(branch `docs`) the docs index was grouped into sections and the old-store docs moved to
+`docs/old-store/` (`SECURITY.md` left the root, where GitHub shows it as the security policy).
 
 **UI refresh** (2026-11-08/09, branch `ui-refresh`, before step 8): the magazine and neumorphism look
 and nested CSS across the store, admin, sign-in and account (Decisions). New: `Media.svelte` (photo
