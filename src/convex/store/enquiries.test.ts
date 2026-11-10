@@ -3,6 +3,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ConvexError } from 'convex/values';
 import { api } from '../_generated/api';
+import { copyRecipient } from '../model/store/enquiries';
 import { setup } from './harness.testutils';
 
 // The rate limiter is a component convex-test does not mount; fake it, with a real per-key count
@@ -95,5 +96,18 @@ describe('the inbox', () => {
 			note: 'Called, ₹300'
 		});
 		expect(await admin.query(api.store.admin.enquiries.countNew, {})).toBe(0);
+	});
+});
+
+describe('the copy to the parent', () => {
+	const verified = { email: 'parent@example.test', emailVerified: true };
+
+	it('goes only to a signed-in parent’s own verified email, never to whatever was typed', () => {
+		expect(copyRecipient(null, 'parent@example.test')).toBeNull();
+		expect(copyRecipient({ ...verified, emailVerified: false }, 'parent@example.test')).toBeNull();
+		expect(copyRecipient(verified, 'stranger@example.test')).toBeNull();
+		const phoneOnly = { email: '919800000000@phone.invalid', emailVerified: true };
+		expect(copyRecipient(phoneOnly, phoneOnly.email)).toBeNull();
+		expect(copyRecipient(verified, 'parent@example.test')).toBe('parent@example.test');
 	});
 });

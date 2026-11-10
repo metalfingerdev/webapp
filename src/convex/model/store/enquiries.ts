@@ -5,6 +5,7 @@ import { resend } from '../../email.js';
 import { normalizeIndianMobile } from '../../otp/phone.js';
 import { escapeHtml, heading, paragraph, renderBaseEmail } from '../emails/templates/baseEmail.js';
 import { CLASS_OPTIONS } from './classes.js';
+import { ENQUIRY_PROMISE } from './storeProfile.js';
 
 export const MAX_ENQUIRY_NOTE = 1000;
 
@@ -43,6 +44,9 @@ export const checkEnquiry = (input: EnquiryInput) => {
 	return { name, phone, email, bookName, author, classLevel };
 };
 
+const row = (label: string, value?: string) =>
+	value ? paragraph(`${label}: <strong>${escapeHtml(value)}</strong>`) : '';
+
 /**
  * Tells the shop. Goes to the shop email typed into /admin/settings; skipped when that is empty or
  * no sender address is set (no domain yet). A failure here never loses the enquiry.
@@ -56,8 +60,6 @@ export const sendEnquiryEmail = async (
 	const settings = await ctx.db.query('storeSettings').first();
 	const to = settings?.email;
 	if (!to) return;
-	const row = (label: string, value?: string) =>
-		value ? paragraph(`${label}: <strong>${escapeHtml(value)}</strong>`) : '';
 	try {
 		await resend.sendEmail(ctx, {
 			from,
@@ -78,5 +80,49 @@ export const sendEnquiryEmail = async (
 		});
 	} catch (error) {
 		console.error('[enquiry] email not sent', enquiry.number, error);
+	}
+};
+
+/**
+ * Who gets a copy of the enquiry: only a signed-in parent, at their own verified email, when that is
+ * the email typed into the form. Why: the form is open to anyone, so mailing whatever address is
+ * typed would let a stranger use the shop to send mail to people who never asked for it.
+ */
+export const copyRecipient = (
+	user: { email: string; emailVerified: boolean } | null | undefined,
+	typedEmail: string
+) => {
+	if (!user?.emailVerified) return null;
+	const email = user.email.toLowerCase();
+	if (email.endsWith('.invalid') || email !== typedEmail.trim().toLowerCase()) return null;
+	return email;
+};
+
+/** The parent's copy: the enquiry number and what the shop does next. Same skips as the shop's. */
+export const sendEnquiryCopy = async (
+	ctx: MutationCtx,
+	enquiry: ReturnType<typeof checkEnquiry> & { number: string },
+	to: string
+) => {
+	const from = process.env.EMAIL_SEND_FROM;
+	if (!from) return;
+	try {
+		await resend.sendEmail(ctx, {
+			from,
+			to,
+			subject: `Your enquiry ${enquiry.number}: ${enquiry.bookName.slice(0, 60)}`,
+			html: renderBaseEmail({
+				children: [
+					heading(`We have your enquiry ${enquiry.number}`),
+					row('Book', enquiry.bookName),
+					row('Author', enquiry.author),
+					row('Class', enquiry.classLevel),
+					paragraph(escapeHtml(ENQUIRY_PROMISE))
+				].join(''),
+				previewText: ENQUIRY_PROMISE
+			})
+		});
+	} catch (error) {
+		console.error('[enquiry] copy not sent', enquiry.number, error);
 	}
 };

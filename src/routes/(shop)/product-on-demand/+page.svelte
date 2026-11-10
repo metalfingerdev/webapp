@@ -1,9 +1,11 @@
 <script lang="ts">
-	import { useConvexClient } from 'convex-svelte';
+	import { useConvexClient, useQuery } from 'convex-svelte';
+	import { useAuth } from '@mmailaender/convex-better-auth-svelte/svelte';
 	import { api } from '#convex/_generated/api.js';
 	import { CLASS_OPTIONS } from '#convex/model/store/classes.js';
 	import { ENQUIRY_PROMISE } from '#convex/model/store/storeProfile.js';
 	import { errorText } from '#lib/store/format.js';
+	import { accountEmail, accountName, accountPhone } from '#lib/store/me.js';
 	import PageHead from '#lib/store/PageHead.svelte';
 	import SeoHead from '#lib/store/SeoHead.svelte';
 	import { strings } from '#lib/store/strings.js';
@@ -25,6 +27,21 @@
 	let error = $state('');
 	let busy = $state(false);
 	let number = $state('');
+
+	// A signed-in parent's details, filled once into the fields still empty. Guests see no change.
+	const auth = useAuth();
+	const user = useQuery(api.users.queries.getActiveUser, () =>
+		auth.isAuthenticated ? {} : 'skip'
+	);
+	let prefilled = false;
+	$effect(() => {
+		const me = user.data;
+		if (!me || prefilled) return;
+		prefilled = true;
+		name ||= accountName(me);
+		phone ||= accountPhone(me);
+		email ||= accountEmail(me);
+	});
 
 	const submit = async (event: SubmitEvent) => {
 		event.preventDefault();

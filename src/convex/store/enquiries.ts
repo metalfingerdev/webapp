@@ -2,7 +2,13 @@
 // not, so the limits are per phone number and for the whole shop (model/store/rateLimits.ts).
 import { v } from 'convex/values';
 import { mutation } from '../_generated/server.js';
-import { checkEnquiry, sendEnquiryEmail } from '../model/store/enquiries.js';
+import { authComponent } from '../auth.js';
+import {
+	checkEnquiry,
+	copyRecipient,
+	sendEnquiryCopy,
+	sendEnquiryEmail
+} from '../model/store/enquiries.js';
 import { readableNumber } from '../model/store/numbers.js';
 import { enquiryRateLimiter } from '../model/store/rateLimits.js';
 
@@ -38,6 +44,9 @@ export const submit = mutation({
 			createdAt: Date.now()
 		});
 		await sendEnquiryEmail(ctx, { ...enquiry, number });
+		// Signed in is not required; it only decides whether the parent gets a copy (copyRecipient)
+		const copyTo = copyRecipient(await authComponent.safeGetAuthUser(ctx), enquiry.email);
+		if (copyTo) await sendEnquiryCopy(ctx, { ...enquiry, number }, copyTo);
 		return { number };
 	}
 });
