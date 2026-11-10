@@ -16,7 +16,13 @@ setup('sign in the test customer', async ({ page }) => {
 	}
 
 	await page.goto('/signin');
-	await page.locator('#phone').fill(phone.slice(3));
+	// Typing before the page hydrates is wiped out; Continue turns on only once Svelte has the field
+	await expect(async () => {
+		await page.locator('#phone').fill(phone.slice(3));
+		await expect(page.getByRole('button', { name: 'Continue', exact: true })).toBeEnabled({
+			timeout: 1_000
+		});
+	}).toPass();
 	const sentAt = Date.now() / 1000;
 	await page.locator('#phone').press('Enter');
 	await page.locator('#otp').fill(await otpFromLogs(phone.slice(-4), sentAt));
