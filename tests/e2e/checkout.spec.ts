@@ -38,8 +38,11 @@ test.describe('customer', () => {
 		await page.locator('a.card').first().click();
 		const size = page.locator('input[name="size"]:not([disabled])');
 		if (await size.count()) await size.first().check();
-		await page.getByRole('button', { name: 'Add to cart' }).click();
-		await expect(page.getByRole('dialog')).toBeVisible(); // opens once the cart is saved
+		// A click before the page hydrates does nothing, so retry; the drawer opens once the cart is saved
+		await expect(async () => {
+			await page.getByRole('button', { name: 'Add to cart' }).click();
+			await expect(page.getByRole('dialog')).toBeVisible({ timeout: 3_000 });
+		}).toPass();
 
 		await page.goto('/checkout');
 		const pincode = page.getByLabel('Pincode');
