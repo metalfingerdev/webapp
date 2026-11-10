@@ -1,6 +1,3 @@
-> Aggarwal Kart has no Playwright suite yet (`tests/e2e` and `pnpm test:e2e` are not set up here); the
-> Vitest parts below apply.
-
 # 09 – Testing
 
 Two layers, each for what it does best. Every test must be able to fail when the behaviour it
@@ -34,16 +31,12 @@ The suite creates accounts and changes data, so it only runs against a dev deplo
 
 1. The dev deployment needs the console OTP channel (never on staging or production):
    `npx convex env set OTP_CHANNELS console` and `npx convex env set OTP_ALLOW_CONSOLE true`.
-2. Add test accounts to `.env.local` (gitignored). Use numbers that belong to test accounts on the
-   dev deployment, never a real person's:
+2. Add the test customer to `.env.local` (gitignored). Use a number that is not a real person's,
+   in case dev is ever switched to real SMS:
 
    ```sh
    E2E_USER_PHONE=+91XXXXXXXXXX
-   E2E_ADMIN_PHONE=+91XXXXXXXXXX
    ```
-
-   The admin spec runs only when `admin: true` in `src/convex/auth.constants.ts`, and the admin
-   account must be an admin on dev (`ADMIN_USER_IDS`, see [02](./02-getting-started.md)).
 3. `pnpm exec playwright install chromium` fetches the matching Chromium if it isn't cached.
 
 ### Running
@@ -53,7 +46,19 @@ pnpm test:e2e                          # starts pnpm dev on :5173 unless it is a
 pnpm test:e2e tests/e2e/access.spec.ts # one file
 ```
 
-The `setup` project signs each account in once with phone OTP. The code is read from
-`npx convex logs`, since the console channel prints it there. The session is kept in
-`tests/e2e/.auth/<role>.json` and reused while it is valid. Specs without the account they need are
-skipped and say why.
+The `setup` project (`tests/e2e/auth.setup.ts`) signs the customer in once with phone OTP. The code
+is read from `npx convex logs`, since the console channel prints it there; a new account is given the
+name "Test Customer". The session is kept in `tests/e2e/.auth/customer.json` and reused while it is
+valid. Without `E2E_USER_PHONE` the customer specs are skipped and say why.
+
+`tests/e2e/checkout.spec.ts`, on a Pixel-sized Chromium:
+
+- signed out, `/checkout` goes to sign-in;
+- a customer sees "Access denied" on `/admin`, and an admin query called with the customer's own
+  token is refused by `requireAppAdmin` (the real guard, which Vitest replaces with a stand-in);
+- a cash on delivery order: an in-stock product into the cart, an address in Faridabad (121001) if
+  none is saved, the order page shows the same total as checkout, then the order is cancelled so its
+  stock goes back.
+
+Paying online is not covered: Razorpay's test checkout is their own window. The money rules behind
+it are in `src/convex/store/payments.test.ts`.
