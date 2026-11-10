@@ -154,3 +154,50 @@ describe('public catalogue', () => {
 		expect((await list('hidden')).page).toEqual([]);
 	});
 });
+
+describe('sitemap', () => {
+	it('lists visible pages only: no hidden product, category, school or set', async () => {
+		const { t, signedOut } = await seedCatalogue();
+		await t.run(async (ctx) => {
+			const shown = await ctx.db.insert('schools', {
+				name: 'Shown',
+				slug: 'shown',
+				isActive: true,
+				sortOrder: 1
+			});
+			const hidden = await ctx.db.insert('schools', {
+				name: 'Hidden',
+				slug: 'hidden',
+				isActive: false,
+				sortOrder: 2
+			});
+			for (const [schoolId, label, isActive] of [
+				[shown, 'Class 1', true],
+				[shown, 'Class 2', false],
+				[hidden, 'Class 1', true]
+			] as const)
+				await ctx.db.insert('schoolSets', {
+					schoolId,
+					type: 'books',
+					label,
+					classFrom: 1,
+					classTo: 1,
+					session: PLACEHOLDER_SESSION,
+					sortOrder: 1,
+					isActive
+				});
+		});
+		const paths = await signedOut.query(api.store.catalog.sitemapPaths, {});
+		expect(paths).toContain('/shop/books/visible-reader');
+		expect(paths).toContain('/schools/shown');
+		expect(paths.filter((p) => p.startsWith('/schools/shown/'))).toHaveLength(1);
+		for (const hiddenPath of [
+			'/shop/old',
+			'/shop/books/hidden-product-reader',
+			'/shop/old/hidden-category-reader',
+			'/schools/hidden'
+		])
+			expect(paths).not.toContain(hiddenPath);
+		expect(paths.some((p) => p.startsWith('/schools/hidden/'))).toBe(false);
+	});
+});

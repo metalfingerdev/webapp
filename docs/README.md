@@ -18,6 +18,7 @@ code came from the `@auth/svelte` jsrepo registry (see `jsrepo.config.ts`).
 | [Deployment checklist](./deployment.md) | What is left before real orders (payments, invoices, roles) |
 | [09 – Testing](./09-testing.md) | What Vitest and Playwright each test, running the e2e suite against dev |
 | [10 – UI](./10-ui.md) | The look (chapters, neumorphism, editorial type), nested CSS, and the photo slots |
+| [Launch checklist](./launch.md) | Taking the store from staging to aggarwalkart.in: decisions, accounts, env vars, DNS cutover, rollback |
 
 ## Stack
 
