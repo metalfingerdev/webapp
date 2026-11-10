@@ -12,7 +12,7 @@ import {
 	toProductDetail,
 	type ProductCard
 } from '../model/store/publicProjection.js';
-import { loadActiveSchool, loadSetProductIds } from '../model/store/schools.js';
+import { loadActiveSchool, loadCurrentSets, loadSetProductIds } from '../model/store/schools.js';
 import { PLACEHOLDER_SESSION } from '../model/store/storeProfile.js';
 
 const categoryNode = v.object({
@@ -191,5 +191,39 @@ export const getContact = query({
 			gstin: settings?.gstin,
 			currentSession: settings?.currentSession ?? PLACEHOLDER_SESSION
 		};
+	}
+});
+
+/** Most products the sitemap lists. Beyond this it needs a sitemap index (a launch-time concern). */
+const SITEMAP_PRODUCT_LIMIT = 2000;
+
+/**
+ * Deliberately public: the paths search engines may list, and nothing else. Only slugs and ids of
+ * visible categories, products, schools and the current session's sets: no prices, stock or
+ * anything about customers.
+ */
+export const sitemapPaths = query({
+	args: {},
+	returns: v.array(v.string()),
+	handler: async (ctx) => {
+		const categories = await loadActiveCategories(ctx);
+		const paths: string[] = [];
+		for (const category of categories.values()) paths.push(`/shop/${category.slug}`);
+		const products = await ctx.db
+			.query('products')
+			.withIndex('by_isActive', (q) => q.eq('isActive', true))
+			.take(SITEMAP_PRODUCT_LIMIT);
+		for (const product of products) {
+			const category = categories.get(product.categoryId);
+			if (category) paths.push(`/shop/${category.slug}/${product.slug}`);
+		}
+		const schools = await ctx.db.query('schools').withIndex('by_sortOrder').take(50);
+		for (const school of schools.filter((s) => s.isActive)) {
+			paths.push(`/schools/${school.slug}`);
+			for (const set of await loadCurrentSets(ctx, school._id)) {
+				paths.push(`/schools/${school.slug}/${set._id}`);
+			}
+		}
+		return paths;
 	}
 });

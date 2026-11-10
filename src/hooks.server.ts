@@ -4,6 +4,7 @@ import { building } from '$app/env';
 import { getSessionCookie } from 'better-auth/cookies';
 import { createRouteMatcher } from './lib/primitives/utils/routeMatcher.js';
 import { getToken } from '@mmailaender/convex-better-auth-svelte/sveltekit';
+import { legacyRedirect } from './lib/store/redirects.js';
 import { withServerConvexToken } from 'convex-svelte/sveltekit/server';
 
 /* --------------------------------------------------------- */
@@ -19,6 +20,7 @@ const isPublic = createRouteMatcher([
 	'/product-on-demand',
 	'/cart',
 	'/sitemap.xml',
+	'/robots.txt',
 	'/signin',
 	'/reset-password',
 	'/api/auth{/*rest}'
@@ -126,5 +128,18 @@ export const setTokenFromCookies: Handle = async ({ event, resolve }) => {
 /* ---------------------- exported hook -------------------- */
 /* --------------------------------------------------------- */
 
-export const handle = sequence(/* 1 */ requireAuth, /* 2 */ setTokenFromCookies);
+/** Old WooCommerce addresses go to their new homes with a permanent redirect. */
+export const redirectOldUrls: Handle = async ({ event, resolve }) => {
+	if (!building && (event.request.method === 'GET' || event.request.method === 'HEAD')) {
+		const to = legacyRedirect(event.url.pathname);
+		if (to) throw redirect(301, to);
+	}
+	return resolve(event);
+};
+
+export const handle = sequence(
+	/* 1 */ redirectOldUrls,
+	/* 2 */ requireAuth,
+	/* 3 */ setTokenFromCookies
+);
 export type { Handle };

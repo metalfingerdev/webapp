@@ -846,6 +846,8 @@ export const strings = {
 		another: 'Ask for another book'
 	},
 	policies: {
+		all: 'Policies',
+		updated: (date: string) => `Last updated ${date}`,
 		soon: 'This page is being prepared. It will be here before the store opens.',
 		list: [
 			{ slug: 'privacy', title: 'Privacy Policy' },
