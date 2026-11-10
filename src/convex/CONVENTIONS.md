@@ -14,7 +14,7 @@ Edit **this** file instead (it is not generated).
   files — `./_generated/server` without `.js` is wrong here.
 - Store functions live in `store/` (`store/admin/` for admin functions); shared, non-registered
   store helpers in `model/store/` (access guards, `adjustStock`, slugs and search text, class
-  numbers, placeholder business values). The old store's code is in `legacy/` until step 10.
+  numbers, placeholder business values). The old store's code is in `legacy/`, kept for good.
 - Convex tests are `*.test.ts`; store tests use the harness in `store/harness.testutils.ts`
   (a signed-out caller, two customers and an admin, as real Better Auth rows).
 

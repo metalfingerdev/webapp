@@ -5,11 +5,11 @@ Convex function is the security boundary.
 
 ## The guards
 
-| Guard                        | Who                    | Where                                                        |
-| ---------------------------- | ---------------------- | ------------------------------------------------------------ |
-| none, public projection only | anyone, signed out too | catalogue, sets, school pages, enquiry submit (rate limited) |
-| `requireCustomer(ctx)`       | any signed-in user     | cart, addresses, orders, payment start                       |
-| `requireAppAdmin(ctx)`       | admins                 | everything under `store/admin/*`                             |
+| Guard                        | Who                    | Where                                                                                                                   |
+| ---------------------------- | ---------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| none, public projection only | anyone, signed out too | catalogue, sets, school pages, guest cart pricing, enquiry submit (rate limited), payment `confirm` (signature checked) |
+| `requireCustomer(ctx)`       | any signed-in user     | cart, addresses, orders, payment start                                                                                  |
+| `requireAppAdmin(ctx)`       | admins                 | everything under `store/admin/*`                                                                                        |
 
 - Put the guards in `src/convex/model/store/access.ts`. `requireCustomer` wraps `authComponent.getAuthUser`;
   `requireAppAdmin` is re-exported from `src/convex/model/admin/index.ts`.
@@ -22,13 +22,13 @@ Convex function is the security boundary.
 
 ## What each role may see
 
-|                                | Public                                                   | Customer | Admin                     |
-| ------------------------------ | -------------------------------------------------------- | -------- | ------------------------- |
-| Active products, sets, schools | yes, no cost or exact stock                              | same     | all, including hidden     |
-| Stock                          | "In stock" or "Only a few left"                          | same     | exact, with the log       |
-| Own orders and addresses       | no                                                       | yes      | all orders                |
-| Other users' anything          | no                                                       | no       | orders and enquiries only |
-| Settings                       | public fields only (name, shipping fee, support contact) | same     | all                       |
+|                                | Public                                                    | Customer | Admin                     |
+| ------------------------------ | --------------------------------------------------------- | -------- | ------------------------- |
+| Active products, sets, schools | yes, no cost or exact stock                               | same     | all, including hidden     |
+| Stock                          | "In stock" or "Only a few left"                           | same     | exact, with the log       |
+| Own orders and addresses       | no                                                        | yes      | all orders                |
+| Other users' anything          | no                                                        | no       | orders and enquiries only |
+| Settings                       | public fields only (`getContact`: name, contact, session) | same     | all                       |
 
 ## `myRoles`
 
@@ -39,9 +39,10 @@ the admin half.
 ## Route gating
 
 - Public routes go in `isPublic` in `src/hooks.server.ts`: `/`, `/shop{/*rest}`, `/schools{/*rest}`,
-  `/product-on-demand`, policy pages, `/sitemap.xml`, `/signin`, `/api/auth{/*rest}`.
-- Everything else is private by default: `/cart` can stay public, `/checkout`, `/orders`, `/account`,
-  `/admin` are private. A private page opened by client-side navigation also calls `useRequireSignIn()`.
+  `/policies{/*rest}`, `/product-on-demand`, `/cart`, `/sitemap.xml`, `/robots.txt`, `/signin`,
+  `/reset-password`, `/api/auth{/*rest}`.
+- Everything else is private by default: `/checkout`, `/orders`, `/account`, `/admin`. A private page
+  opened by client-side navigation also calls `useRequireSignIn()`.
 - `/admin` checks `isAdmin` and shows "Access denied" to others.
 
 ## Tests worth having

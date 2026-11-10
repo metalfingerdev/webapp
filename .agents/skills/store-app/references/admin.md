@@ -4,22 +4,25 @@ For the owner and staff (app admins). Every function here calls `requireAppAdmin
 
 ## Routes
 
-| Route                                       | What                                                  |
-| ------------------------------------------- | ----------------------------------------------------- |
-| `/admin`                                    | Order board; the open/closed switch for taking orders |
-| `/admin/orders`, `/admin/orders/[number]`   | Search and one order                                  |
-| `/admin/products`, `/admin/products/import` | Catalogue, stock, CSV/XLSX import and export          |
-| `/admin/categories`                         | Add, rename, hide, reorder                            |
-| `/admin/schools`, `/admin/schools/[id]`     | Schools, their classes and sets, per session          |
-| `/admin/shipping`                           | Orders ready to ship; enter courier and AWB           |
-| `/admin/enquiries`                          | Product On Demand inbox                               |
-| `/admin/settings`                           | Business details, fees, windows, policies             |
-| `/admin/users`                              | The template's user dashboard (already there)         |
+| Route                                                            | What                                                          |
+| ---------------------------------------------------------------- | ------------------------------------------------------------- |
+| `/admin`                                                         | Live order board                                              |
+| `/admin/orders`, `/admin/orders/[number]`                        | Search and one order                                          |
+| `/admin/products`, `/admin/products/new`, `/admin/products/[id]` | Catalogue, one product with its sizes, stock and log          |
+| `/admin/products/import`                                         | CSV/XLSX import with a preview                                |
+| `/admin/schools`, `/admin/schools/[id]`                          | Schools and their sets, per session                           |
+| `/admin/schools/[id]/sets/[setId]`                               | One set's lines                                               |
+| `/admin/shipping`                                                | Packed orders; enter courier and AWB                          |
+| `/admin/enquiries`                                               | Product On Demand inbox                                       |
+| `/admin/settings`                                                | Shop details, "Taking orders", delivery zones, Razorpay check |
+| `/admin/users`                                                   | The template's user dashboard                                 |
+
+Categories have no screen yet: they come from the seed until the real list arrives.
 
 ## Live order board (`/admin`)
 
-Columns: Awaiting payment, Paid, Packed, Shipped. Cards show number, customer, total, age, and a warning
-for unpaid orders near their window. A reactive query, bounded to open orders. Actions go through
+Columns: Awaiting payment, To pack, Packed, and the latest 50 Shipped, with today's orders and revenue
+(IST, computed on the client). A reactive query, bounded to open orders. Actions go through
 `transitionOrder`.
 
 ## Stock and products
@@ -29,21 +32,23 @@ for unpaid orders near their window. A reactive query, bounded to open orders. A
   through `adjustStock`. A count sets stock to _count minus what open orders hold_, and is refused if the
   stock moved since it was shown.
 - Low stock and out of stock filters.
-- **Import** ports `src/lib/products/import.ts` (the stock-sheet parser) behind one planner used by both
-  the preview and the apply, which is all or nothing. A blank cell keeps the value. The stock column has a
+- **Import** (ported from `legacy/src/lib/products/import.ts`) runs one planner
+  (`model/store/importPlan.ts`) for both the preview and the apply; the apply is refused if the plan
+  changed since the preview. A blank cell keeps the value. The stock column has a
   mode: leave alone (default), add as received, or set to a counted number.
 
 ## Schools and sets
 
-- Add a school, then its classes for a session, then the set's lines (pick products, quantity, optional).
+- Add a school, then its sets for a session, then each set's lines (pick products, quantity).
 - **Copy to next session**: duplicate a school's sets into the new session, then edit what changed.
-- A set that has no lines or an inactive book is flagged so it isn't published half-empty.
+- Publishing is refused for a set with no lines or with hidden lines, so it isn't shown half-empty.
 - Changing a set never changes past orders (they snapshot).
 
 ## Orders (`/admin/orders`)
 
 Search by number, phone or name; filter by status. One page shows items, address, payment, shipment
-and the full history. Cancel (with refund if paid), mark packed, print the packing slip.
+and the full history. Cancel (with refund if paid online), mark packed, print the packing slip and
+invoice, answer a return request (the refund itself is done by hand for now).
 
 ## Shipping
 
@@ -51,9 +56,11 @@ See `shipping.md`.
 
 ## Settings (`/admin/settings`)
 
-Business and legal name, phone, WhatsApp, email, address, GSTIN, invoice prefix, shipping fees and free
-threshold, payment window, return window, `placedOrdersOpen`. Values are validated and the public subset
-is what customers see. Nothing here is committed to the repo.
+Business and legal name, phone, WhatsApp, email, address, GSTIN, invoice prefix, return window,
+current session, and the "Taking orders" switch (`placedOrdersOpen`). Delivery fees, thresholds,
+estimates and pincodes live on the delivery zones, edited on the same page. The payment window is a code
+constant. Values are format-checked and the public subset is what customers see. Nothing here is
+committed to the repo.
 
 ## "Today" and the clock
 

@@ -1,6 +1,6 @@
 # Aggarwalkart — Overview
 
-> **This describes the old store**, which is being rebuilt step by step (`.agents/skills/store-app/references/store-profile.md` → Roadmap). Kept for reference until step 10.
+> **This describes the old store**, which is being rebuilt step by step (`.agents/skills/store-app/references/store-profile.md` → Roadmap). Kept for reference; the code is in `legacy/`.
 
 A short, general map of what this app is and how the pieces fit together. Start
 here, then dive into the code or [deployment.md](./deployment.md) for going live.
