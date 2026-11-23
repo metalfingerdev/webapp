@@ -26,10 +26,12 @@ describe('getChannelOrder', () => {
 });
 
 describe('renderOtpSms', () => {
-	// The text has to match the DLT template exactly, with the code as the leading variable
-	it('starts with the code and names the app', () => {
+	// Airtel drops P2P texts that open with the code or use OTP wording, so the code sits mid-sentence
+	it('puts the code mid-sentence, names the app and avoids OTP wording', () => {
 		const text = renderOtpSms('123456');
-		expect(text.startsWith('123456 is your ')).toBe(true);
+		expect(text).toContain(' 123456 ');
+		expect(text.startsWith('123456')).toBe(false);
+		expect(text).not.toMatch(/otp|code|do not share/i);
 		expect(text).toContain(AUTH_CONSTANTS.brandName ?? 'My App');
 	});
 });
